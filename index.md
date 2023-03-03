@@ -1,5 +1,5 @@
-# Távközlés
+# Távközlési Technikus
 
 ## Tananyagok:
 
-- Soros RC kapcsolás: [link](https://sandorpeteer/tavkozles/soros_RC.pdf)
+- Soros RC kapcsolás: [mindent a soros RC-ről](https://sandorpeteer/tavkozles/soros_rc.pdf)
