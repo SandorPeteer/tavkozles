@@ -2,4 +2,4 @@
 
 ## Tananyagok:
 
-- Soros RC kapcsolás: [mindent a soros RC-ről](https://sandorpeteer/tavkozles/soros_rc.pdf)
+- Soros RC kapcsolás: [mindent a soros RC-ről](https://sandorpeteer.github.io/tavkozles/soros_rc.pdf)
