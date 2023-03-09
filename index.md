@@ -1,6 +1,6 @@
 # Távközlési Technikus
 
-### A szakma iránti érdeklődésem kezdete 3 éves koromban kezdődött! 
+### A szakma iránti érdeklődésem 3 éves koromban kezdődött! 
 ![3 évesen](https://sandorpeteer.github.io/tavkozles/Peti3evesen.jpg)
 
 ## Tananyagok:
