@@ -6,3 +6,6 @@
 ## Tananyagok:
 
 - Soros RC kapcsolás: [mindent a soros RC-ről](https://sandorpeteer.github.io/tavkozles/soros_rc.pdf)
+- Soros RL kapcsolás: [mindent a soros RL-ről](https://sandorpeteer.github.io/tavkozles/soros_rl.pdf)
+- Soros RLC kapcsolás: [mindent a soros RLC-ről](https://sandorpeteer.github.io/tavkozles/soros_rlc.pdf)
+
