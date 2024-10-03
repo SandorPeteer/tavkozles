@@ -58,11 +58,11 @@ A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digi
 
 ### 4. **Mérési eredmények**
 
-- **Jelerősség**: A mért jelerősség [**64 dBu**]. Ez az érték stabil volt [**200 sec időtartam alatt**], és megfelel a DVB-T előírásoknak. A mérési helyen a jel optimális volt.  
+- **Jelerősség**: A mért jelerősség **64 dBu**. Ez az érték stabil volt **200 másodperces időtartam alatt**, és megfelel a DVB-T előírásoknak. A mérési helyen a jel optimális volt.  
   
-- **Modulációs paraméterek**: A [**64-QAM**] moduláció esetén a mért jel/zaj viszony (SNR) [**12 dB**], ami megfelel a követelményeknek.  
+- **Modulációs paraméterek**: A **64-QAM** moduláció esetén a mért jel/zaj viszony (SNR) **12 dB** körül váltakozott, ami megfelel a követelményeknek.  
 
-- **Modulation Error Ratio (MER)**: A mért MER érték [**28.2 dB**] volt, amely azt mutatja, hogy a vétel [**hibamentes**] volt.  
+- **Modulation Error Ratio (MER)**: A mért MER érték **28.2 dB** volt, amely azt mutatja, hogy a vétel **probléma mentes** volt.  
 
 ### 5. **Elemzés**
 
@@ -81,7 +81,5 @@ Ha szükséges, meg kell vizsgálni az antennarendszer fejlesztésének lehetős
 ---
 
 **Aláírás**:  
-Felelős mérő személy: Sándor Péter  
-Dátum: 2024.10.03.  
-
----
+Felelős mérő személy: ..............................  
+Dátum: .............................................
