@@ -1,6 +1,3 @@
-# Távközlési Technikus   
-
-
 ## JEGYZŐKÖNYVEK   
 
 [DVB-T mérés 2024.10.03.](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
