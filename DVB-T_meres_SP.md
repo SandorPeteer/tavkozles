@@ -16,7 +16,7 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 ### 2. **Mérési helyszín és környezet**
 
 - **Koordináták**: 48°06'20"N 20°46'48"E
-- **Antenna típusa**: SMART HD 550 szobaantenna
+- **Antenna típusa**: [SMART HD 550 szobaantenna](https://bolt.sat.hu/opticum-smart-hd-550-szobaantenna-3135?srsltid=AfmBOoq5nEHH0aM1MYhOp06UG-G1v6voMY-3hBfHwIylpXZsaC2rHt3o)  
 - **Antenna magassága**: 1.7 m
 - **Környezet jellemzői**: V3 labor, városi körülmények között  
 - **Adó távolsága**: 780,08 m
