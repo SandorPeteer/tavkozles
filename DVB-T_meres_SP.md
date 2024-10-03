@@ -19,6 +19,7 @@ A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digi
 - **Antenna magassága**: 1.7 m
 - **Környezet jellemzői**: V3 labor, városi körülmények között  
 - **Adó távolsága**: 780,08 m
+  
 
 ### 3. **Mérési paraméterek**
 
