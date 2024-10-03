@@ -51,7 +51,7 @@ A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digi
 ![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0003.bmp)
 
 - **A CH45 -ös csatornán a DUNATV HD műsora:**
-![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0003.bmp)
+![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0005.bmp)
 
 ### 4. **Mérési eredmények**
 
