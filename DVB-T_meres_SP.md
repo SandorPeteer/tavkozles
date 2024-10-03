@@ -37,7 +37,7 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 | Hiba nélkül vett adás időtartama | 200 sec |
 
 
-### A jelszintmérővel igazolt mérési eredemények:  
+## A jelszintmérővel igazolt mérési eredemények:  
 
 - **A Miskolci TV adótorony által sugárzott frekvenciák:**  
 ![Miskolci TV adások](https://sandorpeteer.github.io/tavkozles/img/miskolciTV.png)
