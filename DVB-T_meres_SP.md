@@ -32,12 +32,14 @@ A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digi
 | Noise Margin         | [12.0] |
 | Hiba nélkül vett adás időtartama | [200 sec] |
 
-** A jelszintmérővel igazolt mérési eredemények: **
+***A jelszintmérővel igazolt mérési eredemények:***
 
+- 	A Miskolci TV adótorony által sugárzott frekvenciák
 > ![Miskolci TV adások](https://sandorpeteer.github.io/tavkozles/img/miskolciTV.png)
-	A Miskolci TV adótorony által sugárzott frekvenciák
+
+- 	A CH45 -ös csatornán mért spektrum
 > ![CH45](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bmp)
-	A CH45 -ös csatornán mért spektrum
+
 > ![NOISE MARGIN](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0002.bmp)
 	A CH45 -ös csatornán mért jelerősség, jel/zaj viszony, és bithibák
 > ![CONSTELLATION](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0004.bmp)
