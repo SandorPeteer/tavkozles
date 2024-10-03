@@ -78,7 +78,7 @@ Ha szükséges, meg kell vizsgálni az antennarendszer fejlesztésének lehetős
 ---
 
 **Aláírás**:  
-Felelős mérő személy: Sándor Péter
-Dátum: 2024.10.03.
+Felelős mérő személy: Sándor Péter  
+Dátum: 2024.10.03.  
 
 ---
