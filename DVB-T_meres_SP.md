@@ -10,7 +10,7 @@
 
 ### 1. **Bevezetés**
 
-A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digitális műsorszórás során. A mérési pont a [helyszín neve], ahol a DVB-T adások vételének minőségét értékeljük.
+A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digitális műsorszórás során. A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét értékeljük.
 
 ### 2. **Mérési helyszín és környezet**
 
