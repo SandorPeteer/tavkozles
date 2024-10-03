@@ -1,20 +1,18 @@
-# Távközlési Technikus
+# Távközlési Technikus   
 
-## JEGYZŐKÖNYV
+
+## JEGYZŐKÖNYVEK   
+
 [DVB-T mérés 2024.10.03.](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
-
----
-
-## OPTIKAI ADATÁTVITEL
-[OPTIKAI ADATÁTVITEL DOKUMENTÁCIÓ](https://docs.google.com/document/d/1dnqqqghsqOKc_PRbdLQtqtarTR4-t_Bkibqxh3Sk_7Y/edit?usp=sharing)  
 
 ---
 
 ## Tananyagok:
 
-- Soros RC kapcsolás: [mindent a soros RC-ről](https://sandorpeteer.github.io/tavkozles/soros_rc.pdf)
-- Soros RL kapcsolás: [mindent a soros RL-ről](https://sandorpeteer.github.io/tavkozles/soros_rl.pdf)
-- Soros RLC kapcsolás: [mindent a soros RLC-ről](https://sandorpeteer.github.io/tavkozles/soros_rlc.pdf)
+- Soros RC kapcsolás: [mindent a soros RC-ről](https://sandorpeteer.github.io/tavkozles/soros_rc.pdf)   
+- Soros RL kapcsolás: [mindent a soros RL-ről](https://sandorpeteer.github.io/tavkozles/soros_rl.pdf)   
+- Soros RLC kapcsolás: [mindent a soros RLC-ről](https://sandorpeteer.github.io/tavkozles/soros_rlc.pdf)   
+- [OPTIKAI ADATÁTVITEL DOKUMENTÁCIÓ](https://docs.google.com/document/d/1dnqqqghsqOKc_PRbdLQtqtarTR4-t_Bkibqxh3Sk_7Y/edit?usp=sharing)  
 
 ---
 
