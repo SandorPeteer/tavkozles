@@ -20,7 +20,7 @@ A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digi
 - **Környezet jellemzői**: V3 labor, városi körülmények között  
 - **Adó távolsága**: 780,08 m
 
-## ADÓTORONY:
+## ADÓTORONY - VÉTELI HELY távolság:
 ![TVtorony](https://sandorpeteer.github.io/tavkozles/img/map.png)
 
 ### 3. **Mérési paraméterek**
