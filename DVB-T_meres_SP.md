@@ -33,21 +33,21 @@ A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digi
 | Hiba nélkül vett adás időtartama | [200 sec] |
 
 
-**A jelszintmérővel igazolt mérési eredemények:**
+### A jelszintmérővel igazolt mérési eredemények:
 
-- 	*A Miskolci TV adótorony által sugárzott frekvenciák*
+- 	**A Miskolci TV adótorony által sugárzott frekvenciák**
 ![Miskolci TV adások](https://sandorpeteer.github.io/tavkozles/img/miskolciTV.png)
 
-- 	*A CH45 -ös csatornán mért spektrum*
+- 	**A CH45 -ös csatornán mért spektrum**
 ![CH45](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bmp)
 
-- 	*A CH45 -ös csatornán mért jelerősség, jel/zaj viszony, és bithibák*
+- 	**A CH45 -ös csatornán mért jelerősség, jel/zaj viszony, és bithibák*
 ![NOISE MARGIN](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0002.bmp)
 
--	*A CH45 -ös csatorna konstellációs diagramja*
+-	  **A CH45 -ös csatorna konstellációs diagramja**
 ![CONSTELLATION](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0004.bmp)
 
-- 	*A CH45 -ös csatornán a DUNATV HD műsora*
+- 	**A CH45 -ös csatornán a DUNATV HD műsora**
 ![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0003.bmp)
 
 ### 4. **Mérési eredmények**
