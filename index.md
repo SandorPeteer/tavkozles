@@ -1,10 +1,10 @@
 # Távközlési Technikus
 
-## JEGYZŐKÖNYV:
-[KATT](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)
+## JEGYZŐKÖNYV
+[DVB-T mérés 2024.10.03.](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
 
-##OPTIKAI ADATÁTVITEL
-[link](https://docs.google.com/document/d/1dnqqqghsqOKc_PRbdLQtqtarTR4-t_Bkibqxh3Sk_7Y/edit?usp=sharing)
+## OPTIKAI ADATÁTVITEL
+[OTIKAI ADATÁTVITEL DOKUMENTÁCIÓ](https://docs.google.com/document/d/1dnqqqghsqOKc_PRbdLQtqtarTR4-t_Bkibqxh3Sk_7Y/edit?usp=sharing)
 
 ### A szakma iránti érdeklődésem 3 éves koromban kezdődött! 
 ![3 évesen](https://sandorpeteer.github.io/tavkozles/Peti3evesen.jpg)
