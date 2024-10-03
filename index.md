@@ -1,7 +1,7 @@
 # Távközlés 2024  
 
 ## JEGYZŐKÖNYVEK   
-
+[DVB-T mérés minta](https://sandorpeteer.github.io/tavkozles/dvb-t_minta)  
 [DVB-T mérés 2024.10.03.](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
 
 ---
