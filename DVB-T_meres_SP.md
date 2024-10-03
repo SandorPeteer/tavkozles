@@ -1,9 +1,9 @@
 ## DVB-T MÉRÉSI JEGYZŐKÖNYV
 
-**Mérés helye**: [MSZC Miskolci Kandó Kálmán Informatikai Technikum]  
-**Mérés időpontja**: [2024.10.03.]  
-**Mérő műszerek**: [METEK HD - SV:1.17.2002 - SN: 2109010000052]  
-**Felelős személy**: [Sándor Péter]  
+**Mérés helye**: MSZC Miskolci Kandó Kálmán Informatikai Technikum  
+**Mérés időpontja**: 2024.10.03. 
+**Mérő műszerek**: METEK HD - SV:1.17.2002 - SN: 2109010000052
+**Felelős személy**: Sándor Péter
 **Cél**: A DVB-T jel minőségi paramétereinek mérése.
 
 ---
@@ -14,11 +14,10 @@ A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digi
 
 ### 2. **Mérési helyszín és környezet**
 
-- **Koordináták**: [Földrajzi koordináták: 48°06'20"N 20°46'48"E]  
-- **Antenna magassága**: [Magasság méterben: 1.7 m]  
-- **Környezet jellemzői**: (V3 laborban, városi körülmények között)  
-- **Adó távolsága**: [780,08 m]  
-- **Adó frekvenciája**: [666 MHz]
+- **Koordináták**: 48°06'20"N 20°46'48"E
+- **Antenna magassága**: 1.7 m
+- **Környezet jellemzői**: V3 labor, városi körülmények között  
+- **Adó távolsága**: 780,08 m
 
 ### 3. **Mérési paraméterek**
 
