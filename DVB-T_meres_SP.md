@@ -36,37 +36,37 @@ A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digi
 | Hiba nélkül vett adás időtartama | [200 sec] |
 
 
-### A jelszintmérővel igazolt mérési eredemények:
+### A jelszintmérővel igazolt mérési eredemények:  
 
-- **A Miskolci TV adótorony által sugárzott frekvenciák:**
+- **A Miskolci TV adótorony által sugárzott frekvenciák:**  
 ![Miskolci TV adások](https://sandorpeteer.github.io/tavkozles/img/miskolciTV.png)
 
-- **A CH45 -ös csatornán mért spektrum:**
+- **A CH45 -ös csatornán mért spektrum:**  
 ![CH45](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bmp)
 
-- **A CH45 -ös csatornán mért jelerősség, jel/zaj viszony, és bithibák:**
+- **A CH45 -ös csatornán mért jelerősség, jel/zaj viszony, és bithibák:**  
 ![NOISE MARGIN](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0002.bmp)
 
-- **A CH45 -ös csatorna konstellációs diagramja:**
+- **A CH45 -ös csatorna konstellációs diagramja:**  
 ![CONSTELLATION](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0004.bmp)
 
-- **A CH45 -ös csatornán a DUNATV HD jelszint és TV adás:**
+- **A CH45 -ös csatornán a DUNATV HD jelszint és TV adás:**  
 ![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0003.bmp)
 
-- **A CH45 -ös csatornán a DUNATV HD műsora:**
+- **A CH45 -ös csatornán a DUNATV HD műsora:**  
 ![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0005.bmp)
 
 ### 4. **Mérési eredmények**
 
-- **Jelerősség**: A mért jelerősség [**64 dBu**]. Ez az érték stabil volt [**200 sec időtartam alatt**], és megfelel a DVB-T előírásoknak. A mérési helyen a jel optimális volt.
+- **Jelerősség**: A mért jelerősség [**64 dBu**]. Ez az érték stabil volt [**200 sec időtartam alatt**], és megfelel a DVB-T előírásoknak. A mérési helyen a jel optimális volt.  
   
-- **Modulációs paraméterek**: A [**64-QAM**] moduláció esetén a mért jel/zaj viszony (SNR) [**12 dB**], ami megfelel a követelményeknek.
+- **Modulációs paraméterek**: A [**64-QAM**] moduláció esetén a mért jel/zaj viszony (SNR) [**12 dB**], ami megfelel a követelményeknek.  
 
-- **Modulation Error Ratio (MER)**: A mért MER érték [**28.2 dB**] volt, amely azt mutatja, hogy a vétel [**hibamentes**] volt.
+- **Modulation Error Ratio (MER)**: A mért MER érték [**28.2 dB**] volt, amely azt mutatja, hogy a vétel [**hibamentes**] volt.  
 
 ### 5. **Elemzés**
 
-Az eredmények alapján a mérési helyen megfelelő minőségű DVB-T vétel biztosítható. A jelerősség és SNR értékek a megadott határértékek között mozogtak. A MER alacsony, és nem okozott észlelhető minőségromlást a vételben. A moduláció stabil volt, és nem voltak nagyobb interferenciák a mérések során.
+Az eredmények alapján a mérési helyen megfelelő minőségű DVB-T vétel biztosítható. A jelerősség és SNR értékek a megadott határértékek között mozogtak. A MER alacsony, és nem okozott észlelhető minőségromlást a vételben. A moduláció stabil volt, és nem voltak nagyobb interferenciák a mérések során.  
 
 ### 6. **Következtetések**
 
