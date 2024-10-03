@@ -1,5 +1,3 @@
----
-
 ## DVB-T MÉRÉSI JEGYZŐKÖNYV
 
 **Mérés helye**: [MSZC Miskolci Kandó Kálmán Informatikai Technikum]  
@@ -33,6 +31,10 @@ A mérés célja a DVB-T jel paramétereinek ellenőrzése a földfelszíni digi
 | MER                  | [29.0 dB] |
 | Noise Margin         | [12.0] |
 | Hiba nélkül vett adás időtartama | [200 sec] |
+
+*** A jelszintmérővel igazolt mérési eredemények: ***
+> A CH45 -ös csatornán mért spektrum kép:
+	![CH45](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bmp)
 
 ### 4. **Mérési eredmények**
 
