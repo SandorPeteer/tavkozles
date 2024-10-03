@@ -34,10 +34,10 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 | Jelerősség (RSSI)    | 63.8 dBu |
 | MER                  | 29.0 dB |
 | Noise Margin         | 12.0 |
-| Hiba nélkül vett adás időtartama | 200 sec |
+| Hiba nélkül vett adás időtartama | 200 sec |   
 
 
-## A jelszintmérővel igazolt mérési eredemények:  
+> A jelszintmérővel igazolt mérési eredemények:  
 
 - **A Miskolci TV adótorony által sugárzott frekvenciák:**  
 ![Miskolci TV adások](https://sandorpeteer.github.io/tavkozles/img/miskolciTV.png)
@@ -73,7 +73,7 @@ Az eredmények alapján a mérési helyen megfelelő minőségű DVB-T vétel bi
 
 - A mérési helyen a DVB-T jel stabil és megfelelő minőségű.  
 - A rendszer modulációs és vételi paraméterei kielégítik a DVB-T előírásokat.  
-- A jel/zaj viszony és a jelkésleltetés értékei optimálisak voltak a földfelszíni sugárzáshoz.  
+- A jel/zaj viszony és a jelminőség értékei optimálisak voltak a földfelszíni sugárzás vételéhez.  
 
 ### 7. **Javaslatok**
 
