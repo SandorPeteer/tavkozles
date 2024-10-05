@@ -11,8 +11,9 @@
         }
         .circuit {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+            flex-direction: column;
             margin: 20px 0;
         }
         .resistor {
@@ -32,6 +33,7 @@
         .horizontal {
             display: flex;
             align-items: center;
+            margin: 10px 0;
         }
         h1, h2, h3 {
             color: #333;
@@ -58,16 +60,21 @@
 
 <div class="circuit">
     <div>A</div>
-    <div class="line"></div>
-    <div class="resistor">R1 = 1kΩ</div>
-    <div class="line"></div>
+    <div class="horizontal">
+        <div class="line"></div>
+        <div class="resistor">R1 = 1kΩ</div>
+        <div class="line"></div>
+    </div>
     <div class="horizontal">
         <div class="line"></div>
         <div class="resistor">R2 = 2.2kΩ</div>
         <div class="line"></div>
     </div>
-    <div class="line"></div>
-    <div class="resistor">R3 = 4.7kΩ</div>
+    <div class="horizontal">
+        <div class="line"></div>
+        <div class="resistor">R3 = 4.7kΩ</div>
+        <div class="line"></div>
+    </div>
     <div class="line"></div>
     <div>D</div>
     <div class="line"></div>
