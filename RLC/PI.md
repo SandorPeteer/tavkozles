@@ -6,8 +6,8 @@ A PI ellenállás-hálózat jellemzőinek meghatározása a megadott ellenállá
 ## Eszközök
 - Multiméter
 - Ellenállások: 
-  > R3 = 150 Ω
-  > R4 = 36 Ω
+  > R3 = 150 Ω   
+  > R4 = 36 Ω   
 - Breadboard
 - Jelgenerátor
 - Oszcilloszkóp
