@@ -1,28 +1,32 @@
-# Mérési feladat: Vegyesen kapcsolt ellenállás hálózat (Pí-tag)
+# Méréstechnikai Feladat: PI Ellenállás-hálózat
 
-## Feladat leírása:
-Mérd meg az alábbi Pí-tag ellenállás hálózat teljes ellenállását különböző bemeneti és kimeneti terminálok között! 
-Számítsd ki az egyes ellenállások feszültségosztó arányát, és hasonlítsd össze a mért és számított értékeket!
+## Feladat Célja
+A PI ellenállás-hálózat jellemzőinek meghatározása a megadott ellenállásértékek alapján.
 
-## Mérési cél:
-- Határozd meg a Pí-tag különböző részeinek hatását az összegzett ellenállásra.
-- Vizsgáld meg a hálózat feszültségosztó tulajdonságait.
+## Eszközök
+- Multiméter
+- Ellenállások: 
+  - R3 = 150 Ω
+  - R4 = 36 Ω
+- Áramkör építéséhez szükséges vezetékek
+- Sütőpapír vagy hasonló a biztonságos munkához
 
-## Kapcsolási rajz (Pí-tag):
-![Pí-tag kapcsolási rajz](https://www.electronics-notes.com/images/attenuator-resistive-pi-section-pad.svg)
+## Ábra
+![PI Ellenállás-hálózat](https://www.electronics-notes.com/images/attenuator-resistive-pi-section-pad.svg)
 
-## Mérési feladatok:
-1. **Teljes ellenállás mérése:**
-   - Mérd meg az összesített ellenállást az `A` és `C` pontok között!
-   - Mérd meg az ellenállást a `B` és `D` pontok között!
-   
-2. **Feszültségosztó:**
-   - Alkalmazz egy 10V-os feszültséget az `A` és `C` pontokra, majd mérd meg a feszültséget a `B` ponton!
-   - Számítsd ki a feszültségosztó arányt a hálózaton, és hasonlítsd össze a mért feszültséggel!
+## Feladatleírás
+1. **Kapcsolja be az áramkört** a PI ellenállás-hálózat felépítésével a megadott R3 és R4 értékekkel.
+2. **Mérje meg** a következő paramétereket:
+   - Az áramkör bemeneti impedanciáját.
+   - Az áramkör kimeneti impedanciáját.
+   - Az áramkör átviteli arányát.
+3. **Dokumentálja** az eredményeket, és hasonlítsa össze az elméleti számításokkal.
+4. **Határozza meg**, hogy az ellenállások változása hogyan befolyásolja az áramkör teljesítményét.
 
-## Számítási feladat:
-Számold ki a Pí-tag hálózat helyettesítő ellenállását, majd hasonlítsd össze a mért értékekkel.
+## Elméleti Háttér
+A PI ellenállás-hálózat egy egyszerű, de hatékony módja az impedancia illesztésének és a jel csillapításának. Az R3 és R4 ellenállások közötti viszonyok meghatározzák a hálózat teljesítményét és a kimeneti jelet.
 
-### További lépések:
-1. Ellenőrizd a mérési eredmények pontosságát!
-2. Vizsgáld meg, hogyan változik a feszültségosztó, ha az ellenállások értékei módosulnak!
+## Megjegyzések
+- Győződjön meg róla, hogy az összes mérést pontosan végezze el.
+- Ügyeljen a biztonsági előírások betartására.
+
