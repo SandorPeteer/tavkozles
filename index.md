@@ -8,8 +8,10 @@
 ## GYAKORLATI FELADATOK:   
 
 ### Johansson 8202 modulátor:   
-> [Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat)  
-> [Jegyzőkönyv minta](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)  
+> [01. Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat)
+> [02. Mérési feladat]()
+> [Jegyzőkönyv minta](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)
+
 
 
 
