@@ -6,8 +6,8 @@ A T ellenállás-hálózat jellemzőinek meghatározása a megadott ellenállás
 ## Eszközök
 - Multiméter
 - Ellenállások:
-  - R1 = 150 Ω
-  - R2 = 36 Ω
+  - R1 = 170 Ω
+  - R2 = 680 Ω
 - Breadboard
 - Jelgenerátor
 - Oszcilloszkóp
