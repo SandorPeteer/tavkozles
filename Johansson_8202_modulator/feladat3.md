@@ -22,6 +22,7 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
      - **Sávszélesség:** 8 MHz
      - **Jelszint:** 65 dBm
    - A modulátor beállításai állandóak maradnak az egész mérés során, csak az antenna típusát változtatják.
+   - A vételi oldalon egy szobaantenna segítségével vizsgálják a jelátvitelt.
 
 ### 2. Jelátvitel és mérés a SMART HD 550 antennával
    - Csatlakoztassák a SMART HD 550 antennát a DVB-T modulátorhoz.
