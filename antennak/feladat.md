@@ -1,4 +1,5 @@
-# Mérési Feladat – Antennák nyereségének összehasonlítása három vételi ponton
+# Mérési Feladat – Antennák nyereségének összehasonlítása három vételi ponton   
+Ez a feladat lehetőséget biztosít arra, hogy a hallgatók gyakorlati méréseken keresztül tapasztalják meg, hogyan befolyásolja az antenna típusa a jelminőséget és a nyereséget különböző környezetekben.
 
 ## Cél
 A hallgatók mérjék meg és hasonlítsák össze a SMART HD 550, ISKRA P20 LOGPER és IKUSI FLASHD C48 antennák nyereségét három különböző vételi ponton. A mérések során a METEK HD spektrum/jelszint analizátor segítségével mérjék a jelszintet, majd értékeljék az antennák teljesítményét.
