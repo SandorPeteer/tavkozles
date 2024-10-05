@@ -1,4 +1,7 @@
 # Mérési Jegyzőkönyv – Johansson 8202 DVB-T modulátor
+Ez a jegyzőkönyv bemutatja a mérések eredményeit, az értékelést és következtetéseket a különböző modulációs típusok összehasonlításával. Az aláírási rész biztosítja a hitelesítést, és a jegyzőkönyv szerkezete könnyen áttekinthető.   
+
+---    
 
 **Mérés helye:** Laboratórium A2  
 **Dátum:** 2024. október 5.  
