@@ -1,4 +1,5 @@
-# Mérési Feladat – Johansson 8202 DVB-T modulátor és három különböző antenna használata
+# Mérési Feladat – Johansson 8202 DVB-T modulátor és három különböző antenna használata   
+Ez a mérési feladat lehetővé teszi a hallgatók számára, hogy megismerjék és összehasonlítsák három különböző antenna teljesítményét ugyanazon jel sugárzásával. A jegyzőkönyv segítségével dokumentálhatják az eredményeket és levonhatják a következtetéseket.
 
 ## Cél
 A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a sugárzott DVB-T jel minőségét a Johansson 8202 DVB-T modulátorral. A SMART HD 550, ISKRA P20 LOGPER és IKUSI FLASHD C48 antennákat használva a jelminőség és jelszint értékek változását vizsgálják különböző körülmények között.
