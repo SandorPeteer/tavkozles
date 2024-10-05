@@ -7,7 +7,8 @@
 ## GYAKORLATI FELADATOK:   
 
 ### Csillapító tag mérése:   
-> [PI Mérési feladat](https://sandorpeteer.github.io/tavkozles/RLC/PI)   
+> [T Mérési feladat](https://sandorpeteer.github.io/tavkozles/RLC/T)   
+> [TT Mérési feladat](https://sandorpeteer.github.io/tavkozles/RLC/PI)   
 
 ### DVB-T vételi jelszint vizsgálata különböző antenna típusokkal:   
 > [01. Mérési feladat](https://sandorpeteer.github.io/tavkozles/antennak/feladat)   
