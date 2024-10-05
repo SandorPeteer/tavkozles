@@ -13,7 +13,7 @@ A T ellenállás-hálózat jellemzőinek meghatározása a megadott ellenállás
 - Oszcilloszkóp
 
 ## Ábra
-![T Ellenállás-hálózat](https://www.electronics-notes.com/images/attenuator-resistive-pi-section-pad.svg)
+![T Ellenállás-hálózat](https://www.electronics-notes.com/images/attenuator-resistive-t-section-pad.svg)
 
 ## Feladatleírás
 1. **Kapcsolják be az áramkört** a T ellenállás-hálózat felépítésével a megadott R1 és R2 értékekkel a breadboard-on.
