@@ -10,9 +10,11 @@
 ### Johansson 8202 modulátor:   
 > [01. Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat)   
 > [02. Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat2)   
+> [02. Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat2)   
 > [Jegyzőkönyv minta](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)   
 
-
+### DVB-T vételi jelszint vizsgálata különböző antenna típusokkal:   
+> [01. Mérési feladat](https://sandorpeteer.github.io/tavkozles/antennak/feladat)   
 
 
 ---   
