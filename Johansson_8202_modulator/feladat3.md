@@ -8,6 +8,7 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
 - SMART HD 550 antenna
 - ISKRA P20 LOGPER antenna
 - IKUSI FLASHD C48 antenna
+- Szobaantenna (aktív vagy passziv)
 - RF kábel
 - DVB-T vevő (pl. TV vagy mérőműszer)
 - METEK HD spektrum/jelszint analizátor
