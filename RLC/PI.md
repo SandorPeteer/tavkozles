@@ -9,7 +9,7 @@ Számítsd ki az egyes ellenállások feszültségosztó arányát, és hasonlí
 - Vizsgáld meg a hálózat feszültségosztó tulajdonságait.
 
 ## Kapcsolási rajz (Pí-tag):
-![Pí-tag kapcsolási rajz](https://upload.wikimedia.org/wikipedia/commons/4/4e/Two-port_network_Pi_configuration.svg)
+![Pí-tag kapcsolási rajz](https://www.electronics-notes.com/images/attenuator-resistive-pi-section-pad.svg)
 
 ## Mérési feladatok:
 1. **Teljes ellenállás mérése:**
