@@ -45,10 +45,10 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
 
 ### 5. Mérés ismétlése egy másik szabad frekvencián   
    - Ismételje meg a méréseket mindegyik antennatípussal egy másik szabad csatornán.
-   - Az adó oldali frekvencia térjen el legalább 100MHz-el az előző mérésekhez képest.
+   - Az adóoldali csatorna térjen el legalább 80-100MHz frekvenciával az előző mérésekhez képest.
 
 
-### 5. Jegyzőkönyv készítése
+### 6. Jegyzőkönyv készítése
    - Készítsenek jegyzőkönyvet a mérési eredmények alapján, amely tartalmazza a következő paramétereket minden antennára vonatkozóan:
      - Antenna típusa
      - RF frekvencia (MHz)
@@ -57,7 +57,7 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
      - Bitsebesség (Mbps)
    - A jegyzőkönyv végén hasonlítsák össze a három antenna teljesítményét, és értékeljék a jelminőséget.
 
-### 6. Kiértékelés
+### 7. Kiértékelés
    - Elemezzék, melyik antenna biztosította a legjobb jelminőséget és jelszintet az adott frekvencián.
    - Beszéljék meg, milyen tényezők befolyásolhatják a különböző antennák teljesítményét (pl. antenna típus, nyereség, iránykarakterisztika).
 
@@ -68,6 +68,9 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
 | **SMART HD 550**     | 522                 |                |                    |                |
 | **ISKRA P20 LOGPER** | 522                 |                |                    |                |
 | **IKUSI FLASHD C48** | 522                 |                |                    |                |
+| **SMART HD 550**     | 610                 |                |                    |                |
+| **ISKRA P20 LOGPER** | 610                 |                |                    |                |
+| **IKUSI FLASHD C48** | 610                 |                |                    |                |
 
 ## Időtartam
 - Modulátor beállítása, antennák felszerelése: 30 perc
