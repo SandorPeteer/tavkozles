@@ -18,7 +18,7 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
 
 ### 1. Johansson 8202 DVB-T modulátor beállítása
    - Állítsák be a modulátort a következő paraméterekkel:
-     - **RF frekvencia:** 522 MHz
+     - **RF frekvencia:** Szabad sáv, amibe nem zavar bele az adás.
      - **Moduláció:** 16-QAM
      - **Sávszélesség:** 8 MHz
      - **Jelszint:** 65 dBm
@@ -41,7 +41,12 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
 ### 4. Jelátvitel és mérés az IKUSI FLASHD C48 antennával
    - Csatlakoztassák az IKUSI FLASHD C48 antennát a DVB-T modulátorhoz.
    - Sugározzák a jelet ezen az antennán keresztül is, és mérjék meg a jelszintet, a MER-t és a bitsebességet.
-   - Rögzítsék az eredményeket.
+   - Rögzítsék az eredményeket.   
+
+### 5. Mérés ismétlése egy másik szabad frekvencián   
+   - Ismételje meg a méréseket mindegyik antennatípussal egy másik szabad csatornán.
+   - Az adó oldali frekvencia térjen el legalább 100MHz-el az előző mérésekhez képest.
+
 
 ### 5. Jegyzőkönyv készítése
    - Készítsenek jegyzőkönyvet a mérési eredmények alapján, amely tartalmazza a következő paramétereket minden antennára vonatkozóan:
