@@ -50,6 +50,6 @@ A tanulók megismerjék a Johansson 8202 DVB-T modulátor működését, konfigu
 | Mérési eredmény 3   |                     |                  |                    |                |                    |                |
 
 ## Időtartam
-- A modulátor beállítása: 30 perc
+- A modulátor előkészítése, bekötése, beállítása: 30 perc
 - Mérések különböző beállításokkal: 60 perc
 - Jegyzőkönyvezés és megbeszélés: 30 perc
