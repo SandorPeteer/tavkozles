@@ -1,7 +1,7 @@
-# Mérési Feladat – Johansson 8002 DVB-T modulátor
+# Mérési Feladat – Johansson 8202 DVB-T modulátor
 
 ## Cél
-A tanulók megismerjék a Johansson 8002 DVB-T modulátor működését, konfigurációs lehetőségeit, és méréseket végezzenek a METEK HD spektrum/jelszint analizátorral. A mérési eredményeket rögzítik jegyzőkönyv formájában.
+A tanulók megismerjék a Johansson 8202 DVB-T modulátor működését, konfigurációs lehetőségeit, és méréseket végezzenek a METEK HD spektrum/jelszint analizátorral. A mérési eredményeket rögzítik jegyzőkönyv formájában.
 
 ## Eszközök
 - Johansson 8202 DVB-T modulátor
