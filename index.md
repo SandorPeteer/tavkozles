@@ -1,11 +1,14 @@
 # Távközlés 2024  
 
-## JEGYZŐKÖNYVEK   
-[DVB-T mérés minta](https://sandorpeteer.github.io/tavkozles/dvb-t_minta)  
-[DVB-T mérés 2024.10.03.](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
+## JEGYZŐKÖNYVEK:   
+[DVB-T mérés 2024.10.03. Sándor Péter](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
 
 ---  
 ## GYAKORLATI FELADATOK:   
+
+### DVB-T vételi jelszint vizsgálata különböző antenna típusokkal:   
+> [01. Mérési feladat](https://sandorpeteer.github.io/tavkozles/antennak/feladat)   
+
 
 ### Johansson 8202 modulátor:   
 > [01. Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat)   
@@ -13,10 +16,6 @@
 > [03. Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat2)
 > 
 > [Jegyzőkönyv minta](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)   
-
-### DVB-T vételi jelszint vizsgálata különböző antenna típusokkal:   
-> [01. Mérési feladat](https://sandorpeteer.github.io/tavkozles/antennak/feladat)   
-
 
 ---   
 
