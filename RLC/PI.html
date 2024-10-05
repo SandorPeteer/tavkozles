@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mérési feladat: Vegyesen kapcsolt ellenállás hálózat (Pí-tag)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .circuit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .resistor {
+            width: 50px;
+            text-align: center;
+            border: 2px solid black;
+            border-radius: 5px;
+            padding: 5px;
+            margin: 5px 0;
+        }
+        .line {
+            border: 1px solid black;
+            width: 1px;
+            height: 40px;
+            margin: 0 10px;
+        }
+        .horizontal {
+            display: flex;
+            align-items: center;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Mérési feladat: Vegyesen kapcsolt ellenállás hálózat (Pí-tag)</h1>
+
+<h2>Feladat leírása:</h2>
+<p>
+    Mérd meg az alábbi Pí-tag ellenállás hálózat teljes ellenállását különböző bemeneti és kimeneti terminálok között! 
+    Számítsd ki az egyes ellenállások feszültségosztó arányát, és hasonlítsd össze a mért és számított értékeket!
+</p>
+
+<h2>Mérési cél:</h2>
+<ul>
+    <li>Határozd meg a Pí-tag különböző részeinek hatását az összegzett ellenállásra.</li>
+    <li>Vizsgáld meg a hálózat feszültségosztó tulajdonságait.</li>
+</ul>
+
+<h2>Kapcsolási rajz (Pí-tag):</h2>
+
+<div class="circuit">
+    <div>A</div>
+    <div class="line"></div>
+    <div class="resistor">R1 = 1kΩ</div>
+    <div class="line"></div>
+    <div class="horizontal">
+        <div class="line"></div>
+        <div class="resistor">R2 = 2.2kΩ</div>
+        <div class="line"></div>
+    </div>
+    <div class="line"></div>
+    <div class="resistor">R3 = 4.7kΩ</div>
+    <div class="line"></div>
+    <div>D</div>
+    <div class="line"></div>
+    <div>C</div>
+</div>
+
+<h2>Mérési feladatok:</h2>
+
+<ol>
+    <li>
+        <strong>Teljes ellenállás mérése:</strong>
+        <ul>
+            <li>Mérd meg az összesített ellenállást az <code>A</code> és <code>C</code> pontok között!</li>
+            <li>Mérd meg az ellenállást a <code>B</code> és <code>D</code> pontok között!</li>
+        </ul>
+    </li>
+    <li>
+        <strong>Feszültségosztó:</strong>
+        <ul>
+            <li>Alkalmazz egy 10V-os feszültséget az <code>A</code> és <code>C</code> pontokra, majd mérd meg a feszültséget a <code>B</code> ponton!</li>
+            <li>Számítsd ki a feszültségosztó arányt a hálózaton, és hasonlítsd össze a mért feszültséggel!</li>
+        </ul>
+    </li>
+</ol>
+
+<h2>Számítási feladat:</h2>
+<p>
+    Számold ki a Pí-tag hálózat helyettesítő ellenállását, majd hasonlítsd össze a mért értékekkel.
+</p>
+
+<h3>További lépések:</h3>
+<ol>
+    <li>Ellenőrizd a mérési eredmények pontosságát!</li>
+    <li>Vizsgáld meg, hogyan változik a feszültségosztó, ha az ellenállások értékei módosulnak!</li>
+</ol>
+
+</body>
+</html>
