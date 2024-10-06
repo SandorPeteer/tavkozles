@@ -1,6 +1,8 @@
 # Mérési Feladat:
 > A különböző frekvenciák és modulációk miként befolyásolják a jelminőséget.
 
+Ez a mérési feladat biztosítja, hogy a hardveres beállításokat követően a hallgatók a megfelelő méréseket el tudják végezni a METEK HD spektrum/jelszint analizátorral, és rendszerezett jegyzőkönyvet készítsenek.
+
 ## Cél
 A tanulók megismerjék a Johansson 8202 DVB-T modulátor működését, konfigurációs lehetőségeit, és méréseket végezzenek a METEK HD spektrum/jelszint analizátorral. A mérési eredményeket rögzítik jegyzőkönyv formájában.
 
