@@ -21,7 +21,7 @@
 > [Jegyzőkönyv minta](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)   
 
 ### Johansson 6700 Profiler:
-> [Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson 6700 Profiler/feladat1)   
+> [Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_6700_Profiler/feladat1)   
 
 ---   
 
