@@ -14,9 +14,9 @@
 > [Antenna mérési feladat](https://sandorpeteer.github.io/tavkozles/antennak/feladat)   
 
 ### Johansson 8202 modulátor:   
-> [01. mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat)   
-> [02. mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat2)   
-> [03. mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat3)
+> [01. Frekvencia vs. jelszint mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat)   
+> [02. Bitsebesség vs. jelszint mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat2)   
+> [03. Antenna teljesítmény vs. jelminőség mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat3)
 > 
 > [Jegyzőkönyv minta](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)   
 
