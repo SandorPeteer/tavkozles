@@ -39,6 +39,22 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
    - A csatornaáthelyezési beállításokat és azok hatását a kimenő jelszintekre.
    - Az AGC (Automatic Gain Control) működésének hatását a jelszintek kiegyenlítésére.
    - A szűrési beállítások előtti és utáni mérési eredményeket.
+ 
+#### Javasolt táblázat a jegyzőkönyvhöz
+
+| Antenna típusa     | Eredeti frekvencia | Új frekvencia | Bemeneti jelszint (dB) | Kimeneti jelszint (dB) | Megjegyzés             |
+|--------------------|--------------------|---------------|------------------------|------------------------|------------------------|
+| FM antenna         | 100 MHz            | 180 MHz       | -30 dB                 | -20 dB                 | AGC aktiválva          |
+| DVB-T antenna (VHF)| 220 MHz            | 230 MHz       | -40 dB                 | -30 dB                 | LTE szűrő aktív        |
+| DVB-T antenna (UHF)| 500 MHz            | 600 MHz       | -35 dB                 | -25 dB                 | AGC aktiválva          |
+| Koax kábel         | 600 MHz            | 700 MHz       | -45 dB                 | -30 dB                 | LTE szűrő aktív        |
+
+---
+
+A jegyzőkönyvben a tanulóknak részletesen dokumentálniuk kell az eredeti és áthelyezett frekvenciákat, a bemeneti és kimeneti jelszinteket, valamint a szűrők alkalmazásának hatását. A javasolt táblázat segít abban, hogy a mérési eredmények könnyen átláthatók legyenek.   
+
+
+---
 
 ## Időkeret
 A teljes feladat időtartama: 2 óra
@@ -48,4 +64,8 @@ A teljes feladat időtartama: 2 óra
 - Jegyzőkönyv készítése: 30 perc
 
 ## Értékelés
-A feladat értékelése a jegyzőkönyv részletessége és pontossága, valamint a helyes beállítások és mérések alapján történik.
+A feladat értékelése a jegyzőkönyv részletessége és pontossága, valamint a helyes beállítások és mérések alapján történik.   
+
+---
+
+Ez a feladat biztosítja, hogy a diákok valós környezetben gyakorolják a Johansson 6700 Profiler képességeit az antennarendszerek kezelésében és optimalizálásában.
