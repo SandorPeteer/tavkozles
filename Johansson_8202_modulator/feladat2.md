@@ -1,4 +1,5 @@
-# Mérési Feladat – Johansson 8202 DVB-T modulátor
+# Mérési Feladat:   
+> A különböző bitsebesség milyen hatással van a jelminőségre.
 
 ## Cél
 A hallgatók megismerjék a Johansson 8202 DVB-T modulátor további képességeit, különös tekintettel a többcsatornás jel generálásra és a program stream-ek (MPTS) kezelésére. A mérés során a résztvevők több programot állítanak be és mérik a jel minőségét különböző bitsebességek mellett.
