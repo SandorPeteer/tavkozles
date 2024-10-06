@@ -1,4 +1,5 @@
-# Mérési Feladat – Johansson 8202 DVB-T modulátor
+# Mérési Feladat:
+- A különböző frekvenciák és modulációk miként befolyásolják a jelminőséget.
 
 ## Cél
 A tanulók megismerjék a Johansson 8202 DVB-T modulátor működését, konfigurációs lehetőségeit, és méréseket végezzenek a METEK HD spektrum/jelszint analizátorral. A mérési eredményeket rögzítik jegyzőkönyv formájában.
