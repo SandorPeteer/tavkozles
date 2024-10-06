@@ -1,4 +1,6 @@
-# Mérési Feladat – Johansson 8202 DVB-T modulátor és három különböző antenna használata   
+# Mérési Feladat:
+> A különböző típusú antennák teljesítménye és a vételi jelminőség összehasonlítása.  
+
 Ez a mérési feladat lehetővé teszi a hallgatók számára, hogy megismerjék és összehasonlítsák három különböző antenna teljesítményét ugyanazon jel sugárzásával. A jegyzőkönyv segítségével dokumentálhatják az eredményeket és levonhatják a következtetéseket.
 
 ## Cél
