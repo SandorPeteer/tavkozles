@@ -42,12 +42,12 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
  
 #### Javasolt táblázat a jegyzőkönyvhöz
 
-| Antenna típusa     | Eredeti csatorna  | Eredeti frekvencia | Áthelyezett csatorna | Áthelyezett frekvencia | Bemeneti jelszint (dB) | Kimeneti jelszint (dB) | Spektrumanalizátor kép     | Megjegyzés             |
-|--------------------|-------------------|--------------------|----------------------|------------------------|------------------------|------------------------|---------------------------------|------------------------|
-| FM antenna         | 101,7 MHz         | 100 MHz            | 183,7 MHz            | 180 MHz                | -30 dB                 | -20 dB                 | FM_before_after.png             |          |
-| DVB-T antenna (VHF)| 5. csatorna       | 220 MHz            | 10. csatorna         | 230 MHz                | -40 dB                 | -30 dB                 | VHF_signal_comparison.png       |        |
-| DVB-T antenna (UHF)| 28. csatorna      | 500 MHz            | 33. csatorna         | 600 MHz                | -35 dB                 | -25 dB                 | UHF_signal_shift.png            |           |
-| Koax kábel         | KábelTV (CH22)    | 600 MHz            | KábelTV (CH23)       | 700 MHz                | -45 dB                 | -30 dB                 | Coax_signal_modification.png    |        |
+| Antenna típusa     | Eredeti csatorna  | Eredeti frekvencia | Áthelyezett csatorna | Áthelyezett frekvencia | Bemeneti jelszint (dB) | Kimeneti jelszint (dB) | Spektrumanalizátor kép  neve    | 
+|--------------------|-------------------|--------------------|----------------------|------------------------|------------------------|------------------------|---------------------------------|
+| FM antenna         | 101,7 MHz         | 100 MHz            | 183,7 MHz            | 180 MHz                | -30 dB                 | -20 dB                 | FM_before_after.png             |          
+| DVB-T antenna (VHF)| 5. csatorna       | 220 MHz            | 10. csatorna         | 230 MHz                | -40 dB                 | -30 dB                 | VHF_signal_comparison.png       |        
+| DVB-T antenna (UHF)| 28. csatorna      | 500 MHz            | 33. csatorna         | 600 MHz                | -35 dB                 | -25 dB                 | UHF_signal_shift.png            |           
+| Koax kábel         | KábelTV (CH22)    | 600 MHz            | KábelTV (CH23)       | 700 MHz                | -45 dB                 | -30 dB                 | Coax_signal_modification.png    |        
 
 
 ---
