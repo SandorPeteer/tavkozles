@@ -42,12 +42,13 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
  
 #### Javasolt táblázat a jegyzőkönyvhöz
 
-| Antenna típusa     | Eredeti frekvencia | Új frekvencia | Bemeneti jelszint (dB) | Kimeneti jelszint (dB) | Megjegyzés             |
-|--------------------|--------------------|---------------|------------------------|------------------------|------------------------|
-| FM antenna         | 100 MHz            | 180 MHz       | -30 dB                 | -20 dB                 | AGC aktiválva          |
-| DVB-T antenna (VHF)| 220 MHz            | 230 MHz       | -40 dB                 | -30 dB                 | LTE szűrő aktív        |
-| DVB-T antenna (UHF)| 500 MHz            | 600 MHz       | -35 dB                 | -25 dB                 | AGC aktiválva          |
-| Koax kábel         | 600 MHz            | 700 MHz       | -45 dB                 | -30 dB                 | LTE szűrő aktív        |
+| Antenna típusa     | Eredeti csatorna  | Eredeti frekvencia | Áthelyezett csatorna | Áthelyezett frekvencia | Bemeneti jelszint (dB) | Kimeneti jelszint (dB) | Spektrum analizátor kép neve    | Megjegyzés             |
+|--------------------|-------------------|--------------------|----------------------|------------------------|------------------------|------------------------|---------------------------------|------------------------|
+| FM antenna         | 101,7 MHz         | 100 MHz            | 183,7 MHz            | 180 MHz                | -30 dB                 | -20 dB                 | FM_before_after.png             | AGC aktiválva          |
+| DVB-T antenna (VHF)| 5. csatorna       | 220 MHz            | 10. csatorna         | 230 MHz                | -40 dB                 | -30 dB                 | VHF_signal_comparison.png       | LTE szűrő aktív        |
+| DVB-T antenna (UHF)| 28. csatorna      | 500 MHz            | 33. csatorna         | 600 MHz                | -35 dB                 | -25 dB                 | UHF_signal_shift.png            | AGC aktiválva          |
+| Koax kábel         | KábelTV (CH22)    | 600 MHz            | KábelTV (CH23)       | 700 MHz                | -45 dB                 | -30 dB                 | Coax_signal_modification.png    | LTE szűrő aktív        |
+
 
 ---
 
