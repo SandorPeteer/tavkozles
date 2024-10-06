@@ -1,50 +1,51 @@
 # Gyakorlati feladat: Johansson 6700 Profiler programozható antennaerősítő-szűrő használata
 
 ## Cél
-A gyakorlat célja, hogy a diákok megtanulják a Johansson 6700 Profiler antennaerősítő-szűrő alapvető beállításait és működését. A feladat során a diákok konfigurálják az eszközt különböző frekvenciatartományokra, mérik a jelek szintjét, és jegyzőkönyvet készítenek a mérésekről.
+A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler antennaerősítő-szűrő beállításainak gyakorlati használatát különböző antennák jeleinek kezelésére. A feladat során a diákok beállítják a csatornákat, optimalizálják a jelszinteket és vizsgálják a bejövő és kimenő jeleket spektrum analizátor segítségével.
 
 ## Szükséges eszközök
 - Johansson 6700 Profiler programozható antennaerősítő-szűrő
-- RF jelgenerátor (VHF/UHF tartományban)
-- Oszcilloszkóp
-- Spectrum analyzer
+- FM antenna (88-108 MHz)
+- DVB-T antenna (UHF: 470-862 MHz)
+- Spektrum analizátor
 - Koaxiális kábelek
-- Laptop a beállításokhoz és jegyzőkönyv készítéséhez
+- Laptop a beállítások elvégzéséhez és jegyzőkönyv készítéséhez
 
 ## Feladat leírása
 
-### 1. Eszközök bekapcsolása és összekötése (20 perc)
-1. Kapcsoljátok be a Johansson 6700 Profiler készüléket.
-2. Kössetek be egy RF jelgenerátort a bemenetre, amely 174-230 MHz (VHF) és 470-862 MHz (UHF) frekvenciákon működik.
-3. Kössetek oszcilloszkópot vagy spectrum analyzert a kimenetre.
-4. Ellenőrizzétek a jel szintjét a kimeneten, és rögzítsétek a kezdeti állapotokat (frekvencia, erősítés, jel-zaj viszony).
+### 1. Eszközök bekapcsolása és bekötése (20 perc)
+1. Kapcsoljátok be a Johansson 6700 Profiler-t és a spektrum analizátort.
+2. Kössetek be egy FM antennát az FM bemenetre, egy DVB-T antennát a VHF/UHF bemenetre, és egy koax kábelt egy másik VHF/UHF bemenetre például a Johansson 8202 modulátort.
+3. Csatlakoztassátok a spektrum analizátort a Johansson 6700 Profiler kimenetére a kimenő jelek méréséhez.
 
-### 2. Alapvető beállítások (30 perc)
-1. Konfiguráljátok a Johansson 6700 Profiler-t úgy, hogy csak a 470-862 MHz közötti UHF frekvenciákat erősítse.
-   - Használjátok a készülék menürendszerét a frekvenciatartományok kiválasztásához és a szükséges erősítés beállításához.
-   - Rögzítsétek a beállításokat (szűrt tartomány, erősítési szint) a jegyzőkönyvben.
-2. Mérjétek meg a jel szintjét és a zajviszonyt a kimeneten, és hasonlítsátok össze az alapértékekkel.
+### 2. Csatornaáthelyezés és jelszint-optimalizálás (40 perc)
+1. Használjátok a Johansson 6700 csatornaáthelyezési funkcióját (frekvenciakonverter), hogy az FM és DVB-T jeleket különböző frekvenciákra helyezzétek át.
+   - Példa: Az FM jelet helyezzétek át a 100 MHz-es frekvenciáról 180 MHz-re, míg a DVB-T jelet 500 MHz-ről 600 MHz-re.
+   - Jegyezzétek fel az összes bejövő frekvenciát és az áthelyezett csatornák új frekvenciáit a jegyzőkönyvbe.
+   
+2. Aktiváljátok az automatikus csatornánkénti szintszabályzást (AGC) az eszköz menüjében, ha szükséges kapcsoljátok be az antenna erősítő fokozatot is.
+   - Ellenőrizzétek, hogy a kimenő jelszintek egységesek legyenek, függetlenül a bejövő jelek eltérő szintjétől.
+   - Rögzítsétek a bemeneti és kimeneti jelszinteket a spektrum analizátor segítségével, és jegyezzétek fel azokat.
 
-### 3. Speciális szűrési beállítások (40 perc)
-1. Állítsátok be a Johansson 6700 Profiler-t, hogy egyedi frekvenciákat szűrjön ki a tartományból (például 230-470 MHz).
-   - Használjátok a szűrő menüjét a pontos frekvenciák kiválasztásához.
-   - Rögzítsétek a változtatásokat és az eredményeket a jegyzőkönyvben.
-2. Végezzetek méréseket az oszcilloszkópon vagy a spectrum analyzeren, és rögzítsétek a szűrési eredményeket (szűrt frekvenciák, jel szintje).
+### 3. Szűrő beállítások és interferencia vizsgálat (30 perc)
+1. Ellenőrizzétek le az LTE szűrőt az eszközben, hogy megszűri-e a 790 MHz feletti zavaró jeleket.
+   - Vizsgáljátok meg a spektrum analizátorral, hogyan változnak a jelek a kimeneten, a szűrő funkcionál vagy sem.
+   
+2. Készítsetek jegyzőkönyvet a bemeneti és kimeneti spektrum különbségeiről, és jegyezzétek fel, hogy a szűrők hogyan hatnak a jelminőségre és jelszintre.
 
-### 4. Jelentés készítése (30 perc)
-- Készítsetek egy jegyzőkönyvet a mérésekről, amely tartalmazza:
-   - A kiindulási beállításokat és mérési eredményeket.
-   - Az alapvető erősítési beállításokat és azok hatását.
-   - A speciális szűrési beállítások eredményeit.
-   - Összehasonlítást az eredeti és a módosított jel szintek között.
-   - Konklúziók: hogyan változott a jel minősége a szűrési beállítások hatására.
+### 4. Jegyzőkönyv készítése (30 perc)
+- Készítsetek részletes jegyzőkönyvet a gyakorlatról, amely tartalmazza:
+   - Az antennák beállításait és bemeneti jelszinteket.
+   - A csatornaáthelyezési beállításokat és azok hatását a kimenő jelszintekre.
+   - Az AGC (Automatic Gain Control) működésének hatását a jelszintek kiegyenlítésére.
+   - A szűrési beállítások előtti és utáni mérési eredményeket.
 
 ## Időkeret
-A teljes feladat időtartama 2 óra:
+A teljes feladat időtartama: 2 óra
 - Eszközök bekötése: 20 perc
-- Alapvető beállítások: 30 perc
-- Speciális szűrési beállítások: 40 perc
+- Csatornaáthelyezés és jelszint-optimalizálás: 40 perc
+- Szűrő beállítások: 30 perc
 - Jegyzőkönyv készítése: 30 perc
 
 ## Értékelés
-A feladat értékelése a jegyzőkönyv minősége és a helyes beállítások alapján történik. Ügyeljetek a pontos mérésekre és az egyértelmű dokumentációra.
+A feladat értékelése a jegyzőkönyv részletessége és pontossága, valamint a helyes beállítások és mérések alapján történik.
