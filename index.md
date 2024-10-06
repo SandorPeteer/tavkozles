@@ -7,21 +7,21 @@
 ## GYAKORLATI FELADATOK:   
 
 ### Csillapító tag mérése:   
-> [T Mérési feladat](https://sandorpeteer.github.io/tavkozles/RLC/T)   
-> [TT Mérési feladat](https://sandorpeteer.github.io/tavkozles/RLC/PI)   
+> [T mérési feladat](https://sandorpeteer.github.io/tavkozles/RLC/T)   
+> [TT mérési feladat](https://sandorpeteer.github.io/tavkozles/RLC/PI)   
 
 ### DVB-T vételi jelszint vizsgálata különböző antenna típusokkal:   
-> [Mérési feladat](https://sandorpeteer.github.io/tavkozles/antennak/feladat)   
+> [Antenna mérési feladat](https://sandorpeteer.github.io/tavkozles/antennak/feladat)   
 
 ### Johansson 8202 modulátor:   
-> [01. Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat)   
-> [02. Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat2)   
-> [03. Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat3)
+> [01. mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat)   
+> [02. mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat2)   
+> [03. mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat3)
 > 
 > [Jegyzőkönyv minta](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)   
 
 ### Johansson 6700 Profiler:
-> [Mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_6700_Profiler/feladat1)   
+> [Frekvencia áthelyezés mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_6700_Profiler/feladat1)   
 
 ---   
 
