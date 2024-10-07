@@ -38,7 +38,7 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
    - Az antennák beállításait és bemeneti jelszinteket.
    - A csatornaáthelyezési beállításokat és azok hatását a kimenő jelszintekre.
    - Az AGC (Automatic Gain Control) működésének hatását a jelszintek kiegyenlítésére.
-   - A szűrési beállítások előtti és utáni mérési eredményeket.
+   - A szűrés mérési eredményeit.
  
 #### Javasolt táblázat a jegyzőkönyvhöz
 
