@@ -9,10 +9,10 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
 
 ## Eszközök
 - Johansson 8202 DVB-T modulátor   
-- ISKRA P20 LOGPER antenna   
-- ISKRA P2845 antenna   
-- IKUSI FLASHD C48 antenna   
-- Szobaantenna [Philips SDV5228/12] (aktív vagy passziv a vételhez)   
+- ISKRA P20 LOGPER antenna (vételre)   
+- ISKRA P2845 antenna (vételre)  
+- IKUSI FLASHD C48 antenna (vételre)  
+- Philips SDV5228 (adó oldalra)   
 - RF kábelek  
 - DVB-T vevő (pl. TV vagy mérőműszer)  
 - METEK HD spektrum/jelszint analizátor   
@@ -26,11 +26,11 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
      - **Moduláció:** 16-QAM
      - **Sávszélesség:** 8 MHz
      - **Jelszint:** 65 dBm
-   - A modulátor beállításai állandóak maradnak az egész mérés során, csak az antenna típusát változtatják.
-   - A vételi oldalon egy szobaantenna segítségével vizsgálják a jelátvitelt.
+   - A modulátor beállításai állandóak maradnak az egész mérés során, csak az antenna típusát változtatják a vételi helyen.
+   - Az adó oldalon egy körsugárzó antenna segítségével szórják a DVB-T jelet (Philips SDV5228).
 
 ### 2. Jelátvitel és mérés az ISKRA P20 LOGPER antennával
-   - Csatlakoztassák az ISKRA P20 LOGPER antennát a DVB-T modulátorhoz.
+   - Csatlakoztassák az ISKRA P20 LOGPER antennát a DVB-T vevőhöz.
    - Sugározzák a jelet az antennán keresztül, és a METEK HD spektrum/jelszint analizátor segítségével mérjék meg a következő paramétereket:
      - Jelszint (dBm)
      - Modulation Error Ratio (MER)
@@ -38,12 +38,12 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
    - Rögzítsék az eredményeket.
 
 ### 3. Jelátvitel és mérés az ISKRA P2845 antennával
-   - Csatlakoztassák az ISKRA P2845 antennát a DVB-T modulátorhoz.
+   - Csatlakoztassák az ISKRA P2845 antennát a DVB-T vevőhöz.
    - Sugározzák a jelet az antennán keresztül, és ismét mérjék meg a jelszintet, a MER-t és a bitsebességet.
    - Rögzítsék az eredményeket.
 
 ### 4. Jelátvitel és mérés az IKUSI FLASHD C48 antennával
-   - Csatlakoztassák az IKUSI FLASHD C48 antennát a DVB-T modulátorhoz.
+   - Csatlakoztassák az IKUSI FLASHD C48 antennát a DVB-T vevőhöz.
    - Sugározzák a jelet ezen az antennán keresztül is, és mérjék meg a jelszintet, a MER-t és a bitsebességet.
    - Rögzítsék az eredményeket.   
 
