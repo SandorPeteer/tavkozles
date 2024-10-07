@@ -13,12 +13,12 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
 
 ## Feladat leírása
 
-### 1. Eszközök bekapcsolása és bekötése (20 perc)
+### 1. Eszközök bekapcsolása és bekötése (30 perc)
 1. Kapcsoljátok be a Johansson 6700 Profiler-t és a spektrum analizátort.
 2. Kössetek be egy FM antennát az FM bemenetre, egy DVB-T antennát a VHF/UHF bemenetre, és egy koax kábelt egy másik VHF/UHF bemenetre például a Johansson 8202 modulátort.
 3. Csatlakoztassátok a spektrum analizátort a Johansson 6700 Profiler kimenetére a kimenő jelek méréséhez.
 
-### 2. Csatornaáthelyezés és jelszint-optimalizálás (40 perc)
+### 2. Csatornaáthelyezés és jelszint-optimalizálás (45 perc)
 1. Használjátok a Johansson 6700 csatornaáthelyezési funkcióját (frekvenciakonverter), hogy az FM és DVB-T jeleket különböző frekvenciákra helyezzétek át.
    - Példa: Az FM jelet helyezzétek át a 100 MHz-es frekvenciáról 180 MHz-re, míg a DVB-T jelet 500 MHz-ről 600 MHz-re.
    - Jegyezzétek fel az összes bejövő frekvenciát és az áthelyezett csatornák új frekvenciáit a jegyzőkönyvbe.
@@ -27,7 +27,7 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
    - Ellenőrizzétek, hogy a kimenő jelszintek egységesek legyenek, függetlenül a bejövő jelek eltérő szintjétől.
    - Rögzítsétek a bemeneti és kimeneti jelszinteket a spektrum analizátor segítségével, és jegyezzétek fel azokat.
 
-### 3. Szűrő beállítások és interferencia vizsgálat (30 perc)
+### 3. Szűrő beállítások és interferencia vizsgálat (15 perc)
 1. Ellenőrizzétek le az LTE szűrőt az eszközben, hogy megszűri-e a 790 MHz feletti zavaró jeleket.
    - Vizsgáljátok meg a spektrum analizátorral, hogyan változnak a jelek a kimeneten, a szűrő funkcionál vagy sem.
    
