@@ -23,7 +23,7 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
    - Példa: Az FM jelet helyezzétek át a 100 MHz-es frekvenciáról 180 MHz-re, míg a DVB-T jelet 500 MHz-ről 600 MHz-re.
    - Jegyezzétek fel az összes bejövő frekvenciát és az áthelyezett csatornák új frekvenciáit a jegyzőkönyvbe.
    
-2. Aktiváljátok az automatikus csatornánkénti szintszabályzást (AGC) az eszköz menüjében, ha szükséges kapcsoljátok be az antenna erősítő fokozatot is.
+2. Aktiváljátok az automatikus csatornánkénti szintszabályzást (AGC) az eszköz menüjében amennyiben lehetséges, valamint ha szükséges kapcsoljátok be az antenna erősítő fokozatot is.
    - Ellenőrizzétek, hogy a kimenő jelszintek egységesek legyenek, függetlenül a bejövő jelek eltérő szintjétől.
    - Rögzítsétek a bemeneti és kimeneti jelszinteket a spektrum analizátor segítségével, és jegyezzétek fel azokat.
 
@@ -59,9 +59,9 @@ A jegyzőkönyvben a tanulóknak részletesen dokumentálniuk kell az eredeti é
 
 ## Időkeret
 A teljes feladat időtartama: 2 óra
-- Eszközök bekötése: 20 perc
-- Csatornaáthelyezés és jelszint-optimalizálás: 40 perc
-- Szűrő beállítások: 30 perc
+- Eszközök bekötése: 30 perc
+- Csatornaáthelyezés és jelszint-optimalizálás: 45 perc
+- Szűrő beállítások ellenőrzése: 15 perc
 - Jegyzőkönyv készítése: 30 perc
 
 ## Értékelés
