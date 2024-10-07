@@ -15,7 +15,7 @@ A hallgatók mérjék meg és hasonlítsák össze a SMART HD 550, ISKRA P20 LOG
 ## Feladat
 
 ### 1. Antenna telepítése és mérés a vételi pontokon
-   - Válasszanak ki **három különböző vételi pontot** (pl. a laborban és az épület két másik pontján, beltéri vagy kültéri környezetben).
+   - Válasszanak ki **három különböző vételi pontot** (pl. a laborban és az épület két másik pontján, beltéri és kültéri környezetben).
    - Minden vételi ponton egymás után telepítsék a három antennát (SMART HD 550, ISKRA P20 LOGPER és IKUSI FLASHD C48), és a METEK HD spektrum/jelszint analizátorral mérjék meg a jelszintet.
    
 ### 2. Mérési paraméterek
