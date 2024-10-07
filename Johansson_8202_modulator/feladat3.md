@@ -1,22 +1,22 @@
-# Mérési Feladat:
+   # Mérési Feladat:
 > A különböző típusú antennák teljesítménye és a vételi jelminőség összehasonlítása.  
 
 Ez a mérési feladat lehetővé teszi a hallgatók számára, hogy megismerjék és összehasonlítsák három különböző antenna teljesítményét ugyanazon jel sugárzásával. Valamint a feladat lehetőséget biztosít arra, hogy a tanulók gyakorlati méréseken keresztül tapasztalják meg, hogyan befolyásolja az antenna típusa a jelminőséget és a nyereséget különböző környezetekben. A jegyzőkönyv segítségével dokumentálhatják az eredményeket és levonhatják a következtetéseket.
 
 
 ## Cél
-A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a sugárzott DVB-T jel minőségét a Johansson 8202 DVB-T modulátorral. A SMART HD 550, ISKRA P20 LOGPER és IKUSI FLASHD C48 antennákat használva a jelminőség és jelszint értékek változását vizsgálják különböző körülmények között.
+A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a sugárzott DVB-T jel minőségét a Johansson 8202 DVB-T modulátorral. Az ISKRA P2845, ISKRA P20 LOGPER és IKUSI FLASHD C48 antennákat használva a jelminőség és jelszint értékek változását vizsgálják különböző körülmények között.
 
 ## Eszközök
-- Johansson 8202 DVB-T modulátor
-- SMART HD 550 antenna
-- ISKRA P20 LOGPER antenna
-- IKUSI FLASHD C48 antenna
-- Szobaantenna (aktív vagy passziv)
-- RF kábel
-- DVB-T vevő (pl. TV vagy mérőműszer)
-- METEK HD spektrum/jelszint analizátor
-- Laptop a jegyzőkönyv készítéséhez
+- Johansson 8202 DVB-T modulátor   
+- ISKRA P20 LOGPER antenna   
+- ISKRA P2845 antenna   
+- IKUSI FLASHD C48 antenna   
+- Szobaantenna [Philips SDV5228/12] (aktív vagy passziv)   
+- RF kábelek  
+- DVB-T vevő (pl. TV vagy mérőműszer)  
+- METEK HD spektrum/jelszint analizátor   
+- Laptop a jegyzőkönyv készítéséhez   
 
 ## Feladat
 
