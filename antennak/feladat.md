@@ -19,7 +19,7 @@ A hallgatók mérjék meg és hasonlítsák össze a SMART HD 550, ISKRA P20 LOG
    - Minden vételi ponton egymás után telepítsék a három antennát (SMART HD 550, ISKRA P20 LOGPER és IKUSI FLASHD C48), és a METEK HD spektrum/jelszint analizátorral mérjék meg a jelszintet.
    
 ### 2. Mérési paraméterek
-   - **Mért frekvencia:** 522 MHz (vagy más DVB-T frekvencia)
+   - **Mért frekvencia:** 634 MHz (vagy más DVB-T frekvencia)
    - **Mért jelszint:** dBm-ben kifejezve
    - Rögzítsék a mért értékeket mindhárom antennánál, minden vételi ponton.
 
