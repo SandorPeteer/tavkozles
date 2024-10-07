@@ -12,7 +12,7 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
 - ISKRA P20 LOGPER antenna   
 - ISKRA P2845 antenna   
 - IKUSI FLASHD C48 antenna   
-- Szobaantenna [Philips SDV5228/12] (aktív vagy passziv)   
+- Szobaantenna [Philips SDV5228/12] (aktív vagy passziv a vételhez)   
 - RF kábelek  
 - DVB-T vevő (pl. TV vagy mérőműszer)  
 - METEK HD spektrum/jelszint analizátor   
@@ -29,16 +29,16 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
    - A modulátor beállításai állandóak maradnak az egész mérés során, csak az antenna típusát változtatják.
    - A vételi oldalon egy szobaantenna segítségével vizsgálják a jelátvitelt.
 
-### 2. Jelátvitel és mérés a SMART HD 550 antennával
-   - Csatlakoztassák a SMART HD 550 antennát a DVB-T modulátorhoz.
+### 2. Jelátvitel és mérés az ISKRA P20 LOGPER antennával
+   - Csatlakoztassák az ISKRA P20 LOGPER antennát a DVB-T modulátorhoz.
    - Sugározzák a jelet az antennán keresztül, és a METEK HD spektrum/jelszint analizátor segítségével mérjék meg a következő paramétereket:
      - Jelszint (dBm)
      - Modulation Error Ratio (MER)
      - Bitsebesség (Mbps)
    - Rögzítsék az eredményeket.
 
-### 3. Jelátvitel és mérés az ISKRA P20 LOGPER antennával
-   - Csatlakoztassák az ISKRA P20 LOGPER antennát a DVB-T modulátorhoz.
+### 3. Jelátvitel és mérés az ISKRA P2845 antennával
+   - Csatlakoztassák az ISKRA P2845 antennát a DVB-T modulátorhoz.
    - Sugározzák a jelet az antennán keresztül, és ismét mérjék meg a jelszintet, a MER-t és a bitsebességet.
    - Rögzítsék az eredményeket.
 
