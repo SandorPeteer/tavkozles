@@ -67,13 +67,13 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
 
 ## Jegyzőkönyv sablon
 
-| Antenna típusa      | RF frekvencia (MHz) | Jelszint (dBm) | Bitsebesség (Mbps) | MER érték (dB) |
-|---------------------|---------------------|----------------|--------------------|----------------|
-| **SMART HD 550**     | 522                 |                |                    |                |
+| Antenna típusa       | RF frekvencia (MHz) | Jelszint (dBm) | Bitsebesség (Mbps) | MER érték (dB) |
+|----------------------|---------------------|----------------|--------------------|----------------|
 | **ISKRA P20 LOGPER** | 522                 |                |                    |                |
+| **ISKRA P2845**      | 522                 |                |                    |                |
 | **IKUSI FLASHD C48** | 522                 |                |                    |                |
-| **SMART HD 550**     | 610                 |                |                    |                |
 | **ISKRA P20 LOGPER** | 610                 |                |                    |                |
+| **ISKRA P2845**      | 610                 |                |                    |                |
 | **IKUSI FLASHD C48** | 610                 |                |                    |                |
 
 ## Időtartam
