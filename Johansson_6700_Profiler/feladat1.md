@@ -14,7 +14,7 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
 ## Feladat leírása
 
 ### 1. Eszközök bekapcsolása és bekötése (30 perc)
-1. Kapcsoljátok be a Johansson 6700 Profiler-t és a spektrum analizátort.
+1. Kapcsoljátok be a Johansson 6700 Profiler-t és a spektrum analizátort, ami RF kábellel már össze van kötve.
 2. Kössetek be egy FM antennát az FM bemenetre, egy DVB-T antennát a VHF/UHF bemenetre, és egy koax kábelt egy másik VHF/UHF bemenetre például a Johansson 8202 modulátort.
 3. Csatlakoztassátok a spektrum analizátort a Johansson 6700 Profiler kimenetére a kimenő jelek méréséhez.
 
