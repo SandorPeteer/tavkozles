@@ -25,7 +25,7 @@ A hallgatók ismerjék meg a különböző antennák jellemzőit, és mérjék a
      - **RF frekvencia:** Szabad sáv, amibe nem zavar bele az adás.
      - **Moduláció:** 16-QAM
      - **Sávszélesség:** 8 MHz
-     - **Jelszint:** 65 dBm
+     - **Jelszint:** -10 dBm
    - A modulátor beállításai állandóak maradnak az egész mérés során, csak az antenna típusát változtatják a vételi helyen.
    - Az adó oldalon egy körsugárzó antenna segítségével szórják a DVB-T jelet (Philips SDV5228).
 
