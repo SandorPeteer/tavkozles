@@ -39,20 +39,22 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 <br>   
 
 - **A Miskolci TV adótorony által sugárzott frekvenciák:**
-![Miskolci TV adások](https://sandorpeteer.github.io/tavkozles/img/miskolciTV.png)
-- **A CH45 -ös csatornán mért spektrum:**  
-![CH45](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bmp)
+![Miskolci TV adások](https://sandorpeteer.github.io/tavkozles/img/miskolciTV.png)   
+
+- **A CH45 -ös csatornán mért spektrum:**
+![CH45](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bmp)   
+
 - **A CH45 -ös csatornán mért jelerősség, jel/zaj viszony, és bithibák:**  
-![NOISE MARGIN](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0002.bmp)
+![NOISE MARGIN](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0002.bmp)   
 
 - **A CH45 -ös csatorna konstellációs diagramja:**  
-![CONSTELLATION](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0004.bmp)
+![CONSTELLATION](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0004.bmp)   
 
 - **A CH45 -ös csatornán a DUNATV HD jelszint és TV adás:**  
-![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0003.bmp)
+![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0003.bmp)   
 
 - **A CH45 -ös csatornán a DUNATV HD műsora:**  
-![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0005.bmp)
+![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0005.bmp)   
 
 ### 4. **Mérési eredmények**
 
