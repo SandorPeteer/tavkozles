@@ -22,9 +22,7 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 - **Adó távolsága**: 780,08 m
 
 ## ADÓTORONY - VÉTELI HELY távolság:
-<details>
 ![TVtorony](https://sandorpeteer.github.io/tavkozles/img/map.png)
-</details>   
 
 ### 3. **Mérési paraméterek**
 
@@ -41,13 +39,9 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 <br>   
 
 - **A Miskolci TV adótorony által sugárzott frekvenciák:**
-<details>
 ![Miskolci TV adások](https://sandorpeteer.github.io/tavkozles/img/miskolciTV.png)
-</details>
 - **A CH45 -ös csatornán mért spektrum:**  
-<details>
 ![CH45](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bmp)
-</details>
 - **A CH45 -ös csatornán mért jelerősség, jel/zaj viszony, és bithibák:**  
 ![NOISE MARGIN](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0002.bmp)
 
