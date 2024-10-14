@@ -21,9 +21,8 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 - **Környezet jellemzői**: V3 labor, városi körülmények között  
 - **Adó távolsága**: 780,08 m
 
-## ADÓTORONY - VÉTELI HELY távolság:
 <details>   
-  <summary>Kattints a részletekért</summary>
+  <summary> ADÓTORONY - VÉTELI HELY távolság </summary>
   
   <img src="https://sandorpeteer.github.io/tavkozles/img/map.png" alt="TVtorony" />
   
