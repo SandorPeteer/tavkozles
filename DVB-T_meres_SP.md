@@ -46,7 +46,7 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 <br>   
 
 <details>   
-  <summary> A Miskolci TV adótorony által sugárzott frekvenciák: </summary>
+  <summary> A Miskolci TV adótorony által sugárzott frekvenciák </summary>
   <img src="https://sandorpeteer.github.io/tavkozles/img/miskolciTV.png" alt="Miskolci TV adások" />
 </details>
 
