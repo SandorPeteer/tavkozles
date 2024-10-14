@@ -46,13 +46,15 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 <br>   
 
 <details>   
-  <summary>**A Miskolci TV adótorony által sugárzott frekvenciák:**</summary>
+  <summary> A Miskolci TV adótorony által sugárzott frekvenciák: </summary>
   <img src="https://sandorpeteer.github.io/tavkozles/img/miskolciTV.png" alt="Miskolci TV adások" />
 </details>
 
+<details>   
+  <summary> A CH45 -ös csatornán mért spektrum </summary>
+  <img src="https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bm" alt="CH45" />
+</details>
 
-- **A CH45 -ös csatornán mért spektrum:**
-![CH45](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bmp)   
 
 - **A CH45 -ös csatornán mért jelerősség, jel/zaj viszony, és bithibák:**  
 ![NOISE MARGIN](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0002.bmp)   
