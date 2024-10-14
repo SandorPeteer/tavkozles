@@ -52,21 +52,29 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 
 <details>   
   <summary> A CH45 -ös csatornán mért spektrum </summary>
-  <img src="https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bm" alt="CH45" />
+  <img src="https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0001.bmp" alt="CH45" />
 </details>
 
+<details>   
+  <summary> A CH45 -ös csatornán mért jelerősség, jel/zaj viszony, és bithibák: </summary>
+  <img src="https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0002.bmp" alt="NOISE MARGIN" />
+</details>
 
-- **A CH45 -ös csatornán mért jelerősség, jel/zaj viszony, és bithibák:**  
-![NOISE MARGIN](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0002.bmp)   
+<details>   
+  <summary> A CH45 -ös csatorna konstellációs diagramja: </summary>
+  <img src="https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0004.bmp" alt="CONSTELLATION" />
+</details>
 
-- **A CH45 -ös csatorna konstellációs diagramja:**  
-![CONSTELLATION](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0004.bmp)   
+<details>   
+  <summary> A CH45 -ös csatornán a DUNATV HD jelszint és TV adás: </summary>
+  <img src="https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0003.bmp" alt="DUNATV" />
+</details>
 
-- **A CH45 -ös csatornán a DUNATV HD jelszint és TV adás:**  
-![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0003.bmp)   
+<details>   
+  <summary> A CH45 -ös csatornán a DUNATV HD műsora: </summary>
+  <img src="https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0005.bmp" alt="DUNATV" />
+</details>
 
-- **A CH45 -ös csatornán a DUNATV HD műsora:**  
-![DUNATV](https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0005.bmp)   
 
 ### 4. **Mérési eredmények**
 
