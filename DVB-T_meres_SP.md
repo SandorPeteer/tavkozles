@@ -23,7 +23,9 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 
 ## ADÓTORONY - VÉTELI HELY távolság:
 <details>   
-  ![TVtorony](https://sandorpeteer.github.io/tavkozles/img/map.png)
+  <summary>
+  ![TVtorony](https://sandorpeteer.github.io/tavkozles/img/map.png)   
+  </summary>
 </details>   
 ### 3. **Mérési paraméterek**
 
