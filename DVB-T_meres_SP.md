@@ -28,7 +28,7 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
   
 </details>
 
-
+<br>
 
 ### 3. **Mérési paraméterek**
 
@@ -42,7 +42,6 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
 | Noise Margin         | 12.0 |
 | Hiba nélkül vett adás időtartama | 200 sec |   
 
-<br>   
 
 <details>   
   <summary> A Miskolci TV adótorony által sugárzott frekvenciák </summary>
@@ -74,6 +73,7 @@ A mérési pont a **V3 LABOR**, ahol a DVB-T adások vételének minőségét é
   <img src="https://sandorpeteer.github.io/tavkozles/img/its_snapshot_0005.bmp" alt="DUNATV" />
 </details>
 
+<br>
 
 ### 4. **Mérési eredmények**
 
