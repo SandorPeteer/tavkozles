@@ -1,8 +1,7 @@
 # Távközlés 2024  
 
 ## DOGA:
-<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeWH9NCHyzjiK34IhXi60qltOCMmoC0-QzupDZlppP4iEPdaQ/viewform?embedded=true" width="640" height="442" frameborder="0" marginheight="0" marginwidth="0">Betöltés…</iframe>
-
+[01 - MŰSORSZÓRÓ RENDSZEREK](https://forms.gle/Btj1BmNHp55TAZUZ8)
 ## JEGYZŐKÖNYVEK:   
 [DVB-T mérés 2024.10.03. Sándor Péter](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
 
