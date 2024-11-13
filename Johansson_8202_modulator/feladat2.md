@@ -4,7 +4,7 @@
 Ez a mérési feladat a Johansson 8202 DVB-T modulátor többcsatornás képességeit, illetve a bitsebesség és jelminőség kapcsolatát vizsgálja.
 
 ## Cél
-A hallgatók megismerjék a Johansson 8202 DVB-T modulátor további képességeit, különös tekintettel a többcsatornás jel generálásra és a program stream-ek (MPTS) kezelésére. A mérés során a résztvevők több programot állítanak be és mérik a jel minőségét különböző bitsebességek mellett.
+A hallgatók megismerjék a Johansson 8202 DVB-T modulátor további képességeit, különös tekintettel a többcsatornás jel generálásra. A mérés során a résztvevők két programot állítanak be és mérik a jel minőségét különböző bitsebességek mellett.
 
 ## Eszközök
 - 2db Johansson 8202 DVB-T modulátor
@@ -15,9 +15,10 @@ A hallgatók megismerjék a Johansson 8202 DVB-T modulátor további képessége
 
 ## Feladat
 
-### 1. Johansson 8202 modulátor konfiguráció
-   - A hardver vezérlőfelületén keresztül állítsák be a modulátort. Válasszanak egy testre szabott RF frekvenciát (pl. 490 MHz).
-   - Állítsák be a többcsatornás jelkimenetet: két különálló programot (pl. TV1 és TV2).
+### 1. Johansson 8202 modulátor konfiguráció  
+   - Kábelezzék össze a modulátorokat egymásba fűzve, majd a kör végén található modulátor RF kimenetét kössék a Spektrumanalizátorra.
+   - A hardver vezérlőfelületén keresztül állítsák be a modulátort. Válasszanak két külön testre szabott RF frekvenciát (pl. 674 MHz, 682 MHz).
+   - Állítsák be a többcsatornás jelkimenetet: két különálló programot (pl. TV1 és TV2 néven átnevezve a modulátor beállításában).
    - Moduláció: 16-QAM.
    - Sávszélesség: 8 MHz.
    - Válasszanak eltérő bitsebességet a két program számára, például:
