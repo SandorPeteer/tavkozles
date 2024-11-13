@@ -20,7 +20,7 @@ A hallgatók megismerjék a Johansson 8202 DVB-T modulátor további képessége
    - Gyári beállításokra állítsa vissza a modulátorokat (Factory Reset).
    - A hardver vezérlőfelületén keresztül állítsák be a modulátort. Válasszanak két külön testre szabott RF frekvenciát (pl. 674 MHz, 682 MHz).
    - Állítsák be a többcsatornás jelkimenetet: két különálló programot (pl. TV1 és TV2 néven átnevezve a modulátor beállításában).
-   - Moduláció: 16-QAM.
+   - Moduláció: 64-QAM.
    - Sávszélesség: 8 MHz.
    - Válasszanak eltérő bitsebességet a két program számára, például:
      - TV1: 15 Mbps
