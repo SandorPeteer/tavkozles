@@ -17,6 +17,7 @@ A hallgatók megismerjék a Johansson 8202 DVB-T modulátor további képessége
 
 ### 1. Johansson 8202 modulátor konfiguráció  
    - Kábelezzék össze a modulátorokat egymásba fűzve, majd a kör végén található modulátor RF kimenetét kössék a Spektrumanalizátorra.
+   - Gyári beállításokra állítsa vissza a modulátorokat (Factory Reset).
    - A hardver vezérlőfelületén keresztül állítsák be a modulátort. Válasszanak két külön testre szabott RF frekvenciát (pl. 674 MHz, 682 MHz).
    - Állítsák be a többcsatornás jelkimenetet: két különálló programot (pl. TV1 és TV2 néven átnevezve a modulátor beállításában).
    - Moduláció: 16-QAM.
@@ -33,8 +34,8 @@ A hallgatók megismerjék a Johansson 8202 DVB-T modulátor további képessége
      - A két program bitsebessége
 
 ### 3. Bitsebesség és jelminőség összefüggése
-   - A következő lépésben változtassák meg a bitsebességet az egyik programnál (pl. TV2), és figyeljék meg, hogyan változik a jelminőség (MER).
-   - Mérések: növeljék a TV2 bitsebességét 10 Mbps-ról 20 Mbps-ra, majd ismét mérjék meg a jelszintet, a MER-t és a vevő reakcióját.
+   - A következő lépésben újra változtassák meg a bitsebességet az egyik programnál (pl. TV2), és figyeljék meg, hogyan változik a jelminőség (MER).
+   - Mérések: növeljék a TV2 bitsebességét 10 Mbps-ról MAXIMUM Mbps-ra, majd ismét mérjék meg a jelszintet, a MER-t és a vevő reakcióját.
 
 ### 4. Jegyzőkönyv készítése
    - A laptopon készítsenek jegyzőkönyvet a mért paraméterekről:
@@ -54,9 +55,9 @@ A hallgatók megismerjék a Johansson 8202 DVB-T modulátor további képessége
 
 | Mérési paraméter   | RF frekvencia (MHz) | Program neve | Bitsebesség (Mbps) | Jelszint (dBm) | MER érték (dB) |
 |--------------------|---------------------|--------------|--------------------|----------------|----------------|
-| **Mérési eredmény 1** | 490                 | TV1          | 15                 | 70             | 38             |
-| **Mérési eredmény 2** | 610                 | TV2          | 10                 | 70             | 40             |
-| **Mérési eredmény 3** | 610                 | TV2          | 20                 | 68             | 35             |
+| **Mérési eredmény 1** | 674              | TV1          | 15                 | 70             | 38             |
+| **Mérési eredmény 2** | 682              | TV2          | 10                 | 70             | 40             |
+| **Mérési eredmény 3** | 682              | TV2          | 21.5 (max)         | 68             | 35             |
 
 ## Időtartam
 - A modulátor beállítása: 30 perc
