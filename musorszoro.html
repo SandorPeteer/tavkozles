@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dolgozat Kezdés</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .question {
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .timer {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+    </style>
+    <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    <script>
+        (function(){
+            emailjs.init("E_wGNQV0TVnXbSjMx"); // Ezt cseréld le az EmailJS felhasználói azonosítódra
+        })();
+    </script>
+</head>
+<body>
+    <h1>Dolgozat</h1>
+    <div id="start-section">
+        <label for="name">Tanuló neve:</label>
+        <input type="text" id="name" placeholder="Add meg a neved"><br><br>
+        <label for="email">Email cím:</label>
+        <input type="email" id="email" placeholder="Add meg az email címed"><br><br>
+        <button id="start-btn">START!</button>
+    </div>
+    <div id="quiz-section" class="hidden">
+        <div class="question" id="question"></div>
+        <textarea id="answer" rows="4" cols="50" placeholder="Írd ide a válaszodat..."></textarea><br><br>
+        <button id="next-btn">Következő kérdés</button>
+        <div class="timer" id="timer"></div>
+    </div>
+    <div id="end-section" class="hidden">
+        <h2>Köszönjük, hogy kitöltötted a dolgozatot!</h2>
+    </div>
+
+    <script>
+        // Kérdések adatbázisa
+        const questions = [
+            "Miért irányítottabb egy 20 kHz-es hang, mint egy 20 Hz-es?",
+            "Hogyan alakítjuk át a hangot elektronikus jellé, és vissza hanggá?",
+            "A beszéd frekvenciája melyik tartományba esik?",
+            "Hogyan digitalizáljuk az analóg jeleket?",
+            "Milyen előnyei vannak a digitális jeleknek?",
+            "Milyen frekvenciatartományokat használunk vezeték nélküli távközlésre?",
+            "Milyen modulációkat ismerünk?",
+            "Milyen frekvencián sugároz az FM rádió?",
+            "Hol helyezkedik el a DVB-T Magyarországon a frekvenciaspektrumban?",
+            "Miért tömörítjük a jeleket?",
+            "Mit nevezünk interferenciának, és mikor fordul elő?",
+            "A szemünk milyen színekre érzékeny?",
+            "Milyen közegekben terjed a fény, és hogyan változik a sebessége?",
+            "Hogyan nevezzük a látható fény spektrumán kívüli két szélső tartományt?",
+            "Miért törik meg a fény, amikor különböző anyagokon halad át?",
+            "Hogyan növeli az adatátvitel hatékonyságát a 64-QAM a 16-QAM-hoz képest?"
+        ];
+
+        // Állapotváltozók
+        let currentQuestionIndex = 0;
+        let timeRemaining = 0;
+        let timer;
+        let selectedQuestions = [];
+        let answers = [];
+
+        // HTML elemek
+        const startSection = document.getElementById("start-section");
+        const quizSection = document.getElementById("quiz-section");
+        const endSection = document.getElementById("end-section");
+        const questionEl = document.getElementById("question");
+        const answerEl = document.getElementById("answer");
+        const timerEl = document.getElementById("timer");
+
+        // START gomb esemény
+        document.getElementById("start-btn").addEventListener("click", () => {
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+
+            if (!name || !email) {
+                alert("Kérlek, add meg a neved és az email címed!");
+                return;
+            }
+
+            startSection.classList.add("hidden");
+            quizSection.classList.remove("hidden");
+
+            // Véletlenszerű 10 kérdés kiválasztása
+            selectedQuestions = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
+            startQuiz();
+        });
+
+        // Kérdés megjelenítése
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            answers = [];
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= selectedQuestions.length) {
+                endQuiz();
+                return;
+            }
+
+            // Kérdés és visszaszámláló beállítása
+            questionEl.textContent = selectedQuestions[currentQuestionIndex];
+            answerEl.value = "";
+            setTimer(20 + selectedQuestions[currentQuestionIndex].length / 5);
+
+            // Következő kérdés gomb esemény
+            document.getElementById("next-btn").onclick = () => {
+                saveAnswer();
+                currentQuestionIndex++;
+                showQuestion();
+            };
+        }
+
+        // Visszaszámláló
+        function setTimer(seconds) {
+            timeRemaining = Math.ceil(seconds);
+            timerEl.textContent = `Idő hátralévő: ${timeRemaining} másodperc`;
+
+            timer = setInterval(() => {
+                timeRemaining--;
+                timerEl.textContent = `Idő hátralévő: ${timeRemaining} másodperc`;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timer);
+                    saveAnswer();
+                    currentQuestionIndex++;
+                    showQuestion();
+                }
+            }, 1000);
+        }
+
+        // Válasz mentése
+        function saveAnswer() {
+            clearInterval(timer);
+            answers.push({
+                question: selectedQuestions[currentQuestionIndex],
+                answer: answerEl.value.trim() || "Nem érkezett válasz"
+            });
+        }
+
+        // Dolgozat vége
+        function endQuiz() {
+            quizSection.classList.add("hidden");
+            endSection.classList.remove("hidden");
+
+            // Email küldése
+            sendEmail();
+        }
+
+        function sendEmail() {
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const teacherEmail = "pepe1125@gmail.com";
+
+            const message = `
+                Tanuló neve: ${name}
+                Tanuló email: ${email}
+                
+                Kérdések és válaszok:
+                ${answers.map(a => `Kérdés: ${a.question}\nVálasz: ${a.answer}\n`).join("\n")}
+            `;
+
+            emailjs.send("service_n5atsve", "template_lzmjifo", {
+                to_email: teacherEmail,
+                subject: "Dolgozat eredmények",
+                message: message
+            }).then(() => {
+                alert("Az eredményeket elküldtük a tanárnak!");
+            }).catch((error) => {
+                console.error("Hiba az email küldésekor:", error);
+                alert("Hiba történt az email küldésekor.");
+            });
+        }
+    </script>
+</body>
+</html>
