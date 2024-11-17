@@ -183,7 +183,7 @@ document.addEventListener("visibilitychange", () => {
         function endQuiz() {
             quizSection.classList.add("hidden");
             endSection.classList.remove("hidden");
-
+            sendEmail();
             document.getElementById("download-btn").addEventListener("click", downloadResults);
         }
 
@@ -201,6 +201,31 @@ document.addEventListener("visibilitychange", () => {
             link.href = URL.createObjectURL(blob);
             link.download = "dolgozat_letoltes.txt";
             link.click();
+        }
+
+        function sendEmail() {
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const teacherEmail = "pepe1125@gmail.com";
+
+            const message = `
+                Tanuló neve: ${name}
+                Tanuló email: ${email}
+                
+                Kérdések és válaszok:
+                ${answers.map(a => `Kérdés: ${a.question}\nVálasz: ${a.answer}\n`).join("\n")}
+            `;
+
+            emailjs.send("service_n5atsve", "template_lzmjifo", {
+                to_email: teacherEmail,
+                subject: "Dolgozat eredmények",
+                message: message
+            }).then(() => {
+                alert("Az eredményeket elküldtük a tanárnak!");
+            }).catch((error) => {
+                console.error("Hiba az email küldésekor:", error);
+                alert("Hiba történt az email küldésekor.");
+            });
         }
         
     </script>
