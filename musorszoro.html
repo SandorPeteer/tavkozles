@@ -45,8 +45,8 @@
         <div class="timer" id="timer"></div>
     </div>
     <div id="end-section" class="hidden">
-        <h2>Köszönjük, hogy kitöltötted a dolgozatot!</h2>
-        <button id="download-btn">Eredmények letöltése</button>
+        <h2>SP köszöni, hogy kitöltötted a dolgozatot!</h2>
+        <button id="download-btn">Dolgozatra adott válaszok letöltése</button>
     </div>
 
     <script>
@@ -149,11 +149,11 @@
 
         function setTimer(seconds) {
             timeRemaining = Math.ceil(seconds);
-            timerEl.textContent = `Idő hátralévő: ${timeRemaining} másodperc`;
+            timerEl.textContent = `Válaszadási idő: ${timeRemaining} másodperc`;
 
             timer = setInterval(() => {
                 timeRemaining--;
-                timerEl.textContent = `Idő hátralévő: ${timeRemaining} másodperc`;
+                timerEl.textContent = `Válaszadási idő: ${timeRemaining} másodperc`;
 
                 if (timeRemaining <= 0) {
                     clearInterval(timer);
@@ -168,7 +168,7 @@
             clearInterval(timer);
             answers.push({
                 question: selectedQuestions[currentQuestionIndex],
-                answer: answerEl.value.trim() || "Nem érkezett válasz"
+                answer: answerEl.value.trim() || "Nem érkezett válasz!"
             });
         }
 
@@ -191,7 +191,7 @@
             const blob = new Blob([resultText], { type: "text/plain" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "dolgozat_eredmeny.txt";
+            link.download = "dolgozat_letoltes.txt";
             link.click();
         }
     </script>
