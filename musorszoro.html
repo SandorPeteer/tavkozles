@@ -25,7 +25,7 @@
     <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
     <script>
         (function(){
-            emailjs.init("E_wGNQV0TVnXbSjMx"); // Ezt cseréld le az EmailJS felhasználói azonosítódra
+            emailjs.init("E_wGNQV0TVnXbSjMx"); // EmailJS felhasználói azonosítód
         })();
     </script>
 </head>
@@ -51,32 +51,54 @@
     <script>
         // Kérdések adatbázisa
         const questions = [
-            "Miért irányítottabb egy 20 kHz-es hang, mint egy 20 Hz-es?",
-            "Hogyan alakítjuk át a hangot elektronikus jellé, és vissza hanggá?",
-            "A beszéd frekvenciája melyik tartományba esik?",
-            "Hogyan digitalizáljuk az analóg jeleket?",
-            "Milyen előnyei vannak a digitális jeleknek?",
-            "Milyen frekvenciatartományokat használunk vezeték nélküli távközlésre?",
-            "Milyen modulációkat ismerünk?",
-            "Milyen frekvencián sugároz az FM rádió?",
-            "Hol helyezkedik el a DVB-T Magyarországon a frekvenciaspektrumban?",
-            "Miért tömörítjük a jeleket?",
-            "Mit nevezünk interferenciának, és mikor fordul elő?",
-            "A szemünk milyen színekre érzékeny?",
-            "Milyen közegekben terjed a fény, és hogyan változik a sebessége?",
-            "Hogyan nevezzük a látható fény spektrumán kívüli két szélső tartományt?",
-            "Miért törik meg a fény, amikor különböző anyagokon halad át?",
-            "Hogyan növeli az adatátvitel hatékonyságát a 64-QAM a 16-QAM-hoz képest?"
+            "Mi az interferencia, és mikor fordul elő?",
+            "Milyen színekre érzékeny a szemünk?",
+            "Hogyan terjed a fény különböző anyagokban?",
+            "Mi a látható fény spektrumán kívüli két fény neve?",
+            "Miért törik meg a fény, ha másik anyagba lép?",
+            "Hogyan alakul ki a szivárvány?",
+            "Mit nevezünk polarizált fénynek, és hol találkozunk vele?",
+            "Miért látunk színeket különböző hullámhosszoknál?",
+            "Hogyan érzékeli a fényt a szemünk?",
+            "Hogyan függ össze a hullámhossz, a frekvencia és a fény sebessége?",
+            "Mi a kapcsolat a frekvencia és a hang irányítottsága között? Miért irányítottabb egy 20 kHz-es hang, mint egy 20 Hz-es?",
+            "Hogyan alakítjuk át a hanghullámot elektronikus jellé, és az elektronikus jelet újra hanghullámmá?",
+            "A beszéd frekvenciája melyik tartományba esik a spektrumban?",
+            "Hogyan történik az analóg jelek digitalizálása, és hogyan alakítjuk vissza őket számunkra érthető formába?",
+            "Milyen előnyei vannak a digitális jeleknek az analóg jelekkel szemben?",
+            "Milyen frekvenciatartományokat használhatunk vezeték nélküli távközlésre?",
+            "Sorolj fel néhány modulációs típust!",
+            "Milyen frekvenciatartományban sugároz az FM rádió?",
+            "Milyen frekvenciatartományban működik a DVB-T Magyarországon? Hová esik a spektrumban?",
+            "Miért kell tömöríteni a jeleket, és milyen tömörítési módszerek léteznek?",
+            "Mondj példát veszteséges és veszteségmentes tömörítési eljárásokra hang esetében!",
+            "Milyen tömörítési eljárásokat használunk fényképek esetében? Mondj egy példát veszteségesre és veszteségmentesre!",
+            "Hogyan tömörítjük a mozgóképet, és miért van erre szükség? Mondj példát egy népszerű eljárásra!",
+            "Milyen képarányok léteznek a videók esetében? Sorolj fel legalább kettőt!",
+            "Milyen fps szabványokat ismerünk videókra?",
+            "Melyek a legnépszerűbb videofelbontások? Sorolj fel legalább kettőt!",
+            "Milyen modulációs eljárással érhetjük el, hogy egyidőben több információt tudjunk továbbítani egy csatornán?",
+            "Mi a QAM moduláció, és hogyan növeli az adatátviteli kapacitást?",
+            "Hogyan működik az OFDM (Orthogonal Frequency Division Multiplexing), és miért előnyös a műsorszórásban?",
+            "Mit nevezünk multiplexálásnak, és hogyan alkalmazzák a műsorszórásban?",
+            "Hogyan lehet egyszerre több szimbólumot továbbítani egyetlen hullámon?",
+            "Milyen modulációs típusokat használnak a digitális földfelszíni televíziózásban (DVB-T)?",
+            "Mi a különbség az analóg és digitális modulációs technikák között a műsorszórásban?",
+            "Hogyan csökkenti az OFDM az interferencia hatásait a műsorszórás során?",
+            "Mi az FDM (Frequency Division Multiplexing), és hogyan használják a rádiós műsorszórásban?",
+            "Mit jelent az, hogy egy moduláció nagyobb spektrális hatékonyságot biztosít?",
+            "Hogyan osztja szét az információt a DVB-T2 szabvány több vivőfrekvencián keresztül?",
+            "Miért fontos a hibajavító kódolás a műsorszórásban, és hogyan javítja a vétel minőségét?",
+            "Miért használják a kvadratúra amplitúdó modulációt (QAM) a digitális televíziózásban?",
+            "Milyen előnyei vannak a digitális modulációnak az analóggal szemben a műsorszórás során?"
         ];
 
-        // Állapotváltozók
         let currentQuestionIndex = 0;
         let timeRemaining = 0;
         let timer;
         let selectedQuestions = [];
         let answers = [];
 
-        // HTML elemek
         const startSection = document.getElementById("start-section");
         const quizSection = document.getElementById("quiz-section");
         const endSection = document.getElementById("end-section");
@@ -84,7 +106,6 @@
         const answerEl = document.getElementById("answer");
         const timerEl = document.getElementById("timer");
 
-        // START gomb esemény
         document.getElementById("start-btn").addEventListener("click", () => {
             const name = document.getElementById("name").value.trim();
             const email = document.getElementById("email").value.trim();
@@ -97,12 +118,10 @@
             startSection.classList.add("hidden");
             quizSection.classList.remove("hidden");
 
-            // Véletlenszerű 10 kérdés kiválasztása
             selectedQuestions = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
             startQuiz();
         });
 
-        // Kérdés megjelenítése
         function startQuiz() {
             currentQuestionIndex = 0;
             answers = [];
@@ -115,12 +134,10 @@
                 return;
             }
 
-            // Kérdés és visszaszámláló beállítása
             questionEl.textContent = selectedQuestions[currentQuestionIndex];
             answerEl.value = "";
             setTimer(20 + selectedQuestions[currentQuestionIndex].length / 5);
 
-            // Következő kérdés gomb esemény
             document.getElementById("next-btn").onclick = () => {
                 saveAnswer();
                 currentQuestionIndex++;
@@ -128,7 +145,6 @@
             };
         }
 
-        // Visszaszámláló
         function setTimer(seconds) {
             timeRemaining = Math.ceil(seconds);
             timerEl.textContent = `Idő hátralévő: ${timeRemaining} másodperc`;
@@ -146,7 +162,6 @@
             }, 1000);
         }
 
-        // Válasz mentése
         function saveAnswer() {
             clearInterval(timer);
             answers.push({
@@ -155,12 +170,10 @@
             });
         }
 
-        // Dolgozat vége
         function endQuiz() {
             quizSection.classList.add("hidden");
             endSection.classList.remove("hidden");
 
-            // Email küldése
             sendEmail();
         }
 
