@@ -108,6 +108,14 @@
         const answerEl = document.getElementById("answer");
         const timerEl = document.getElementById("timer");
 
+// Dolgozat vége, ha az oldal elhagyásra kerül
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+        alert("Elhagytad az oldalt. A teszt véget ér számodra.");
+        endQuiz(); // Hívjuk meg a teszt lezárására szolgáló függvényt
+    }
+});
+        
         document.getElementById("start-btn").addEventListener("click", () => {
             const name = document.getElementById("name").value.trim();
             const email = document.getElementById("email").value.trim();
@@ -194,6 +202,7 @@
             link.download = "dolgozat_letoltes.txt";
             link.click();
         }
+        
     </script>
 </body>
 </html>
