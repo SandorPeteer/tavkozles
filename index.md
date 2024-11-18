@@ -1,4 +1,4 @@
-# Távközlés  
+# Távközlési technikus  
 
 sandorpeteer.github.io/tavkozles
 ---   
