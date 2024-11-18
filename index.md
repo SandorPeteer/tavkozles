@@ -2,6 +2,8 @@
 
 ## DOGA:
 [01 - MŰSORSZÓRÓ RENDSZEREK](https://forms.gle/Btj1BmNHp55TAZUZ8)
+[02 - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/musorszoro)
+
 ## JEGYZŐKÖNYVEK:   
 [DVB-T mérés 2024.10.03. Sándor Péter](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
 
