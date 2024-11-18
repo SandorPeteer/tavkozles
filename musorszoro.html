@@ -47,6 +47,8 @@
     <div id="end-section" class="hidden">
         <h2>SP köszöni, hogy kitöltötted a dolgozatot!</h2>
         <button id="download-btn">Dolgozatra adott válaszok letöltése</button>
+        <br>
+        <button id="back-btn">Vissza a főoldalra</button>
     </div>
 
     <script>
@@ -132,6 +134,11 @@ document.addEventListener("visibilitychange", () => {
             startQuiz();
         });
 
+document.getElementById("back-btn").addEventListener("click", () => {
+    // Átirányítás a főoldalra
+    window.location.href = "https://sandorpeteer.github.io/tavkozles/";
+});
+        
         function startQuiz() {
             currentQuestionIndex = 0;
             answers = [];
