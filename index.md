@@ -1,5 +1,5 @@
 # Távközlés 2024  
-> sandorpeteer.github.io/tavkozles
+- sandorpeteer.github.io/tavkozles
 
 ## DOGA:
 [01 - MŰSORSZÓRÓ RENDSZEREK - Google forms](https://forms.gle/Btj1BmNHp55TAZUZ8)   
