@@ -6,7 +6,7 @@ sandorpeteer.github.io/tavkozles
 ## DOGA:
 [01 - MŰSORSZÓRÓ RENDSZEREK - Google forms](https://forms.gle/Btj1BmNHp55TAZUZ8)   
 [02 - MŰSORSZÓRÓ - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/musorszoro)   
-[03 - VEZETÉKNÉLKÜLI - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/vezeteknelkul)   
+[03 - VEZETÉK NÉLKÜLI - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/vezeteknelkul)   
 
 ## JEGYZŐKÖNYVEK:   
 [DVB-T mérés 2024.10.03. Sándor Péter](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
