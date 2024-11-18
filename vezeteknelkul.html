@@ -1,22 +1,26 @@
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Műsorszóró rendszerek teszt</title>
+    <title>Vezeték nélküli adatátvitel teszt</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 20px;
         }
+
         .hidden {
             display: none;
         }
+
         .question {
             font-weight: bold;
             margin: 20px 0;
         }
+
         .timer {
             font-size: 24px;
             margin: 20px 0;
@@ -24,13 +28,14 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
-        (function(){
+        (function () {
             emailjs.init("E_wGNQV0TVnXbSjMx"); // EmailJS felhasználói azonosítód
         })();
     </script>
 </head>
+
 <body>
-    <h1>Műsorszóró rendszerek teszt</h1>
+    <h1>Vezeték nélküli adatátviteli rendszerek kérdései</h1>
     <div id="start-section">
         <label for="name">Tanuló neve:</label>
         <input type="text" id="name" placeholder="Add meg a neved"><br><br>
@@ -54,48 +59,87 @@
     <script>
         // Kérdések adatbázisa
         const questions = [
-    "Mi az interferencia, és mikor fordul elő?",
-    "Milyen színekre érzékeny a szemünk?",
-    "Hogyan terjed a fény különböző anyagokban?",
-    "Mi a látható fény spektrumán kívüli két fény neve?",
-    "Miért törik meg a fény, ha másik anyagba lép?",
-    "Hogyan alakul ki a szivárvány?",
-    "Mit nevezünk polarizált fénynek, és hol találkozunk vele?",
-    "Miért látunk színeket különböző hullámhosszoknál?",
-    "Hogyan érzékeli a fényt a szemünk?",
-    "Hogyan függ össze a hullámhossz, a frekvencia és a fény sebessége?",
-    "Mi a kapcsolat a frekvencia és a hang irányítottsága között? Miért irányítottabb egy 20 kHz-es hang, mint egy 20 Hz-es?",
-    "Hogyan alakítjuk át a hanghullámot elektronikus jellé, és az elektronikus jelet újra hanghullámmá?",
-    "A beszéd frekvenciája melyik tartományba esik a spektrumban?",
-    "Hogyan történik az analóg jelek digitalizálása, és hogyan alakítjuk vissza őket számunkra érthető formába?",
-    "Milyen előnyei vannak a digitális jeleknek az analóg jelekkel szemben?",
-    "Milyen frekvenciatartományokat használhatunk vezeték nélküli távközlésre?",
-    "Sorolj fel néhány modulációs típust!",
-    "Milyen frekvenciatartományban sugároz az FM rádió?",
-    "Milyen frekvenciatartományban működik a DVB-T Magyarországon? Hová esik a spektrumban?",
-    "Miért kell tömöríteni a jeleket, és milyen tömörítési módszerek léteznek?",
-    "Mondj példát veszteséges és veszteségmentes tömörítési eljárásokra hang esetében!",
-    "Milyen tömörítési eljárásokat használunk fényképek esetében? Mondj egy példát veszteségesre és veszteségmentesre!",
-    "Hogyan tömörítjük a mozgóképet, és miért van erre szükség? Mondj példát egy népszerű eljárásra!",
-    "Milyen képarányok léteznek a videók esetében? Sorolj fel legalább kettőt!",
-    "Milyen fps szabványokat ismerünk videókra?",
-    "Melyek a legnépszerűbb videofelbontások? Sorolj fel legalább kettőt!",
-    "Milyen modulációs eljárással érhetjük el, hogy egyidőben több információt tudjunk továbbítani egy csatornán?",
-    "Mi a QAM moduláció, és hogyan növeli az adatátviteli kapacitást?",
-    "Hogyan működik az OFDM (Orthogonal Frequency Division Multiplexing), és miért előnyös a műsorszórásban?",
-    "Mit nevezünk multiplexálásnak, és hogyan alkalmazzák a műsorszórásban?",
-    "Hogyan lehet egyszerre több szimbólumot továbbítani egyetlen hullámon?",
-    "Milyen modulációs típusokat használnak a digitális földfelszíni televíziózásban (DVB-T)?",
-    "Mi a különbség az analóg és digitális modulációs technikák között a műsorszórásban?",
-    "Hogyan csökkenti az OFDM az interferencia hatásait a műsorszórás során?",
-    "Mi az FDM (Frequency Division Multiplexing), és hogyan használják a rádiós műsorszórásban?",
-    "Mit jelent az, hogy egy moduláció nagyobb spektrális hatékonyságot biztosít?",
-    "Hogyan osztja szét az információt a DVB-T2 szabvány több vivőfrekvencián keresztül?",
-    "Miért fontos a hibajavító kódolás a műsorszórásban, és hogyan javítja a vétel minőségét?",
-    "Hogyan használja a DVB-T a COFDM (Coded Orthogonal Frequency Division Multiplexing) technológiát?",
-    "Miért használják a kvadratúra amplitúdó modulációt (QAM) a digitális televíziózásban?",
-    "Milyen előnyei vannak a digitális modulációnak az analóggal szemben a műsorszórás során?"
-];
+            // I. Wireless alapok, elektromágneses hullámok
+            "Mi az elektromágneses hullám, és hogyan terjed?",
+            "Hogyan jellemezhető az elektromágneses hullám hullámhossza és frekvenciája?",
+            "Mit jelent a vezeték nélküli kommunikáció?",
+            "Hogyan fedezték fel az elektromágneses hullámokat?",
+            "Milyen frekvenciák haladnak át a földi atmoszférán?",
+            "Mik a különbségek a különböző frekvenciájú hullámok viselkedésében?",
+            "Mitől függ, hogy egy hullám visszaverődik vagy áthalad egy tárgyon?",
+            "Hogyan terjednek a rádióhullámok a Föld atmoszféráján belül és kívül?",
+
+            // II. Adatátvitelre is alkalmas elektromágneses hullámok
+            "Milyen hullámok alkalmasak adatátvitelre?",
+            "Hogyan működik az infravörös kommunikáció?",
+            "Mi az infravörös kommunikáció két fő alkalmazási módja?",
+            "Miért nehéz a lézeres adatátvitelt lehallgatni?",
+            "Milyen akadályok zavarhatják a lézeres adatátvitelt?",
+            "Miért használunk mikrohullámokat adatátvitelre?",
+            "Hogyan zavarhatja a mikrohullámú sütő a wifi működését?",
+            "Mi az infrastruktúra típusú hálózat, és hogyan működik?",
+            "Mi a különbség az ad-hoc és az infrastruktúra hálózat között?",
+            "Hogyan működik a pont-pont adatkapcsolat kültéren?",
+
+            // III. Kültéri rádiós link építhetőségét befolyásoló tényezők
+            "Miért fontos a rálátás a kültéri rádiós linkeknél?",
+            "Mi a Fresnel-zóna, és miért kell figyelembe venni?",
+            "Mi történhet, ha a Fresnel-zónát akadályozzák?",
+            "Hogyan befolyásolja a frekvencia a rádiós adatátvitel hatótávolságát?",
+            "Milyen különbségek vannak a szabad és licencelt frekvenciasávok között?",
+            "Miért nehéz nagy távolságú rádiós linkeket építeni magas frekvenciákon?",
+            "Milyen problémákat okozhatnak a kültéri akadályok, például fák vagy épületek?",
+            "Milyen gyakori telepítési hibák akadályozzák a kültéri rádiós linkek működését?",
+
+            // Vegyesen még kérdések a tananyagból
+            "Mi a vezeték nélküli kommunikáció lényege?",
+            "Ki találta fel az elektromágneses hullámok elméletét?",
+            "Mitől függ az elektromágneses hullám frekvenciája?",
+            "Milyen hullámok haladnak át a földi atmoszférán?",
+            "Hogyan használjuk az infravörös adatátvitelt?",
+            "Mi zavarhatja a lézeres adatátvitelt?",
+            "Milyen előnyei és hátrányai vannak a mikrohullámú adatátvitelnek?",
+            "Mit jelent az ad-hoc hálózat?",
+            "Mi a különbség az infrastruktúra és az ad-hoc hálózat között?",
+            "Hogyan működik a pont-pont kapcsolat?",
+            "Miért fontos a rálátás a kültéri linkeknél?",
+            "Mi az a Fresnel-zóna, és miért számít?",
+            "Miért csillapodik a jel a távolság növekedésével?",
+            "Mi a különbség a szabad és licencelt frekvenciasávok között?",
+            "Mitől függ egy antenna teljesítménye?",
+            "Hogyan működik a körsugárzó antenna?",
+            "Mit jelent az antenna nyeresége?",
+            "Milyen helyzetekben használunk szektorantennát?",
+            "Mire jó a parabolaantenna?",
+            "Miért fontos az antenna pontos beállítása?",
+            "Mit okoz az interferencia a rádiós adatátvitelnél?",
+            "Hogyan választható interferenciamentes csatorna?",
+            "Miért fontos a jelerősség a rádiós linkeknél?",
+            "Mire jó a 802.11b és 802.11g szabvány?",
+            "Hol használjuk az 5 GHz-es frekvenciát?",
+            "Mi a MIMO technológia lényege?",
+            "Miért előnyös az 5 GHz-es sáv?",
+            "Mi határozza meg a rádiós link távolságát?",
+            "Milyen antennát érdemes használni egy rádiós linkhez?",
+            "Milyen problémákat okoz a szél egy kültéri antennánál?",
+            "Hogyan hat az átfedő csatornák használata a hálózatra?",
+            "Mi a különbség a pont-pont és a pont-multipont kapcsolat között?",
+            "Mi zavarhatja a lézeres adatátvitelt, például napsütés?",
+            "Miért fontos figyelembe venni a szabadtéri csillapítást?",
+            "Hogyan segít a rádiós eszköz szoftvere az antenna beállításában?",
+            "Milyen előnyei vannak a licencelt sávoknak?",
+            "Mi a szerepe az Access Pointnak a hálózatban?",
+            "Miért csökken az adatátviteli sebesség interferencia miatt?",
+            "Hogyan lehet elkerülni az interferenciát?",
+            "Mit jelent az antenna horizontális és vertikális nyílásszöge?",
+            "Miért kell terhelés mellett állítani az antennákat?",
+            "Hogyan jellemezhetjük egy rádiós link minőségét?",
+            "Miért fontos a Data Rate az adatátvitelnél?",
+            "Milyen különbség van az 5 GHz és a 2,4 GHz között?",
+            "Miért lényeges a Fresnel-zóna tisztasága?",
+            "Milyen sebességeket érhetünk el a 802.11ac szabvánnyal?",
+            "Hogyan javítja az eszköz érzékenysége az adatátvitelt?"
+        ];
 
         let currentQuestionIndex = 0;
         let timeRemaining = 0;
@@ -110,14 +154,14 @@
         const answerEl = document.getElementById("answer");
         const timerEl = document.getElementById("timer");
 
-// Dolgozat vége, ha az oldal elhagyásra kerül
-document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") {
-        alert("Elhagytad az oldalt. A teszt véget ért számodra!");
-        endQuiz(); // Hívjuk meg a teszt lezárására szolgáló függvényt
-    }
-});
-        
+        // Dolgozat vége, ha az oldal elhagyásra kerül
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden") {
+                alert("Elhagytad az oldalt. A teszt véget ért számodra!");
+                endQuiz(); // Hívjuk meg a teszt lezárására szolgáló függvényt
+            }
+        });
+
         document.getElementById("start-btn").addEventListener("click", () => {
             const name = document.getElementById("name").value.trim();
             const email = document.getElementById("email").value.trim();
@@ -134,11 +178,11 @@ document.addEventListener("visibilitychange", () => {
             startQuiz();
         });
 
-document.getElementById("back-btn").addEventListener("click", () => {
-    // Átirányítás a főoldalra
-    window.location.href = "https://sandorpeteer.github.io/tavkozles/";
-});
-        
+        document.getElementById("back-btn").addEventListener("click", () => {
+            // Átirányítás a főoldalra
+            window.location.href = "https://sandorpeteer.github.io/tavkozles/";
+        });
+
         function startQuiz() {
             currentQuestionIndex = 0;
             answers = [];
@@ -206,7 +250,7 @@ document.getElementById("back-btn").addEventListener("click", () => {
             const blob = new Blob([resultText], { type: "text/plain" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "musorszoro_dolgozat_letoltes.txt";
+            link.download = "vezeteknelkuli_dolgozat_letoltes.txt";
             link.click();
         }
 
@@ -235,7 +279,8 @@ document.getElementById("back-btn").addEventListener("click", () => {
                 alert("Hiba történt az email küldésekor.");
             });
         }
-        
+
     </script>
 </body>
+
 </html>
