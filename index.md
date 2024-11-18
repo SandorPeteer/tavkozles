@@ -1,7 +1,6 @@
 # Távközlés 2024  
 
----   
-> sandorpeteer.github.io/tavkozles
+sandorpeteer.github.io/tavkozles
 ---   
 
 ## DOGA:
