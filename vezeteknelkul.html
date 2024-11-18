@@ -146,6 +146,7 @@
         let timer;
         let selectedQuestions = [];
         let answers = [];
+        let startTime, endTime;
 
         const startSection = document.getElementById("start-section");
         const quizSection = document.getElementById("quiz-section");
@@ -163,6 +164,7 @@
         });
 
         document.getElementById("start-btn").addEventListener("click", () => {
+            startTime = new Date(); // Aktuális kezdési idő
             const name = document.getElementById("name").value.trim();
             const email = document.getElementById("email").value.trim();
 
@@ -234,6 +236,7 @@
         function endQuiz() {
             quizSection.classList.add("hidden");
             endSection.classList.remove("hidden");
+            endTime = new Date(); // Aktuális befejezési idő
             sendEmail();
             document.getElementById("download-btn").addEventListener("click", downloadResults);
         }
@@ -241,7 +244,8 @@
         function downloadResults() {
             const name = document.getElementById("name").value.trim();
             const email = document.getElementById("email").value.trim();
-            let resultText = `Tanuló neve: ${name}\nEmail: ${email}\n\nKérdések és válaszok:\n`;
+            const timeTaken = calculateTimeTaken();
+            let resultText = `Tanuló neve: ${name}\nEmail: ${email}\nTeszt kezdési idő: ${startTime}\nTeszt befejezési idő: ${endTime}\nTeszt kitöltési idő: ${timeTaken}\n\nKérdések és válaszok:\n`;
 
             answers.forEach((a, index) => {
                 resultText += `${index + 1}. Kérdés: ${a.question}\nVálasz: ${a.answer}\n\n`;
@@ -258,11 +262,16 @@
             const name = document.getElementById("name").value.trim();
             const email = document.getElementById("email").value.trim();
             const teacherEmail = "pepe1125@gmail.com";
+            const timeTaken = calculateTimeTaken();
+
 
             const message = `
                 Tanuló neve: ${name}
                 Tanuló email: ${email}
-                
+                Teszt kezdete: ${startTime}
+                Teszt vége: ${endTime}
+                Teszt kitöltési idő: ${timeTaken}
+
                 Kérdések és válaszok:
                 ${answers.map(a => `Kérdés: ${a.question}\nVálasz: ${a.answer}\n`).join("\n")}
             `;
@@ -278,6 +287,16 @@
                 console.error("Hiba az email küldésekor:", error);
                 alert("Hiba történt az email küldésekor.");
             });
+        }
+
+        function calculateTimeTaken() {
+            if (startTime && endTime) {
+                const diff = endTime - startTime; // Különbség milliszekundumban
+                const minutes = Math.floor(diff / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                return `${minutes} perc ${seconds} másodperc`;
+            }
+            return "Nincs adat";
         }
 
     </script>
