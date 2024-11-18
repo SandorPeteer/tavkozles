@@ -155,13 +155,27 @@
         const answerEl = document.getElementById("answer");
         const timerEl = document.getElementById("timer");
 
+        document.addEventListener("DOMContentLoaded", () => {
+            entryPoint();
+        });
+
+        // Main entry point of program
+        function entryPoint() {
+            document.addEventListener("visibilitychange", handleVisibilityChange);
+        }
+
         // Dolgozat vége, ha az oldal elhagyásra kerül
-        document.addEventListener("visibilitychange", () => {
+        function handleVisibilityChange() {
             if (document.visibilityState === "hidden") {
                 alert("Elhagytad az oldalt. A teszt véget ért számodra!");
                 endQuiz(); // Hívjuk meg a teszt lezárására szolgáló függvényt
             }
-        });
+        }
+
+        // Remove visibility change event listener
+        function removeVisibilityChangeListener() {
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        }
 
         document.getElementById("start-btn").addEventListener("click", () => {
             startTime = new Date(); // Aktuális kezdési idő
@@ -181,6 +195,8 @@
         });
 
         document.getElementById("back-btn").addEventListener("click", () => {
+            // Remove visibility change eventlistener before redirect
+            removeVisibilityChangeListener();
             // Átirányítás a főoldalra
             window.location.href = "https://sandorpeteer.github.io/tavkozles/";
         });
@@ -245,7 +261,7 @@
             const name = document.getElementById("name").value.trim();
             const email = document.getElementById("email").value.trim();
             const timeTaken = calculateTimeTaken();
-            let resultText = `Tanuló neve: ${name}\nEmail: ${email}\nTeszt kezdési idő: ${startTime}\nTeszt befejezési idő: ${endTime}\nTeszt kitöltési idő: ${timeTaken}\n\nKérdések és válaszok:\n`;
+            let resultText = `Tanuló neve: ${name}\nEmail: ${email}\n\nTeszt kezdési idő: ${startTime}\nTeszt befejezési idő: ${endTime}\nTeszt kitöltési idő: ${timeTaken}\n\nKérdések és válaszok:\n`;
 
             answers.forEach((a, index) => {
                 resultText += `${index + 1}. Kérdés: ${a.question}\nVálasz: ${a.answer}\n\n`;
@@ -268,11 +284,13 @@
             const message = `
                 Tanuló neve: ${name}
                 Tanuló email: ${email}
+
                 Teszt kezdete: ${startTime}
                 Teszt vége: ${endTime}
                 Teszt kitöltési idő: ${timeTaken}
 
                 Kérdések és válaszok:
+
                 ${answers.map(a => `Kérdés: ${a.question}\nVálasz: ${a.answer}\n`).join("\n")}
             `;
 
