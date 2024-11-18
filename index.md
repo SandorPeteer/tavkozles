@@ -1,4 +1,4 @@
-# Távközlés 2024  
+# Távközlés  
 
 sandorpeteer.github.io/tavkozles
 ---   
