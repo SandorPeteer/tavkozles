@@ -26,7 +26,7 @@ sandorpeteer.github.io/tavkozles
 > [05 - Bitsebesség vs. jelminőség mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat2)   
 > [06 - Antenna teljesítmény vs. jelszint/jelminőség](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat3)
 > 
-> [Jegyzőkönyv minta](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)   
+> [{Jegyzőkönyv minta}](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)   
 
 ### Johansson 6700 Profiler:
 > [07 - Frekvencia áthelyezés mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_6700_Profiler/feladat1)   
