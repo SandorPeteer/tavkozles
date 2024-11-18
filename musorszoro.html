@@ -219,6 +219,7 @@ document.addEventListener("visibilitychange", () => {
             emailjs.send("service_n5atsve", "template_lzmjifo", {
                 to_email: teacherEmail,
                 subject: name,
+                reply_to: email,
                 message: message
             }).then(() => {
                 alert("Az eredményeket elküldtük a tanárnak!");
