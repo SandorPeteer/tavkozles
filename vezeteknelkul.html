@@ -5,13 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vezeték nélküli adatátvitel teszt</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        (function () {
+            emailjs.init("E_wGNQV0TVnXbSjMx"); // EmailJS felhasználói azonosítód
+        })();
+    </script>
+
     <style>
         body {
+            margin: 0px;
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
         }
-
+        
         .hidden {
             display: none;
         }
@@ -25,35 +32,217 @@
             font-size: 24px;
             margin: 20px 0;
         }
+
+        .container {
+            display: flex;
+            width: 100vw;
+            max-width: 100%;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container h1 {
+            border: 2px solid;
+            width: auto;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            box-shadow: 5px 10px;
+            margin-bottom: 5rem;
+        }
+
+        #start-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid;
+            width: auto;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            box-shadow: 5px 10px;
+        }
+
+        #start-section button {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            box-shadow: 0px 9px #999;
+        }
+
+        #start-section button:active {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            transform: translateY(4px);
+            box-shadow: 0px 5px #666;
+        }
+
+        #start-section label {
+            margin-bottom: 0.3rem;
+            font-size: 1.5rem;
+        }
+
+        #start-section input {
+            outline: none;
+            border: 2px solid black;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        input {
+            font-size: 1.4rem;
+        }
+
+        #quiz-section {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid;
+            width: auto;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            box-shadow: 5px 10px;
+        }
+
+        #quiz-section .question {
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+
+        #quiz-section .timer {
+            margin-bottom: 0rem;
+            margin-top: 3rem;
+            font-size: 1.5rem;
+        }
+
+        #quiz-section textarea {
+            outline: none;
+            border: 2px solid black;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        #quiz-section button {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            box-shadow: 0px 9px #999;
+        }
+
+        #quiz-section button:active {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            transform: translateY(4px);
+            box-shadow: 0px 5px #666;
+        }
+
+        #end-section {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid;
+            width: auto;
+            padding-top: 1rem;
+            padding-bottom: 3rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            box-shadow: 5px 10px;
+        }
+
+        #end-section button {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            box-shadow: 0px 9px #999;
+            margin-top: 2rem;
+        }
+
+        #end-section button:active {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            transform: translateY(4px);
+            box-shadow: 0px 5px #666;
+        }
+
+        #end-section h2 {
+            font-size: 1.5rem;
+        }
+
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script>
-        (function () {
-            emailjs.init("E_wGNQV0TVnXbSjMx"); // EmailJS felhasználói azonosítód
-        })();
-    </script>
 </head>
 
 <body>
-    <h1>Vezeték nélküli adatátviteli rendszerek kérdései</h1>
-    <div id="start-section">
-        <label for="name">Tanuló neve:</label>
-        <input type="text" id="name" placeholder="Add meg a neved"><br><br>
-        <label for="email">Email cím:</label>
-        <input type="email" id="email" placeholder="Add meg az email címed"><br><br>
-        <button id="start-btn">START!</button>
-    </div>
-    <div id="quiz-section" class="hidden">
-        <div class="question" id="question"></div>
-        <textarea id="answer" rows="4" cols="50" placeholder="Írd ide a válaszodat..."></textarea><br><br>
-        <button id="next-btn">Következő kérdés</button>
-        <div class="timer" id="timer"></div>
-    </div>
-    <div id="end-section" class="hidden">
-        <h2>SP köszöni, hogy kitöltötted a dolgozatot!</h2>
-        <button id="download-btn">A dolgozatra adott válaszok letöltése</button>
-        <br>
-        <button id="back-btn">Vissza a főoldalra</button>
+    <div class="container">
+        <h1>Vezeték nélküli adatátviteli rendszerek kérdései</h1>
+
+        <div id="start-section">
+            <label for="name">Tanuló neve:</label>
+            <input type="text" id="name" placeholder="Add meg a neved"><br><br>
+            <label for="email">Email cím:</label>
+            <input type="email" id="email" placeholder="Add meg az email címed"><br><br>
+            <button id="start-btn">START!</button>
+        </div>
+
+        <div id="quiz-section" class="hidden">
+            <div class="question" id="question"></div>
+            <textarea id="answer" rows="4" cols="50" placeholder="Írd ide a válaszodat..."></textarea><br><br>
+            <button id="next-btn">Következő kérdés</button>
+            <div class="timer" id="timer"></div>
+        </div>
+
+        <div id="end-section" class="hidden">
+            <h2>SP köszöni, hogy kitöltötted a dolgozatot!</h2>
+            <button id="download-btn">A dolgozatra adott válaszok letöltése</button>
+            <br>
+            <button id="back-btn">Vissza a főoldalra</button>
+        </div>
     </div>
 
     <script>
@@ -187,8 +376,8 @@
                 return;
             }
 
-            startSection.classList.add("hidden");
-            quizSection.classList.remove("hidden");
+            startSection.style.display = "none";
+            quizSection.style.display = "flex";
 
             selectedQuestions = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
             startQuiz();
@@ -250,8 +439,11 @@
         }
 
         function endQuiz() {
-            quizSection.classList.add("hidden");
-            endSection.classList.remove("hidden");
+            removeVisibilityChangeListener();
+            
+            startSection.style.display = "none";
+            quizSection.style.display = "none";
+            endSection.style.display = "flex";
             endTime = new Date(); // Aktuális befejezési idő
             sendEmail();
             document.getElementById("download-btn").addEventListener("click", downloadResults);
@@ -261,7 +453,7 @@
             const name = document.getElementById("name").value.trim();
             const email = document.getElementById("email").value.trim();
             const timeTaken = calculateTimeTaken();
-            let resultText = `Tanuló neve: ${name}\nEmail: ${email}\n\nTeszt kezdési idő: ${startTime}\nTeszt befejezési idő: ${endTime}\nTeszt kitöltési idő: ${timeTaken}\n\nKérdések és válaszok:\n\n`;
+            let resultText = `Tanuló neve: ${name}\nEmail: ${email}\nTeszt kezdési idő: ${startTime}\nTeszt befejezési idő: ${endTime}\nTeszt kitöltési idő: ${timeTaken}\n\nKérdések és válaszok:\n`;
 
             answers.forEach((a, index) => {
                 resultText += `${index + 1}. Kérdés: ${a.question}\nVálasz: ${a.answer}\n\n`;
@@ -280,17 +472,14 @@
             const teacherEmail = "pepe1125@gmail.com";
             const timeTaken = calculateTimeTaken();
 
-
             const message = `
                 Tanuló neve: ${name}
                 Tanuló email: ${email}
-
                 Teszt kezdete: ${startTime}
                 Teszt vége: ${endTime}
                 Teszt kitöltési idő: ${timeTaken}
 
                 Kérdések és válaszok:
-
                 ${answers.map(a => `Kérdés: ${a.question}\nVálasz: ${a.answer}\n`).join("\n")}
             `;
 
