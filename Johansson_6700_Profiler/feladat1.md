@@ -26,7 +26,7 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
    - Jegyezzétek fel az összes bejövő frekvenciát és az áthelyezett csatornák új frekvenciáit a jegyzőkönyvbe.
    
 2. Aktiváljátok az automatikus csatornánkénti szintszabályzást (AGC) az eszköz menüjében amennyiben lehetséges, valamint ha szükséges kapcsoljátok be az antenna erősítő fokozatot is.
-   - Ellenőrizzétek, hogy a kimenő jelszintek egységesek legyenek, függetlenül a bejövő jelek eltérő szintjétől.
+   - Ellenőrizzétek, hogy a kimenő jelszintek egységesek legyenek, állítsd be 100dBu -ra, függetlenül a bejövő jelek eltérő szintjétől.
    - Rögzítsétek a bemeneti és kimeneti jelszinteket a spektrum analizátor segítségével, és jegyezzétek fel azokat.
 
 ### 3. Szűrő beállítások és interferencia vizsgálat (15 perc)
