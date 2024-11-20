@@ -6,7 +6,7 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
 ## Szükséges eszközök
 - Johansson 6700 Profiler programozható antennaerősítő-szűrő
 - FM antenna (88-108 MHz)
-- DVB-T antenna (UHF: 470-862 MHz)
+- DVB-T szoba antenna, pl.: SMART HD550 (UHF: 470-862 MHz)
 - Spektrum analizátor
 - Koaxiális kábelek
 - Laptop a beállítások elvégzéséhez és jegyzőkönyv készítéséhez
