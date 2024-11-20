@@ -5,15 +5,23 @@ A PI ellenállás-hálózat jellemzőinek meghatározása a megadott ellenállá
 
 ## Eszközök
 - Multiméter
-- Ellenállások: 
-  > R3 = 150 Ω   
-  > R4 = 36 Ω   
+- Ellenállások
 - Breadboard
 - Jelgenerátor
 - Oszcilloszkóp
 
 ## Ábra
 ![PI Ellenállás-hálózat](https://www.electronics-notes.com/images/attenuator-resistive-pi-section-pad.svg)
+
+## Segédlet
+[TT csillapító tag](https://www.electronics-tutorials.ws/attenuators/pi-pad-attenuator.html)
+
+## Feladatleírás
+
+Előkészület:
+> 680 Ohm impedanciához illesztve számítsd ki a T-tag ellenállásai értékét úgy, hogy 6dB csillapítás legyen! 
+> A falstad.com szimulátorban építsd meg az áramkört és ellenőrizd a 6dB csillapítást, hogy helyesen működik-e a hálózat.
+> Végezetül használj a kiszámított értékekhez közeli ellenállásokat.
 
 ## Feladatleírás
 1. **Kapcsolják be az áramkört** a PI ellenállás-hálózat felépítésével a megadott R3 és R4 értékekkel a breadboard-on.
