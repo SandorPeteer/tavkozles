@@ -21,7 +21,8 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
 
 ### 2. Csatornaáthelyezés és jelszint-optimalizálás (45 perc)
 1. Használjátok a Johansson 6700 csatornaáthelyezési funkcióját (frekvenciakonverter), hogy az FM és DVB-T jeleket különböző frekvenciákra helyezzétek át.
-   - Példa: A DVB-T jeleeket helyezzétek át növekső sorrendbe a 41-es csatornától kezdve. (csatorna információ: [Avasi adótoronyról érkező jelek](https://www.fmdx.hu/transmitters-hng-avas.htm))
+   - Példa: A DVB-T jeleeket helyezzétek át növekső sorrendbe a 41-es csatornától kezdve. 
+   - Csatorna információk: [Avasi adótoronyról érkező jelek](https://www.fmdx.hu/transmitters-hng-avas.htm)
    - Jegyezzétek fel az összes bejövő frekvenciát és az áthelyezett csatornák új frekvenciáit a jegyzőkönyvbe.
    
 2. Aktiváljátok az automatikus csatornánkénti szintszabályzást (AGC) az eszköz menüjében amennyiben lehetséges, valamint ha szükséges kapcsoljátok be az antenna erősítő fokozatot is.
