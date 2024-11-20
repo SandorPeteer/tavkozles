@@ -19,7 +19,7 @@ sandorpeteer.github.io/tavkozles
 > [02 - TT mérési feladat](https://sandorpeteer.github.io/tavkozles/RLC/PI)   
 
 ### DVB-T vételi jelszint vizsgálata különböző antenna típusokkal:   
-> [03 - Antenna mérési feladat](https://sandorpeteer.github.io/tavkozles/antennak/feladat)   
+> [03 - Antenna összehasonlítás feladat](https://sandorpeteer.github.io/tavkozles/antennak/feladat)   
 
 ### Johansson 8202 modulátor:   
 > [04 - Frekvencia vs. moduláció mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat)   
