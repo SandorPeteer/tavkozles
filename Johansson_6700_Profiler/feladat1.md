@@ -16,12 +16,12 @@ A gyakorlat célja, hogy a diákok elsajátítsák a Johansson 6700 Profiler ant
 ### 1. Eszközök bekapcsolása és bekötése (30 perc)
 1. Kössétek rá az antennát a spektrumanalizátorra, mentsétek el 45 - 1000 MHz közötti ablakban milyen jelek érkeznek be! 
 2. Csatlakoztassátok át az antennát a Johansson 6700 Profiler egyik illeszkedő bemenetére és a spektrumanalizátort is RF kábeleket felhasználva.
-3. Kössetek be egy FM antennát az FM bemenetre, egy DVB-T antennát a VHF/UHF bemenetre, és egy koax kábelt egy másik VHF/UHF bemenetre például a Johansson 8202 modulátort.
+3. Kössetek be egy FM antennát az FM bemenetre, egy DVB-T antennát a VHF/UHF bemenetre, (és egy koax kábelt egy másik VHF/UHF bemenetre például a Johansson 8202 modulátort).
 4. Csatlakoztassátok a spektrum analizátort a Johansson 6700 Profiler kimenetére a kimenő jelek méréséhez.
 
 ### 2. Csatornaáthelyezés és jelszint-optimalizálás (45 perc)
 1. Használjátok a Johansson 6700 csatornaáthelyezési funkcióját (frekvenciakonverter), hogy az FM és DVB-T jeleket különböző frekvenciákra helyezzétek át.
-   - Példa: A DVB-T jeleeket helyezzétek át növekső sorrendbe a 41-es csatornától kezdve.
+   - Példa: A DVB-T jeleeket helyezzétek át növekső sorrendbe a 41-es csatornától kezdve. (csatorna információ: [Avasi adótoronyról érkező jelek](https://www.fmdx.hu/transmitters-hng-avas.htm))
    - Jegyezzétek fel az összes bejövő frekvenciát és az áthelyezett csatornák új frekvenciáit a jegyzőkönyvbe.
    
 2. Aktiváljátok az automatikus csatornánkénti szintszabályzást (AGC) az eszköz menüjében amennyiben lehetséges, valamint ha szükséges kapcsoljátok be az antenna erősítő fokozatot is.
