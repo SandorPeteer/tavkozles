@@ -1,22 +1,30 @@
 # Méréstechnikai Feladat: T Ellenállás-hálózat
 
 ## Feladat Célja
-A T ellenállás-hálózat jellemzőinek meghatározása a megadott ellenállásértékek alapján.
+A T ellenállás-hálózat jellemzőinek meghatározása.
 
 ## Eszközök
 - Multiméter
-- Ellenállások:
-  - R1 = 170 Ω
-  - R2 = 680 Ω
+- Ellenállások
 - Breadboard
 - Jelgenerátor
 - Oszcilloszkóp
+-  vagy NI MYDAQ
 
 ## Ábra
 ![T Ellenállás-hálózat](https://www.electronics-notes.com/images/attenuator-resistive-t-section-pad.svg)
 
+## Segédlet
+![T csillapító tag](https://www.electronics-tutorials.ws/attenuators/t-pad-attenuator.html)
+
 ## Feladatleírás
-1. **Kapcsolják be az áramkört** a T ellenállás-hálózat felépítésével a megadott R1 és R2 értékekkel a breadboard-on.
+
+Előkészület:
+> 680 Ohm impedanciához illesztve számítsd ki a T-tag ellenállásai értékét úgy, hogy 6dB csillapítás legyen! 
+> A falstad.com szimulátorban építsd meg az áramkört és ellenőrizd a 6dB csillapítást, hogy helyesen működik-e a hálózat.
+> Végezetül használj a kiszámított értékekhez közeli ellenállásokat. 
+
+1. **Kapcsolják be az áramkört** a T ellenállás-hálózat felépítésével a kiválasztott R1 és R2 értékekkel a breadboard-on.
 2. **Mérjék meg** a következő paramétereket a jelgenerátor és oszcilloszkóp segítségével:
    - Az áramkör bemeneti impedanciáját.
    - Az áramkör kimeneti impedanciáját.
