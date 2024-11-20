@@ -15,7 +15,7 @@ A T ellenállás-hálózat jellemzőinek meghatározása.
 ![T Ellenállás-hálózat](https://www.electronics-notes.com/images/attenuator-resistive-t-section-pad.svg)
 
 ## Segédlet
-![T csillapító tag](https://www.electronics-tutorials.ws/attenuators/t-pad-attenuator.html)
+[T csillapító tag](https://www.electronics-tutorials.ws/attenuators/t-pad-attenuator.html)
 
 ## Feladatleírás
 
