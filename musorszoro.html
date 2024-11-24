@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Műsorszóró rendszerek teszt</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        (function () {
+            emailjs.init("E_wGNQV0TVnXbSjMx"); // EmailJS felhasználói azonosítód
+        })();
+    </script>
+
     <style>
         body {
             margin: 0px;
@@ -207,35 +216,36 @@
         }
 
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script>
-        (function(){
-            emailjs.init("E_wGNQV0TVnXbSjMx"); // EmailJS felhasználói azonosítód
-        })();
-    </script>
 </head>
+
 <body>
-    <h1>Műsorszóró rendszerek teszt</h1>
-    <div id="start-section">
-        <label for="name">Tanuló neve:</label>
-        <input type="text" id="name" placeholder="Add meg a neved"><br><br>
-        <label for="email">Email cím:</label>
-        <input type="email" id="email" placeholder="Add meg az email címed"><br><br>
-        <button id="start-btn">START!</button>
-    </div>
-    <div id="quiz-section" class="hidden">
-        <div class="question" id="question"></div>
-        <textarea id="answer" rows="4" cols="50" placeholder="Írd ide a válaszodat..."></textarea><br><br>
-        <button id="next-btn">Következő kérdés</button>
-        <div class="timer" id="timer"></div>
-    </div>
-    <div id="end-section" class="hidden">
-        <h2>SP köszöni, hogy kitöltötted a dolgozatot!</h2>
-        <button id="download-btn">A dolgozatra adott válaszok letöltése</button>
-        <br>
-        <button id="back-btn">Vissza a főoldalra</button>
+    <div class="container">
+        <h1>Műsorszóró rendszerek kérdései</h1>
+
+        <div id="start-section">
+            <label for="name">Tanuló neve:</label>
+            <input type="text" id="name" placeholder="Add meg a neved"><br><br>
+            <label for="email">Email cím:</label>
+            <input type="email" id="email" placeholder="Add meg az email címed"><br><br>
+            <button id="start-btn">START!</button>
+        </div>
+
+        <div id="quiz-section" class="hidden">
+            <div class="question" id="question"></div>
+            <textarea id="answer" rows="4" cols="50" placeholder="Írd ide a válaszodat..."></textarea><br><br>
+            <button id="next-btn">Következő kérdés</button>
+            <div class="timer" id="timer"></div>
+        </div>
+
+        <div id="end-section" class="hidden">
+            <h2>SP köszöni, hogy kitöltötted a dolgozatot!</h2>
+            <button id="download-btn">A dolgozatra adott válaszok letöltése</button>
+            <br>
+            <button id="back-btn">Vissza a főoldalra</button>
+        </div>
     </div>
 
-    <script src="musorszoro.js"></script>
+    <script src="https://sandorpeteer.github.io/tavkozles/musorszoro.js"></script>
 </body>
+
 </html>

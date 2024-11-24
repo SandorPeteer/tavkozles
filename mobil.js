@@ -176,7 +176,7 @@ function downloadResults() {
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
     const timeTaken = calculateTimeTaken();
-    let resultText = `Tanuló neve: ${name}\nEmail: ${email}\nTeszt kezdési idő: ${startTime}\nTeszt befejezési idő: ${endTime}\nTeszt kitöltési idő: ${timeTaken}\n\nKérdések és válaszok:\n`;
+    let resultText = `Tanuló neve: ${name}\nEmail: ${email}\nTeszt kezdési idő: ${startTime}\nTeszt befejezési idő: ${endTime}\nTeszt kitöltési idő: ${timeTaken}\n\nMobil távközlés Kérdések és válaszok:\n\n`;
 
     answers.forEach((a, index) => {
         resultText += `${index + 1}. Kérdés: ${a.question}\nVálasz: ${a.answer}\n\n`;
@@ -202,7 +202,7 @@ function sendEmail() {
                         Teszt vége: ${endTime}
                         Teszt kitöltési idő: ${timeTaken}
         
-                        Kérdések és válaszok:
+                        Mobil távközlés Kérdések és válaszok:
                         ${answers.map(a => `Kérdés: ${a.question}\nVálasz: ${a.answer}\n`).join("\n")}
                     `;
 

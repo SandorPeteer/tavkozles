@@ -48,6 +48,7 @@ let timeRemaining = 0;
 let timer;
 let selectedQuestions = [];
 let answers = [];
+let startTime, endTime;
 
 const startSection = document.getElementById("start-section");
 const quizSection = document.getElementById("quiz-section");
@@ -56,15 +57,30 @@ const questionEl = document.getElementById("question");
 const answerEl = document.getElementById("answer");
 const timerEl = document.getElementById("timer");
 
+document.addEventListener("DOMContentLoaded", () => {
+    entryPoint();
+});
+
+// Main entry point of program
+function entryPoint() {
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+}
+
 // Dolgozat vége, ha az oldal elhagyásra kerül
-document.addEventListener("visibilitychange", () => {
+function handleVisibilityChange() {
     if (document.visibilityState === "hidden") {
         alert("Elhagytad az oldalt. A teszt véget ért számodra!");
         endQuiz(); // Hívjuk meg a teszt lezárására szolgáló függvényt
     }
-});
+}
+
+// Remove visibility change event listener
+function removeVisibilityChangeListener() {
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+}
 
 document.getElementById("start-btn").addEventListener("click", () => {
+    startTime = new Date(); // Aktuális kezdési idő
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
 
@@ -73,14 +89,16 @@ document.getElementById("start-btn").addEventListener("click", () => {
         return;
     }
 
-    startSection.classList.add("hidden");
-    quizSection.classList.remove("hidden");
+    startSection.style.display = "none";
+    quizSection.style.display = "flex";
 
     selectedQuestions = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
     startQuiz();
 });
 
 document.getElementById("back-btn").addEventListener("click", () => {
+    // Remove visibility change eventlistener before redirect
+    removeVisibilityChangeListener();
     // Átirányítás a főoldalra
     window.location.href = "https://sandorpeteer.github.io/tavkozles/";
 });
@@ -134,8 +152,12 @@ function saveAnswer() {
 }
 
 function endQuiz() {
-    quizSection.classList.add("hidden");
-    endSection.classList.remove("hidden");
+    removeVisibilityChangeListener();
+
+    startSection.style.display = "none";
+    quizSection.style.display = "none";
+    endSection.style.display = "flex";
+    endTime = new Date(); // Aktuális befejezési idő
     sendEmail();
     document.getElementById("download-btn").addEventListener("click", downloadResults);
 }
@@ -143,7 +165,8 @@ function endQuiz() {
 function downloadResults() {
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
-    let resultText = `Tanuló neve: ${name}\nEmail: ${email}\n\nKérdések és válaszok:\n`;
+    const timeTaken = calculateTimeTaken();
+    let resultText = `Tanuló neve: ${name}\nEmail: ${email}\nTeszt kezdési idő: ${startTime}\nTeszt befejezési idő: ${endTime}\nTeszt kitöltési idő: ${timeTaken}\n\n Műsorszóró Kérdések és válaszok:\n\n`;
 
     answers.forEach((a, index) => {
         resultText += `${index + 1}. Kérdés: ${a.question}\nVálasz: ${a.answer}\n\n`;
@@ -152,7 +175,7 @@ function downloadResults() {
     const blob = new Blob([resultText], { type: "text/plain" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "musorszoro_dolgozat_letoltes.txt";
+    link.download = "vmusorszoro_dolgozat_letoltes.txt";
     link.click();
 }
 
@@ -160,14 +183,18 @@ function sendEmail() {
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
     const teacherEmail = "pepe1125@gmail.com";
+    const timeTaken = calculateTimeTaken();
 
     const message = `
-                        Tanuló neve: ${name}
-                        Tanuló email: ${email}
-                        
-                        Kérdések és válaszok:
-                        ${answers.map(a => `Kérdés: ${a.question}\nVálasz: ${a.answer}\n`).join("\n")}
-                    `;
+        Tanuló neve: ${name}
+        Tanuló email: ${email}
+        Teszt kezdete: ${startTime}
+        Teszt vége: ${endTime}
+        Teszt kitöltési idő: ${timeTaken}
+
+        Műsorszóró Kérdések és válaszok:
+        ${answers.map(a => `Kérdés: ${a.question}\nVálasz: ${a.answer}\n`).join("\n")}
+    `;
 
     emailjs.send("service_n5atsve", "template_lzmjifo", {
         to_email: teacherEmail,
@@ -180,4 +207,14 @@ function sendEmail() {
         console.error("Hiba az email küldésekor:", error);
         alert("Hiba történt az email küldésekor.");
     });
+}
+
+function calculateTimeTaken() {
+    if (startTime && endTime) {
+        const diff = endTime - startTime; // Különbség milliszekundumban
+        const minutes = Math.floor(diff / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        return `${minutes} perc ${seconds} másodperc`;
+    }
+    return "Nincs adat";
 }
