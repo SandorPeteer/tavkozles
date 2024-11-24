@@ -6,21 +6,206 @@
     <title>Műsorszóró rendszerek teszt</title>
     <style>
         body {
+            margin: 0px;
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
         }
+        
         .hidden {
             display: none;
         }
+
         .question {
             font-weight: bold;
             margin: 20px 0;
         }
+
         .timer {
             font-size: 24px;
             margin: 20px 0;
         }
+
+        .container {
+            display: flex;
+            width: 100vw;
+            max-width: 100%;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container h1 {
+            border: 2px solid;
+            width: auto;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            box-shadow: 5px 10px;
+            margin-bottom: 5rem;
+        }
+
+        #start-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid;
+            width: auto;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            box-shadow: 5px 10px;
+        }
+
+        #start-section button {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            box-shadow: 0px 9px #999;
+        }
+
+        #start-section button:active {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            transform: translateY(4px);
+            box-shadow: 0px 5px #666;
+        }
+
+        #start-section label {
+            margin-bottom: 0.3rem;
+            font-size: 1.5rem;
+        }
+
+        #start-section input {
+            outline: none;
+            border: 2px solid black;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        input {
+            font-size: 1.4rem;
+        }
+
+        #quiz-section {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid;
+            width: auto;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            box-shadow: 5px 10px;
+        }
+
+        #quiz-section .question {
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+
+        #quiz-section .timer {
+            margin-bottom: 0rem;
+            margin-top: 3rem;
+            font-size: 1.5rem;
+        }
+
+        #quiz-section textarea {
+            outline: none;
+            border: 2px solid black;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        #quiz-section button {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            box-shadow: 0px 9px #999;
+        }
+
+        #quiz-section button:active {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            transform: translateY(4px);
+            box-shadow: 0px 5px #666;
+        }
+
+        #end-section {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid;
+            width: auto;
+            padding-top: 1rem;
+            padding-bottom: 3rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            box-shadow: 5px 10px;
+        }
+
+        #end-section button {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            box-shadow: 0px 9px #999;
+            margin-top: 2rem;
+        }
+
+        #end-section button:active {
+            border: 2px solid;
+            font-size: 1.3rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            cursor: pointer;
+            background-color: white;
+            transform: translateY(4px);
+            box-shadow: 0px 5px #666;
+        }
+
+        #end-section h2 {
+            font-size: 1.5rem;
+        }
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script>
