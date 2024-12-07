@@ -17,8 +17,8 @@ sandorpeteer.github.io/tavkozles
 ---
 
 ## JEGYZŐKÖNYVEK:   
+[{Jegyzőkönyv minta}](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)   
 [DVB-T mérés 2024.10.03. Sándor Péter](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)   
-[{Jegyzőkönyv minta}](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)
 
 ---  
 ## GYAKORLATI FELADATOK:   
