@@ -43,12 +43,14 @@ sandorpeteer.github.io/tavkozles
 
 ## Tananyagok:
 
-- Soros RC kapcsolás: [mindent a soros RC-ről](https://sandorpeteer.github.io/tavkozles/soros_rc.pdf)   
-- Soros RL kapcsolás: [mindent a soros RL-ről](https://sandorpeteer.github.io/tavkozles/soros_rl.pdf)   
-- Soros RLC kapcsolás: [mindent a soros RLC-ről](https://sandorpeteer.github.io/tavkozles/soros_rlc.pdf)   
+- [mindent a soros RC-ről](https://sandorpeteer.github.io/tavkozles/soros_rc.pdf)   
+- [mindent a soros RL-ről](https://sandorpeteer.github.io/tavkozles/soros_rl.pdf)   
+- [mindent a soros RLC-ről](https://sandorpeteer.github.io/tavkozles/soros_rlc.pdf)
+  
 - [Vezeték nélküli adatátvitel](https://drive.google.com/file/d/1atCYFilDRKF3jYGR3G-ug3GWAf1A07m_/view?usp=drive_link)   
 - [Antennák](https://drive.google.com/file/d/1o55MGlPLGShmrXSF5-LfJPJj-A-F6xdj/view?usp=drive_link)   
-- [Mobil távközlés](https://youtu.be/Jpbaa8ErL3Q?si=Wh_PltT4ShZLV2WJ)   
+- [Mobil távközlés](https://youtu.be/Jpbaa8ErL3Q?si=Wh_PltT4ShZLV2WJ)
+  
 - [OPTIKAI ADATÁTVITEL DOKUMENTÁCIÓ](https://docs.google.com/document/d/1dnqqqghsqOKc_PRbdLQtqtarTR4-t_Bkibqxh3Sk_7Y/edit?usp=sharing)  
 
 ---
