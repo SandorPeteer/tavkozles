@@ -1,853 +1,1067 @@
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SP Telekom TéglaTörő - Profi Változat</title>
-<style>
-  body {
-    margin:0; background:#000; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:#fff; overflow:hidden;
-  }
-  #wrapper {
-    position:relative;
-    width:1024px;
-    margin:0 auto;
-  }
-  #hud {
-    width:1024px;
-    display:flex;justify-content:space-around;
-    background:linear-gradient(90deg,#111,#333); padding:5px 0; border-bottom:2px solid #fff;
-    text-shadow:1px 1px 2px #000;
-  }
-  #hud div {font-size:16px;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP Telekom TéglaTörő - Kábel 10 Tégla Megoldás</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            overflow: hidden;
+        }
 
-  #gameCanvas {
-    display:block;
-    border:2px solid #fff;
-    background:#000;
-    cursor:none;
-  }
+        #wrapper {
+            position: relative;
+            width: 1024px;
+            margin: 0 auto;
+        }
 
-  .overlay {
-    position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-    background:rgba(0,0,0,0.9);padding:20px;border:2px solid #fff;text-align:center;z-index:10;cursor:auto;display:none;width:400px;
-    box-shadow:0 0 20px #0ff;
-  }
-  .overlay button {
-    margin-top:10px;padding:10px 20px;background:#0a0;color:#fff;border:2px solid #fff;cursor:pointer;font-size:16px;
-  }
-  .overlay button:hover {background:#080;}
-  .question-option {display:block; margin:10px 0; padding:5px; background:#333; border:1px solid #777; cursor:pointer;}
-  .question-option:hover {background:#444;}
-  #questionFeedback {color:red;font-weight:bold;}
+        #hud {
+            width: 1024px;
+            display: flex;
+            justify-content: space-around;
+            background: linear-gradient(90deg, #111, #333);
+            padding: 5px 0;
+            border-bottom: 2px solid #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
 
-  .flash-bg {animation:flash 2s ease-in-out;}
-  @keyframes flash {
-    0% {background: radial-gradient(circle,#ff0,#f0f,#0ff,#000);}
-    50%{background: radial-gradient(circle,#f0f,#ff0,#0f0,#000);}
-    100%{background: radial-gradient(circle,#ff0,#f0f,#0ff,#000);}
-  }
+        #hud div {
+            font-size: 16px;
+        }
 
-  .border-flash {
-    animation:borderFlash 2s ease-in-out;
-  }
-  @keyframes borderFlash {
-    0% {border-color:#ff0;}
-    25%{border-color:#f0f;}
-    50%{border-color:#0ff;}
-    75%{border-color:#f00;}
-    100%{border-color:#ff0;}
-  }
-</style>
-</head>
-<body>
-<div id="wrapper">
-  <div id="hud">
-    <div>Idő: <span id="time">0</span>s</div>
-    <div>Szint: <span id="level">1</span></div>
-    <div>Pont: <span id="score">0</span></div>
-    <div>Élet: <span id="lives">3</span></div>
-  </div>
-  <canvas id="gameCanvas" width="1024" height="768"></canvas>
+        #gameCanvas {
+            display: block;
+            border: 2px solid #fff;
+            background: #000;
+            cursor: none;
+        }
 
-  <div id="startOverlay" class="overlay">
-    <h1 style="color:#0ff;">SP Telekom TéglaTörő</h1>
-    <p>
-      - Csak távközléses kérdések (optika, UTP, antenna, RF, wifi)<br>
-      - Ritka lézer, antenna specialitás, egyszeri használat<br>
-      - Lézer kattintásra lő, max 10 tégla<br>
-      - UTP kábel: ütő és kiválasztott tégla között, a labda a kábelen halad<br>
-      - Széles RF hullámok antennánál<br><br>
-      Kattints a Start gombra!
-    </p>
-    <button id="startBtn">Start</button>
-  </div>
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border: 2px solid #fff;
+            text-align: center;
+            z-index: 10;
+            cursor: auto;
+            display: none;
+            width: 400px;
+            box-shadow: 0 0 20px #0ff;
+        }
 
-  <div id="questionOverlay" class="overlay">
-    <h2>Kérdés:</h2>
-    <p id="questionText"></p>
-    <div id="options"></div>
-    <p id="questionFeedback"></p>
-  </div>
+        .overlay button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #0a0;
+            color: #fff;
+            border: 2px solid #fff;
+            cursor: pointer;
+            font-size: 16px;
+        }
 
-  <div id="levelOverlay" class="overlay">
-    <h1>Szint teljesítve!</h1>
-    <p>Kattints a következő szinthez!</p>
-    <button id="nextLevelBtn">Következő szint</button>
-  </div>
+        .overlay button:hover {
+            background: #080;
+        }
 
-  <div id="gameOverOverlay" class="overlay">
-    <h1>Game Over!</h1>
-    <p>Pontszámod: <span id="finalScore"></span></p>
-    <button id="restartBtn">Újra</button>
-  </div>
-</div>
+        .question-option {
+            display: block;
+            margin: 10px 0;
+            padding: 5px;
+            background: #333;
+            border: 1px solid #777;
+            cursor: pointer;
+        }
 
-<script>
-const WIDTH=1024;
-const HEIGHT=768;
-const brickWidth=100;
-const brickHeight=30;
-const brickPadding=5;
-const brickOffsetTop=80;
-const brickOffsetLeft=80;
+        .question-option:hover {
+            background: #444;
+        }
 
-const QUESTIONS=[
-  {question:"Az optikai szálban a jel sebessége kb.?",options:["A:~2/3 c","B:c","C:1/2 c","D:Gyorsabb mint c"],correct:0},
-  {question:"Az UTP kábel:",options:["A:Sodrott érpár","B:Koax","C:Optikai szál","D:Hullámvezető"],correct:0},
-  {question:"Elterjedt monomódusú szál távközlésben?",options:["A:G.652","B:G.655","C:OM2","D:Réz"],correct:0},
-  {question:"Wi-Fi sávjai?",options:["A:2,4 és 5 GHz","B:700 MHz","C:10 kHz","D:60 GHz"],correct:0},
-  {question:"RF jelentése:",options:["A:Radio Frequency","B:Red Fiber","C:Rapid Field","D:Random Fázis"],correct:0},
-  {question:"Antenna szerepe távközlésben:",options:["A:Rádióhullámok sugárzása","B:Réz drót","C:Optikai jel","D:Semmi köze"],correct:0}
-];
+        #questionFeedback {
+            color: red;
+            font-weight: bold;
+        }
 
-const BRICK_TYPES=[
-  {type:'optical', color:'#fff'},
-  {type:'utp', color:'orange'},
-  {type:'wifi', color:'blue'},
-  {type:'rf', color:'green'},
-  {type:'sp', color:'purple'},
-  {type:'antenna', color:'#000'},
-  {type:'laser', color:'red'}
-];
+        .flash-bg {
+            animation: flash 2s ease-in-out;
+        }
 
-const BRICK_POOL = BRICK_TYPES; 
-let brickRowCount=3;
-let brickColumnCount=7;
-
-let score=0;
-let lives=3;
-let level=1;
-let startTime=0;
-let running=false;
-let waitingNextLevel=false;
-let questionActive=false;
-let ballMagnetic=false;
-let laserActive=false;
-let specialUsed=false; 
-const POWERUP_CHANCE=0.3;
-
-let laserBrickCount=0;
-const LASER_MAX=10;
-
-let bricks=[];
-let balls=[];
-let powerUps=[];
-
-let utpWireActive=false;
-let utpWireEndX=0;let utpWireEndY=0; // a cél tégla pontja
-// A kábel mindig az ütő centerétől (paddle.x+paddle.width/2,paddle.y) a utpWireEndX, utpWireEndY felé mutat
-
-class QuestionManager {
-  constructor(questions){
-    this.questions=questions;
-    this.usedIndices=[];
-  }
-  getNextQuestion(){
-    let remaining=this.questions.filter((q,i)=>!this.usedIndices.includes(i));
-    if(remaining.length===0)return null;
-    let qIndex=Math.floor(Math.random()*remaining.length);
-    let realIndex=this.questions.indexOf(remaining[qIndex]);
-    this.usedIndices.push(realIndex);
-    return this.questions[realIndex];
-  }
-}
-let questionManager=new QuestionManager(QUESTIONS);
-
-class Ball {
-  constructor(x,y,dx,dy,fireball=false){
-    this.x=x;this.y=y;this.dx=dx;this.dy=dy;this.radius=10;this.fireballActive=fireball;
-  }
-}
-
-class Paddle {
-  constructor(){
-    this.width=120;this.height=15;
-    this.x=(WIDTH-this.width)/2;this.y=HEIGHT-this.height-10;
-  }
-  draw(){
-    ctx.save();
-    ctx.shadowColor='#0ff';
-    ctx.shadowBlur=20*Math.abs(Math.sin(Date.now()/1000));
-    ctx.fillStyle='#0f0';
-    ctx.fillRect(this.x,this.y,this.width,this.height);
-    ctx.restore();
-  }
-}
-let paddle=new Paddle();
-
-class Brick {
-  constructor(x,y,type,color){
-    this.x=x;this.y=y;this.type=type;this.color=color;this.status=1;
-  }
-  draw(){
-    if(this.status==0)return;
-    let grad=ctx.createLinearGradient(this.x,this.y,this.x,this.y+brickHeight);
-    grad.addColorStop(0,'#fff');
-    grad.addColorStop(0.5,this.color);
-    grad.addColorStop(1,'#000');
-    ctx.fillStyle=grad;
-    ctx.beginPath();
-    ctx.rect(this.x,this.y,brickWidth,brickHeight);
-    ctx.fill();
-    ctx.strokeStyle='#fff';
-    ctx.stroke();
-  }
-}
-
-class PowerUp {
-  constructor(x,y,type){
-    this.x=x;this.y=y;this.type=type;this.caught=false;
-  }
-  draw(){
-    if(this.caught)return;
-    ctx.beginPath();
-    ctx.arc(this.x,this.y,10,0,Math.PI*2);
-    let col='#ff0'; let letter='?';
-    if(this.type==='fireball'){col='red';letter='F';}
-    else if(this.type==='multiball'){col='blue';letter='M';}
-    else if(this.type==='antennaItem'){col='yellow';letter='A';}
-    else if(this.type==='laserItem'){col='magenta';letter='L';}
-    ctx.fillStyle=col;
-    ctx.fill();
-    ctx.fillStyle='#000';
-    ctx.font='12px Arial';
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
-    ctx.fillText(letter,this.x,this.y);
-  }
-}
-
-let audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-
-function playSound(freq,dur=0.1,type='sine',vol=0.1){
-  let osc=audioCtx.createOscillator();
-  let gain=audioCtx.createGain();
-  osc.type=type;
-  osc.frequency.setValueAtTime(freq,audioCtx.currentTime);
-  gain.gain.value=vol;
-  osc.connect(gain).connect(audioCtx.destination);
-  osc.start();
-  osc.stop(audioCtx.currentTime+dur);
-}
-
-function playSequence(notes){
-  let offset=0;
-  notes.forEach(n=>{
-    setTimeout(()=>{playSound(n.freq,n.dur,n.type||'sine',n.vol||0.1);},offset*1000);
-    offset+=n.dur;
-  });
-}
-
-const startOverlay=document.getElementById("startOverlay");
-const questionOverlay=document.getElementById("questionOverlay");
-const questionText=document.getElementById("questionText");
-const optionsDiv=document.getElementById("options");
-const questionFeedback=document.getElementById("questionFeedback");
-const levelOverlay=document.getElementById("levelOverlay");
-const gameOverOverlay=document.getElementById("gameOverOverlay");
-const timeEl=document.getElementById("time");
-const levelEl=document.getElementById("level");
-const scoreEl=document.getElementById("score");
-const livesEl=document.getElementById("lives");
-const finalScoreEl=document.getElementById("finalScore");
-const startBtn=document.getElementById("startBtn");
-const nextLevelBtn=document.getElementById("nextLevelBtn");
-const restartBtn=document.getElementById("restartBtn");
-const canvas=document.getElementById("gameCanvas");
-const ctx=canvas.getContext("2d");
-
-startBtn.addEventListener('click',()=>{
-  startOverlay.style.display="none";
-  audioCtx.resume().then(()=>{
-    running=true;
-    startTime=Date.now();
-    draw();
-  });
-});
-nextLevelBtn.addEventListener('click',()=>{
-  levelOverlay.style.display="none";
-  waitingNextLevel=false;
-  level++;
-  levelEl.textContent=level;
-  brickRowCount++;
-  initBricks();
-  resetBalls();
-  paddle.x=(WIDTH - paddle.width)/2;
-  powerUps=[];
-  ballMagnetic=false;
-  laserActive=false;
-  specialUsed=false; // vagy meghagyhatjuk true-nak, ha egyszer specialUsed volt, nem jön több special. A feladat nem kéri, hogy nullázzuk. Marad igaz is.
-  startBorderFlash();
-  running=true;
-  startTime=Date.now();
-  draw();
-});
-restartBtn.addEventListener('click',()=>{
-  gameOverOverlay.style.display="none";
-  resetGame();
-  showStartOverlay();
-});
-
-document.addEventListener("mousemove",mouseMoveHandler,false);
-function mouseMoveHandler(e){
-  if(!running)return;
-  let rect=canvas.getBoundingClientRect();
-  let rx=e.clientX-rect.left;
-  if(rx>0 && rx<WIDTH){
-    paddle.x=rx - paddle.width/2;
-  }
-}
-
-// Laser kattintásra lő: legalsó sorba. De már megoldottuk kattintás eseményt.
-document.addEventListener("click",()=>{
-  if(!running || !laserActive || questionActive || waitingNextLevel) return;
-  if(laserBrickCount>=LASER_MAX) return;
-
-  // Legalsó sor, ahol van tégla
-  let lowestRow=-1;
-  for(let r=brickRowCount-1;r>=0;r--){
-    for(let c=0;c<brickColumnCount;c++){
-      if(bricks[c][r].status==1){
-        lowestRow=r;break;
-      }
-    }
-    if(lowestRow!=-1) break;
-  }
-  if(lowestRow==-1)return; // nincs tégla
-
-  // Lőjük a téglákat ebben a sorban az ütő közepétől felfelé
-  let px=paddle.x+paddle.width/2;
-  for(let c=0;c<brickColumnCount;c++){
-    let B=bricks[c][lowestRow];
-    if(B.status==1 && laserBrickCount<LASER_MAX){
-      B.status=0;
-      addScore(10);
-      playSound(880,0.05);
-      laserBrickCount++;
-      if(B.type==='antenna'){
-        spawnPowerUp(B.x+brickWidth/2,B.y+brickHeight/2);
-      } else if(B.type==='optical'){
-        startFlash();
-        startBorderFlash();
-      } else if(B.type==='sp'){
-        askQuestion();
-      } else if(B.type==='utp'){
-        createUTPWire(c,lowestRow);
-      } else if(B.type==='laser'){
-        spawnPowerUp(B.x+brickWidth/2,B.y+brickHeight/2);
-      }
-    }
-  }
-
-  if(checkAllBricksCleared()) nextLevel();
-});
-
-function showStartOverlay(){startOverlay.style.display="block";}
-function resetGame(){
-  score=0;lives=3;level=1;paddle.width=120;
-  scoreEl.textContent=score;
-  livesEl.textContent=lives;
-  levelEl.textContent=level;
-  brickRowCount=3;brickColumnCount=7;
-  questionManager.usedIndices=[];
-  initBricks();
-  resetBalls();
-  paddle.x=(WIDTH - paddle.width)/2;
-  powerUps=[];
-  ballMagnetic=false;
-  laserActive=false;
-  specialUsed=false;
-  laserBrickCount=0;
-  utpWireActive=false;
-  canvas.classList.remove('flash-bg');
-  canvas.classList.remove('border-flash');
-  running=false;
-  questionActive=false;
-}
-function resetBalls(){
-  balls=[];
-  balls.push(new Ball(WIDTH/2,HEIGHT-60,4,-4,false));
-}
-function initBricks(){
-  bricks=[];
-  for(let c=0;c<brickColumnCount;c++){
-    bricks[c]=[];
-    for(let r=0;r<brickRowCount;r++){
-      let bType=BRICK_POOL[Math.floor(Math.random()*BRICK_POOL.length)];
-      bricks[c][r]=new Brick(0,0,bType.type,bType.color);
-    }
-  }
-}
-
-function addScore(points){
-  score+=points;
-  scoreEl.textContent=score;
-}
-function gameOver(){
-  running=false;
-  finalScoreEl.textContent=score;
-  gameOverOverlay.style.display="block";
-  playSound(130,0.5,'sine',0.15);
-}
-function nextLevel(){
-  running=false;
-  waitingNextLevel=true;
-  playSequence([{freq:523,dur:0.1},{freq:659,dur:0.1},{freq:784,dur:0.1}]);
-  levelOverlay.style.display="block";
-}
-function askQuestion(){
-  let q=questionManager.getNextQuestion();
-  if(q===null){
-    addScore(50);
-    return;
-  }
-  running=false;
-  questionActive=true;
-  questionFeedback.textContent='';
-  questionOverlay.style.display="block";
-  currentQuestion=q;
-  questionText.textContent=q.question;
-  optionsDiv.innerHTML='';
-  q.options.forEach((opt,i)=>{
-    let btn=document.createElement('div');
-    btn.className='question-option';
-    btn.textContent=opt;
-    btn.addEventListener('click',()=>checkAnswer(i));
-    optionsDiv.appendChild(btn);
-  });
-}
-function checkAnswer(i){
-  if(i===currentQuestion.correct){
-    questionOverlay.style.display="none";
-    questionActive=false;
-    running=true;
-    playSound(600,0.2,'triangle',0.2);
-    draw();
-  } else {
-    questionFeedback.textContent="Rossz válasz! Próbáld újra!";
-    playSound(100,0.2,'sawtooth',0.2);
-  }
-}
-
-let flashTimeout=null;
-function startFlash(){
-  if(flashTimeout)clearTimeout(flashTimeout);
-  canvas.classList.add('flash-bg');
-  flashTimeout=setTimeout(()=>{
-    canvas.classList.remove('flash-bg');
-  },2000);
-}
-function startBorderFlash(){
-  canvas.classList.add('border-flash');
-  setTimeout(()=>{
-    canvas.classList.remove('border-flash');
-  },2000);
-}
-
-function spawnPowerUp(x,y){
-  if(specialUsed){
-    // csak normál powerupok
-    if(Math.random()<POWERUP_CHANCE){
-      let list=['fireball','multiball','fireball','multiball','fireball'];
-      let pType=list[Math.floor(Math.random()*list.length)];
-      powerUps.push(new PowerUp(x,y,pType));
-    }
-  } else {
-    if(Math.random()<POWERUP_CHANCE){
-      let list=['fireball','multiball','antennaItem','antennaItem','antennaItem','laserItem'];
-      let pType=list[Math.floor(Math.random()*list.length)];
-      if(pType==='antennaItem' || pType==='laserItem') specialUsed=true;
-      powerUps.push(new PowerUp(x,y,pType));
-    }
-  }
-}
-
-function collisionDetection(){
-  for(let c=0;c<brickColumnCount;c++){
-    for(let r=0;r<brickRowCount;r++){
-      let B=bricks[c][r];
-      if(B.status==1){
-        for(let i=0;i<balls.length;i++){
-          let ball=balls[i];
-          if(ball.x+ball.radius> B.x && ball.x-ball.radius<B.x+brickWidth &&
-             ball.y+ball.radius> B.y && ball.y-ball.radius<B.y+brickHeight){
-            if(!ball.fireballActive) ball.dy=-ball.dy;
-            B.status=0;
-            addScore(10);
-            playSound(880,0.05);
-            if(B.type==='antenna'){
-              spawnPowerUp(B.x+brickWidth/2,B.y+brickHeight/2);
-            } else if(B.type==='optical'){
-              startFlash();
-              startBorderFlash();
-            } else if(B.type==='sp'){
-              askQuestion();
-            } else if(B.type==='laser'){
-              spawnPowerUp(B.x+brickWidth/2,B.y+brickHeight/2);
-            } else if(B.type==='utp'){
-              createUTPWire(c,r);
+        @keyframes flash {
+            0% {
+                background: radial-gradient(circle, #ff0, #f0f, #0ff, #000);
             }
-            if(checkAllBricksCleared()) nextLevel();
-          }
+
+            50% {
+                background: radial-gradient(circle, #f0f, #ff0, #0f0, #000);
+            }
+
+            100% {
+                background: radial-gradient(circle, #ff0, #f0f, #0ff, #000);
+            }
         }
-      }
-    }
-  }
-}
-function checkAllBricksCleared(){
-  for(let c=0;c<brickColumnCount;c++){
-    for(let r=0;r<brickRowCount;r++){
-      if(bricks[c][r].status==1)return false;
-    }
-  }
-  return true;
-}
-let oldPaddleX=0;
-function applySpin(ball){
-  let paddleSpeed=paddle.x - oldPaddleX;
-  if(Math.abs(paddleSpeed)>5){
-    ball.dx+=paddleSpeed*0.1;
-  }
-}
-function updatePowerUps(){
-  for(let p of powerUps){
-    if(!p.caught){
-      p.y+=2;
-      if(p.y+10>paddle.y && p.x>paddle.x && p.x<paddle.x+paddle.width){
-        p.caught=true;
-        activatePowerUp(p.type);
-        playSound(440,0.1);
-      } else if(p.y>HEIGHT){
-        p.caught=true;
-      }
-    }
-  }
-}
-function activatePowerUp(type){
-  if(type==='fireball'){
-    for(let b of balls)b.fireballActive=true;
-    setTimeout(()=>{for(let b of balls)b.fireballActive=false;},10000);
-    playSound(220,0.2);
-  } else if(type==='multiball'){
-    let newBalls=[];
-    for(let b of balls){
-      let speed=Math.sqrt(b.dx*b.dx+b.dy*b.dy);
-      newBalls.push(new Ball(b.x,b.y,speed,-speed,b.fireballActive));
-      newBalls.push(new Ball(b.x,b.y,-speed,speed,b.fireballActive));
-    }
-    balls=balls.concat(newBalls);
-    playSequence([{freq:600,dur:0.05},{freq:700,dur:0.05},{freq:800,dur:0.05}]);
-  } else if(type==='antennaItem'){
-    ballMagnetic=true;
-    playSound(200,0.3,'triangle',0.2);
-  } else if(type==='laserItem'){
-    laserActive=true;
-    playSound(1000,0.3,'square',0.2);
-  }
-}
 
-// UTP vezetéknél megkeressük a céltéglát (vagy felette lévőt)
-function createUTPWire(c,r){
-  // Keressük a felette lévő tégla létezését, ha van aktív tégla felette, oda húzzuk inkább a kábelt
-  let targetC=c; let targetR=r;
-  for(let rr=r-1;rr>=0;rr--){
-    let found=false;
-    for(let cc=0;cc<brickColumnCount;cc++){
-      if(cc==c && bricks[cc][rr].status==1){
-        targetR=rr;targetC=cc;found=true;
-        break;
-      }
-    }
-    if(found)break;
-  }
-  let B=bricks[targetC][targetR];
-  utpWireEndX=B.x+brickWidth/2;
-  utpWireEndY=B.y+brickHeight/2;
-  utpWireActive=true;
-}
-
-function updateBalls(){
-  for(let i=balls.length-1;i>=0;i--){
-    let ball=balls[i];
-    if(ball.x+ball.dx>WIDTH-ball.radius||ball.x+ball.dx<ball.radius){
-      ball.dx=-ball.dx;playSound(300,0.05);
-    }
-    if(ball.y+ball.dy<ball.radius){
-      ball.dy=-ball.dy;playSound(300,0.05);
-    } else if(ball.y+ball.dy>HEIGHT-ball.radius - paddle.height -10){
-      if(ball.x>paddle.x && ball.x<paddle.x+paddle.width){
-        // ütőről pattan
-        ball.dy=-Math.abs(ball.dy);
-        addScore(1);
-        playSound(330,0.05);
-        applySpin(ball);
-        if(utpWireActive){
-          // A labda haladjon a kábel vonalában.
-          applyUTPWireDirection(ball);
+        .border-flash {
+            animation: borderFlash 2s ease-in-out;
         }
-      } else if(ball.y+ball.dy>HEIGHT-ball.radius){
-        balls.splice(i,1);
-      }
-    }
-    if(ballMagnetic) applyMagnetism(ball);
-    if(utpWireActive) checkUTPWireHit(ball);
-    ball.x+=ball.dx;
-    ball.y+=ball.dy;
-  }
-  if(balls.length===0 && running && !questionActive && !waitingNextLevel){
-    lives--;
-    livesEl.textContent=lives;
-    if(lives<=0) gameOver(); else resetBalls();
-  }
-}
 
-// Ha utpWireActive, amikor az ütőről pattan a labda, állítsuk be a labda irányát a kábelvonal mentén
-function applyUTPWireDirection(ball){
-  let startX=paddle.x+paddle.width/2;
-  let startY=paddle.y;
-  let angle=Math.atan2(utpWireEndY - startY, utpWireEndX - startX);
-  let speed=Math.sqrt(ball.dx*ball.dx+ball.dy*ball.dy);
-  ball.dx=Math.cos(angle)*speed;
-  ball.dy=Math.sin(angle)*speed;
-}
+        @keyframes borderFlash {
+            0% {
+                border-color: #ff0;
+            }
 
-// Ha a labda a kábelvonal mentén halad, és eléri a céltéglát, elpusztítja
-function checkUTPWireHit(ball){
-  if(!utpWireActive)return;
-  let dist=(ball.x - utpWireEndX)**2 + (ball.y - utpWireEndY)**2;
-  if(dist < (ball.radius*ball.radius+20)){ 
-    // Elérte a célt
-    // Keressük meg melyik tégla ez
-    let foundC=-1;let foundR=-1;
-    outer: for(let c=0;c<brickColumnCount;c++){
-      for(let r=0;r<brickRowCount;r++){
-        let B=bricks[c][r];
-        if(B.status==1 && Math.abs((B.x+brickWidth/2)-utpWireEndX)<1 && Math.abs((B.y+brickHeight/2)-utpWireEndY)<1){
-          foundC=c;foundR=r;break outer;
+            25% {
+                border-color: #f0f;
+            }
+
+            50% {
+                border-color: #0ff;
+            }
+
+            75% {
+                border-color: #f00;
+            }
+
+            100% {
+                border-color: #ff0;
+            }
         }
-      }
-    }
-    if(foundC!=-1 && foundR!=-1){
-      let B=bricks[foundC][foundR];
-      B.status=0;
-      addScore(10);
-      playSound(880,0.05);
-      if(B.type==='antenna') {
-        spawnPowerUp(B.x+brickWidth/2,B.y+brickHeight/2);
-      } else if(B.type==='optical') {
-        startFlash();
-        startBorderFlash();
-      } else if(B.type==='sp') {
-        askQuestion();
-      } else if(B.type==='laser') {
-        spawnPowerUp(B.x+brickWidth/2,B.y+brickHeight/2);
-      } else if(B.type==='utp'){
-        // újabb utp? Ha kell, frissíthetnénk. Most nem tesszük.
-      }
-      if(checkAllBricksCleared()) nextLevel();
-    }
-    // A tégla elérve, a kábel inaktiválódik
-    utpWireActive=false;
-  }
-}
+    </style>
+</head>
 
+<body>
+    <div id="wrapper">
+        <div id="hud">
+            <div>Idő: <span id="time">0</span>s</div>
+            <div>Szint: <span id="level">1</span></div>
+            <div>Pont: <span id="score">0</span></div>
+            <div>Élet: <span id="lives">3</span></div>
+        </div>
+        <canvas id="gameCanvas" width="1024" height="768"></canvas>
 
-function applyMagnetism(ball){
-  let closestDist=Infinity;
-  let px=paddle.x+paddle.width/2;
-  let py=paddle.y;
-  let cx=0,cy=0;
-  for(let c=0;c<brickColumnCount;c++){
-    for(let r=0;r<brickRowCount;r++){
-      let B=bricks[c][r];
-      if(B.status==1){
-        let bx=B.x+brickWidth/2;
-        let by=B.y+brickHeight/2;
-        let d=(ball.x-bx)**2+(ball.y-by)**2;
-        if(d<closestDist){closestDist=d;cx=bx;cy=by;}
-      }
-    }
-  }
-  if(closestDist<Infinity){
-    let angle=Math.atan2(cy-ball.y,cx-ball.x);
-    ball.dx+=Math.cos(angle)*0.05;
-    ball.dy+=Math.sin(angle)*0.05;
-  }
-}
+        <div id="startOverlay" class="overlay">
+            <h1 style="color:#0ff;">SP Telekom TéglaTörő</h1>
+            <p>
+                Kattints a Start gombra!
+            </p>
+            <button id="startBtn">Start</button>
+        </div>
 
-function drawBackground(){
-  let t=Date.now()/3000;
-  let grad=ctx.createLinearGradient(0,0,WIDTH,HEIGHT);
-  grad.addColorStop(0,`hsl(${(t*50)%360},80%,15%)`);
-  grad.addColorStop(1,`hsl(${(t*50+180)%360},80%,10%)`);
-  ctx.fillStyle=grad;
-  ctx.fillRect(0,0,WIDTH,HEIGHT);
+        <div id="questionOverlay" class="overlay">
+            <h2>Kérdés:</h2>
+            <p id="questionText"></p>
+            <div id="options"></div>
+            <p id="questionFeedback"></p>
+        </div>
 
-  ctx.save();
-  for(let i=0;i<20;i++){
-    let px=Math.sin(t+i)*WIDTH/2+WIDTH/2;
-    let py=Math.cos(t+i*2)*HEIGHT/2+HEIGHT/2;
-    ctx.beginPath();
-    ctx.arc(px,py,5,0,Math.PI*2);
-    ctx.fillStyle=`hsla(${(t*100+i*20)%360},100%,50%,0.3)`;
-    ctx.fill();
-  }
-  ctx.restore();
-}
-function drawBricks(){
-  for(let c=0;c<brickColumnCount;c++){
-    for(let r=0;r<brickRowCount;r++){
-      let B=bricks[c][r];
-      B.x=(c*(brickWidth+brickPadding))+brickOffsetLeft;
-      B.y=(r*(brickHeight+brickPadding))+brickOffsetTop;
-      B.draw();
-    }
-  }
-}
-function drawBalls(){
-  for(let ball of balls){
-    let grad=ctx.createRadialGradient(ball.x,ball.y,ball.radius*0.3,ball.x,ball.y,ball.radius);
-    if(ball.fireballActive){
-      grad.addColorStop(0,'#ff0');
-      grad.addColorStop(1,'#f00');
-    } else {
-      grad.addColorStop(0,'#fff');
-      grad.addColorStop(1,'#ccc');
-    }
-    ctx.fillStyle=grad;
-    ctx.beginPath();
-    ctx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2);
-    ctx.fill();
-  }
-}
+        <div id="levelOverlay" class="overlay">
+            <h1>Szint teljesítve!</h1>
+            <p>Kattints a következő szinthez!</p>
+            <button id="nextLevelBtn">Következő szint</button>
+        </div>
 
-function drawLaserIfAny(){
-  // Laser aktív jelzése: két pöcök az ütőn
-  if(!laserActive)return;
-  ctx.save();
-  ctx.fillStyle='#f0f';
-  ctx.beginPath();
-  ctx.arc(paddle.x, paddle.y+(paddle.height/2),5,0,Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(paddle.x+paddle.width, paddle.y+(paddle.height/2),5,0,Math.PI*2);
-  ctx.fill();
-  ctx.restore();
-}
+        <div id="gameOverOverlay" class="overlay">
+            <h1>Game Over!</h1>
+            <p>Pontszámod: <span id="finalScore"></span></p>
+            <button id="restartBtn">Újra</button>
+        </div>
+    </div>
 
-function drawPowerUps(){
-  for(let p of powerUps)p.draw();
-}
+    <script>
+        const WIDTH = 1024;
+        const HEIGHT = 768;
+        const brickWidth = 100;
+        const brickHeight = 30;
+        const brickPadding = 5;
+        const brickOffsetTop = 80;
+        const brickOffsetLeft = 80;
 
-function drawMagneticWaves(){
-  if(!ballMagnetic)return;
-  let px=paddle.x+paddle.width/2;
-  let py=paddle.y;
-  let closestDist=Infinity;let tx=0,ty=0;
-  for(let c=0;c<brickColumnCount;c++){
-    for(let r=0;r<brickRowCount;r++){
-      let B=bricks[c][r];
-      if(B.status==1){
-        let dist=(px-(B.x+brickWidth/2))**2+(py-(B.y+brickHeight/2))**2;
-        if(dist<closestDist){
-          closestDist=dist;tx=B.x+brickWidth/2;ty=B.y+brickHeight/2;
+        const QUESTIONS = [
+            { question: "Az optikai szálban a jel sebessége kb.?", options: ["A: ~2/3*c ", "B: c", "C: 1/2*c ", "D: Gyorsabb mint c"], correct: 0 },
+            { question: "Az UTP kábel milyen?", options: ["A: Sodrott érpár", "B: Koax", "C: Optikai szál", "D: Hullámvezető"], correct: 0 },
+            { question: "Elterjedt monomódusú szál távközlésben?", options: ["A: G.652", "B: G.655", "C: OM2", "D: Réz"], correct: 0 },
+            { question: "Wi-Fi fő sávjai?", options: ["A: 2,4 és 5 GHz", "B: 700 MHz", "C: 10 kHz", "D: 60 GHz"], correct: 0 },
+            { question: "RF jelentése:", options: ["A: Radio Frequency", "B: Red Fiber", "C: Rapid Field", "D: Random Fázis"], correct: 0 },
+            { question: "Antenna szerepe:", options: ["A: Rádióhullámok sugárzása", "B: Réz érpár", "C: Optikai fény továbbítása", "D: Semmi szerep"], correct: 0 }
+        ];
+
+        const BRICK_TYPES = [
+            { type: 'optical', color: '#fff' },
+            { type: 'utp', color: 'orange' },
+            { type: 'wifi', color: 'blue' },
+            { type: 'rf', color: 'green' },
+            { type: 'sp', color: 'purple' },
+            { type: 'antenna', color: '#000' },
+            { type: 'laser', color: 'red' }
+        ];
+        const BRICK_POOL = BRICK_TYPES;
+
+        let brickRowCount = 3;
+        let brickColumnCount = 7;
+
+        let score = 0;
+        let lives = 3;
+        let level = 1;
+        let startTime = 0;
+        let running = false;
+        let waitingNextLevel = false;
+        let questionActive = false;
+        let ballMagnetic = false;
+        let laserActive = false;
+        let specialUsed = false;
+        const POWERUP_CHANCE = 0.3;
+
+        let laserBrickCount = 0;
+        const LASER_MAX = 10;
+        let lastLaserShotTime = null;
+        const LASER_SHOT_DURATION = 200;
+
+        let bricks = [];
+        let balls = [];
+        let powerUps = [];
+
+        // UTP kábel: ezúttal 10 téglát választunk ki a paddle felett, egy függőleges oszlopban.
+        // A labda az ütőről pattanva végigmegy ezeken a téglákon, egyesével üti ki őket.
+        // Ha kevesebb mint 10 tégla van, annyit veszünk, amennyi van.
+        // Ha egy tégla elpusztul, megy a következőre. Ha elfogy, utpWireActive=false.
+        let utpWireActive = false;
+        let cableBrickTargets = []; // tárolja a 10 kijelölt téglát {c,r} formában
+        let cableIndex = 0; // melyik téglát támadja éppen
+
+        class QuestionManager {
+            constructor(questions) {
+                this.questions = questions;
+                this.usedIndices = [];
+            }
+            getNextQuestion() {
+                let remaining = this.questions.filter((q, i) => !this.usedIndices.includes(i));
+                if (remaining.length === 0) return null;
+                let qIndex = Math.floor(Math.random() * remaining.length);
+                let realIndex = this.questions.indexOf(remaining[qIndex]);
+                this.usedIndices.push(realIndex);
+                return this.questions[realIndex];
+            }
         }
-      }
-    }
-  }
-  if(closestDist<Infinity){
-    let steps=20;
-    let baseAngle=Date.now()/500;
-    for(let w=0;w<5;w++){
-      ctx.beginPath();
-      let hue=(baseAngle*50+w*40)%360;
-      ctx.strokeStyle=`hsla(${hue},100%,50%,0.5)`;
-      ctx.lineWidth=2;
-      ctx.moveTo(px,py);
-      for(let i=1;i<=steps;i++){
-        let t=i/steps;
-        let X=px+(tx-px)*t;
-        let Y=py+(ty-py)*t;
-        let spiral=Math.sin(baseAngle+w+t*10)*20;
-        X+=Math.cos(baseAngle+ t*5)*spiral;
-        Y+=Math.sin(baseAngle+ t*5)*spiral;
-        ctx.lineTo(X,Y);
-      }
-      ctx.stroke();
-    }
-  }
-}
+        let questionManager = new QuestionManager(QUESTIONS);
 
-function drawWireIfAny(){
-  if(!utpWireActive)return;
-  let startX=paddle.x+paddle.width/2;
-  let startY=paddle.y;
-  ctx.save();
-  ctx.strokeStyle='#aaa';
-  ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.moveTo(startX, startY);
-  ctx.lineTo(utpWireEndX, utpWireEndY);
-  ctx.stroke();
-  ctx.restore();
-}
+        class Ball {
+            constructor(x, y, dx, dy, fireball = false) {
+                this.x = x; this.y = y; this.dx = dx; this.dy = dy; this.radius = 10; this.fireballActive = fireball;
+            }
+        }
 
-function updateTime(){
-  if(running){
-    let elapsed=Math.floor((Date.now()-startTime)/1000);
-    timeEl.textContent=elapsed;
-  }
-}
+        class Paddle {
+            constructor() {
+                this.width = 120; this.height = 15;
+                this.x = (WIDTH - this.width) / 2; this.y = HEIGHT - this.height - 10;
+            }
+            draw() {
+                ctx.save();
+                ctx.shadowColor = '#0ff';
+                ctx.shadowBlur = 20 * Math.abs(Math.sin(Date.now() / 1000));
+                ctx.fillStyle = '#0f0';
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+                ctx.restore();
+            }
+        }
+        let paddle = new Paddle();
 
-function showStartOverlay(){startOverlay.style.display="block";}
+        class Brick {
+            constructor(x, y, type, color) {
+                this.x = x; this.y = y; this.type = type; this.color = color; this.status = 1;
+            }
+            draw() {
+                if (this.status == 0) return;
+                let grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y + brickHeight);
+                grad.addColorStop(0, '#fff');
+                grad.addColorStop(0.5, this.color);
+                grad.addColorStop(1, '#000');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.rect(this.x, this.y, brickWidth, brickHeight);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.stroke();
+            }
+        }
 
-function draw(){
-  if(!running)return;
-  ctx.clearRect(0,0,WIDTH,HEIGHT);
+        class PowerUp {
+            constructor(x, y, type) {
+                this.x = x; this.y = y; this.type = type; this.caught = false;
+            }
+            draw() {
+                if (this.caught) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 10, 0, Math.PI * 2);
+                let col = '#ff0'; let letter = '?';
+                if (this.type === 'fireball') { col = 'red'; letter = 'F'; }
+                else if (this.type === 'multiball') { col = 'blue'; letter = 'M'; }
+                else if (this.type === 'antennaItem') { col = 'yellow'; letter = 'A'; }
+                else if (this.type === 'laserItem') { col = 'magenta'; letter = 'L'; }
+                ctx.fillStyle = col;
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(letter, this.x, this.y);
+            }
+        }
 
-  drawBackground();
-  drawBricks();
-  drawBalls();
-  paddle.draw();
-  drawPowerUps();
-  drawLaserIfAny();
-  drawWireIfAny();
-  drawMagneticWaves();
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-  collisionDetection();
-  updateBalls();
-  updatePowerUps();
-  updateTime();
+        function playSound(freq, dur = 0.1, type = 'sine', vol = 0.1) {
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.value = vol;
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + dur);
+        }
 
-  oldPaddleX=paddle.x;
+        function playSequence(notes) {
+            let offset = 0;
+            notes.forEach(n => {
+                setTimeout(() => { playSound(n.freq, n.dur, n.type || 'sine', n.vol || 0.1); }, offset * 1000);
+                offset += n.dur;
+            });
+        }
 
-  requestAnimationFrame(draw);
-}
+        const startOverlay = document.getElementById("startOverlay");
+        const questionOverlay = document.getElementById("questionOverlay");
+        const questionText = document.getElementById("questionText");
+        const optionsDiv = document.getElementById("options");
+        const questionFeedback = document.getElementById("questionFeedback");
+        const levelOverlay = document.getElementById("levelOverlay");
+        const gameOverOverlay = document.getElementById("gameOverOverlay");
+        const timeEl = document.getElementById("time");
+        const levelEl = document.getElementById("level");
+        const scoreEl = document.getElementById("score");
+        const livesEl = document.getElementById("lives");
+        const finalScoreEl = document.getElementById("finalScore");
+        const startBtn = document.getElementById("startBtn");
+        const nextLevelBtn = document.getElementById("nextLevelBtn");
+        const restartBtn = document.getElementById("restartBtn");
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-// Indítás
-resetGame();
-showStartOverlay();
-</script>
+        startBtn.addEventListener('click', () => {
+            startOverlay.style.display = "none";
+            audioCtx.resume().then(() => {
+                running = true;
+                startTime = Date.now();
+                draw();
+            });
+        });
+        nextLevelBtn.addEventListener('click', () => {
+            levelOverlay.style.display = "none";
+            waitingNextLevel = false;
+            level++;
+            levelEl.textContent = level;
+            brickRowCount++;
+            initBricks();
+            resetBalls();
+            paddle.x = (WIDTH - paddle.width) / 2;
+            powerUps = [];
+            ballMagnetic = false;
+            laserActive = false;
+            // specialUsed marad
+            startBorderFlash();
+            running = true;
+            startTime = Date.now();
+            draw();
+        });
+        restartBtn.addEventListener('click', () => {
+            gameOverOverlay.style.display = "none";
+            resetGame();
+            showStartOverlay();
+        });
+
+        document.addEventListener("mousemove", mouseMoveHandler, false);
+        function mouseMoveHandler(e) {
+            if (!running) return;
+            let rect = canvas.getBoundingClientRect();
+            let rx = e.clientX - rect.left;
+            if (rx > 0 && rx < WIDTH) {
+                paddle.x = rx - paddle.width / 2;
+            }
+        }
+
+        // Laser kattintásra lő
+        document.addEventListener("click", () => {
+            if (!running || !laserActive || questionActive || waitingNextLevel) return;
+            if (laserBrickCount >= LASER_MAX) return;
+
+            let lowestRow = -1;
+            for (let r = brickRowCount - 1; r >= 0; r--) {
+                for (let c = 0; c < brickColumnCount; c++) {
+                    if (bricks[c][r].status == 1) {
+                        lowestRow = r; break;
+                    }
+                }
+                if (lowestRow != -1) break;
+            }
+            if (lowestRow == -1) return;
+
+            let destroyedCount = 0;
+            for (let c = 0; c < brickColumnCount; c++) {
+                let B = bricks[c][lowestRow];
+                if (B.status == 1 && laserBrickCount < LASER_MAX) {
+                    B.status = 0;
+                    addScore(10);
+                    playSound(880, 0.05);
+                    laserBrickCount++;
+                    destroyedCount++;
+                    if (B.type === 'antenna') {
+                        spawnPowerUp(B.x + brickWidth / 2, B.y + brickHeight / 2);
+                    } else if (B.type === 'optical') {
+                        startFlash();
+                        startBorderFlash();
+                    } else if (B.type === 'sp') {
+                        askQuestion();
+                    } else if (B.type === 'utp') {
+                        // UTP esetén válasszunk 10 téglát a paddle fölött
+                        createUTPWireTargets();
+                    } else if (B.type === 'laser') {
+                        spawnPowerUp(B.x + brickWidth / 2, B.y + brickHeight / 2);
+                    }
+                }
+            }
+
+            if (destroyedCount > 0) {
+                lastLaserShotTime = Date.now();
+            }
+
+            if (checkAllBricksCleared()) nextLevel();
+        });
+
+        function createUTPWireTargets() {
+            // Kiválasztunk 10 téglát a paddle felett abban az oszlopban, amely az ütő x közepéhez legközelebb esik
+            // Keressük meg, melyik oszlop van az ütő közepén:
+            let pxCenter = paddle.x + paddle.width / 2;
+            // Megkeressük, melyik c oszlophoz esik legközelebb:
+            let closestC = 0;
+            let closestDist = Infinity;
+            for (let c = 0; c < brickColumnCount; c++) {
+                let brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft + brickWidth / 2;
+                let d = Math.abs(brickX - pxCenter);
+                if (d < closestDist) {
+                    closestDist = d;
+                    closestC = c;
+                }
+            }
+            // Most a closestC oszlopból kiválasztunk max 10 téglát alulról felfelé
+            let foundBricks = [];
+            for (let r = 0; r < brickRowCount; r++) {
+                let B = bricks[closestC][r];
+                if (B.status == 1) foundBricks.push({ c: closestC, r: r });
+            }
+            // max 10 tégla
+            if (foundBricks.length > 10) foundBricks = foundBricks.slice(0, 10);
+
+            if (foundBricks.length > 0) {
+                utpWireActive = true;
+                cableBrickTargets = foundBricks;
+                cableIndex = 0;
+            } else {
+                // nincs tégla, nem aktiváljuk
+            }
+        }
+
+        function showStartOverlay() { startOverlay.style.display = "block"; }
+        function resetGame() {
+            score = 0; lives = 3; level = 1; paddle.width = 120;
+            scoreEl.textContent = score;
+            livesEl.textContent = lives;
+            levelEl.textContent = level;
+            brickRowCount = 3; brickColumnCount = 7;
+            questionManager.usedIndices = [];
+            initBricks();
+            resetBalls();
+            paddle.x = (WIDTH - paddle.width) / 2;
+            powerUps = [];
+            ballMagnetic = false;
+            laserActive = false;
+            specialUsed = true;
+            laserBrickCount = 0;
+            utpWireActive = false;
+            cableBrickTargets = [];
+            cableIndex = 0;
+            lastLaserShotTime = null;
+            canvas.classList.remove('flash-bg');
+            canvas.classList.remove('border-flash');
+            running = false;
+            questionActive = false;
+        }
+        function resetBalls() {
+            balls = [];
+            balls.push(new Ball(WIDTH / 2, HEIGHT - 60, 4, -4, false));
+        }
+        function initBricks() {
+            bricks = [];
+            for (let c = 0; c < brickColumnCount; c++) {
+                bricks[c] = [];
+                for (let r = 0; r < brickRowCount; r++) {
+                    let bType = BRICK_POOL[Math.floor(Math.random() * BRICK_POOL.length)];
+                    bricks[c][r] = new Brick(0, 0, bType.type, bType.color);
+                }
+            }
+        }
+
+        function addScore(points) {
+            score += points;
+            scoreEl.textContent = score;
+        }
+        function gameOver() {
+            running = false;
+            finalScoreEl.textContent = score;
+            gameOverOverlay.style.display = "block";
+            playSound(130, 0.5, 'sine', 0.15);
+        }
+        function nextLevel() {
+            running = false;
+            waitingNextLevel = true;
+            playSequence([{ freq: 523, dur: 0.1 }, { freq: 659, dur: 0.1 }, { freq: 784, dur: 0.1 }]);
+            levelOverlay.style.display = "block";
+        }
+        function askQuestion() {
+            let q = questionManager.getNextQuestion();
+            if (q === null) {
+                addScore(50);
+                return;
+            }
+            running = false;
+            questionActive = true;
+            questionFeedback.textContent = '';
+            questionOverlay.style.display = "block";
+            currentQuestion = q;
+            questionText.textContent = q.question;
+            optionsDiv.innerHTML = '';
+            q.options.forEach((opt, i) => {
+                let btn = document.createElement('div');
+                btn.className = 'question-option';
+                btn.textContent = opt;
+                btn.addEventListener('click', () => checkAnswer(i));
+                optionsDiv.appendChild(btn);
+            });
+        }
+        let currentQuestion = null;
+        function checkAnswer(i) {
+            if (i === currentQuestion.correct) {
+                questionOverlay.style.display = "none";
+                questionActive = false;
+                running = true;
+                playSound(600, 0.2, 'triangle', 0.2);
+                draw();
+            } else {
+                questionFeedback.textContent = "Rossz válasz! Próbáld újra!";
+                playSound(100, 0.2, 'sawtooth', 0.2);
+            }
+        }
+
+        let flashTimeout = null;
+        function startFlash() {
+            if (flashTimeout) clearTimeout(flashTimeout);
+            canvas.classList.add('flash-bg');
+            flashTimeout = setTimeout(() => {
+                canvas.classList.remove('flash-bg');
+            }, 2000);
+        }
+        function startBorderFlash() {
+            canvas.classList.add('border-flash');
+            setTimeout(() => {
+                canvas.classList.remove('border-flash');
+            }, 2000);
+        }
+
+        function spawnPowerUp(x, y) {
+            if (specialUsed) {
+                if (Math.random() < POWERUP_CHANCE) {
+                    let list = ['antennaItem', 'multiball', 'fireball', 'antennaItem', 'laserItem'];
+                    let pType = list[Math.floor(Math.random() * list.length)];
+                    powerUps.push(new PowerUp(x, y, pType));
+                }
+            } else {
+                if (Math.random() < POWERUP_CHANCE) {
+                    let list = ['fireball', 'multiball', 'antennaItem', 'antennaItem', 'antennaItem', 'laserItem'];
+                    let pType = list[Math.floor(Math.random() * list.length)];
+                    if (pType === 'antennaItem' || pType === 'laserItem') specialUsed = true;
+                    powerUps.push(new PowerUp(x, y, pType));
+                }
+            }
+        }
+
+        function collisionDetection() {
+            for (let c = 0; c < brickColumnCount; c++) {
+                for (let r = 0; r < brickRowCount; r++) {
+                    let B = bricks[c][r];
+                    if (B.status == 1) {
+                        for (let i = 0; i < balls.length; i++) {
+                            let ball = balls[i];
+                            if (ball.x + ball.radius > B.x && ball.x - ball.radius < B.x + brickWidth &&
+                                ball.y + ball.radius > B.y && ball.y - ball.radius < B.y + brickHeight) {
+                                if (!ball.fireballActive) ball.dy = -ball.dy;
+                                B.status = 0;
+                                addScore(10);
+                                playSound(880, 0.05);
+                                if (B.type === 'antenna') {
+                                    spawnPowerUp(B.x + brickWidth / 2, B.y + brickHeight / 2);
+                                } else if (B.type === 'optical') {
+                                    startFlash();
+                                    startBorderFlash();
+                                } else if (B.type === 'sp') {
+                                    askQuestion();
+                                } else if (B.type === 'laser') {
+                                    spawnPowerUp(B.x + brickWidth / 2, B.y + brickHeight / 2);
+                                } else if (B.type === 'utp') {
+                                    createUTPWireTargets();
+                                }
+                                if (checkAllBricksCleared()) nextLevel();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        function checkAllBricksCleared() {
+            for (let c = 0; c < brickColumnCount; c++) {
+                for (let r = 0; r < brickRowCount; r++) {
+                    if (bricks[c][r].status == 1) return false;
+                }
+            }
+            return true;
+        }
+        let oldPaddleX = 0;
+        function applySpin(ball) {
+            let paddleSpeed = paddle.x - oldPaddleX;
+            if (Math.abs(paddleSpeed) > 5) {
+                ball.dx += paddleSpeed * 0.1;
+            }
+        }
+        function updatePowerUps() {
+            for (let p of powerUps) {
+                if (!p.caught) {
+                    p.y += 2;
+                    if (p.y + 10 > paddle.y && p.x > paddle.x && p.x < paddle.x + paddle.width) {
+                        p.caught = true;
+                        activatePowerUp(p.type);
+                        playSound(440, 0.1);
+                    } else if (p.y > HEIGHT) {
+                        p.caught = true;
+                    }
+                }
+            }
+        }
+        function activatePowerUp(type) {
+            if (type === 'fireball') {
+                for (let b of balls) b.fireballActive = true;
+                setTimeout(() => { for (let b of balls) b.fireballActive = false; }, 10000);
+                playSound(220, 0.2);
+            } else if (type === 'multiball') {
+                let newBalls = [];
+                for (let b of balls) {
+                    let speed = Math.sqrt(b.dx * b.dx + b.dy * b.dy);
+                    newBalls.push(new Ball(b.x, b.y, speed, -speed, b.fireballActive));
+                    newBalls.push(new Ball(b.x, b.y, -speed, speed, b.fireballActive));
+                }
+                balls = balls.concat(newBalls);
+                playSequence([{ freq: 600, dur: 0.05 }, { freq: 700, dur: 0.05 }, { freq: 800, dur: 0.05 }]);
+            } else if (type === 'antennaItem') {
+                ballMagnetic = true;
+                playSound(200, 0.3, 'triangle', 0.2);
+            } else if (type === 'laserItem') {
+                laserActive = true;
+                playSound(1000, 0.3, 'square', 0.2);
+            }
+        }
+
+        function createUTPWireTargets() {
+            // Már definiáltuk a paddle fölötti oszlop kiválasztását
+            let pxCenter = paddle.x + paddle.width / 2;
+            let closestC = 0;
+            let closestDist = Infinity;
+            for (let c = 0; c < brickColumnCount; c++) {
+                let brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft + brickWidth / 2;
+                let d = Math.abs(brickX - pxCenter);
+                if (d < closestDist) {
+                    closestDist = d;
+                    closestC = c;
+                }
+            }
+            let foundBricks = [];
+            for (let r = 0; r < brickRowCount; r++) {
+                let B = bricks[closestC][r];
+                if (B.status == 1) foundBricks.push({ c: closestC, r: r });
+            }
+            if (foundBricks.length > 10) foundBricks = foundBricks.slice(0, 10);
+
+            if (foundBricks.length > 0) {
+                utpWireActive = true;
+                cableBrickTargets = foundBricks;
+                cableIndex = 0;
+            }
+        }
+
+        // A labda a kábel mentén halad: ekkor a labda függőlegesen megy felfelé a cableBrickTargets felé
+        // Minden tégla a cableBrickTargets-ban egy oszlopban van, sorban felfelé
+        // A labdát a következő tégla felé irányítjuk, ha elérte, elpusztítjuk, cableIndex++
+        // Ha nincs több tégla, utpWireActive=false
+        function applyUTPWireMode(ball) {
+            if (cableIndex >= cableBrickTargets.length) {
+                utpWireActive = false;
+                return;
+            }
+            let target = cableBrickTargets[cableIndex];
+            let B = bricks[target.c][target.r];
+            if (B.status == 0) {
+                cableIndex++;
+                if (cableIndex >= cableBrickTargets.length) utpWireActive = false;
+                return;
+            }
+
+            // Cél tégla középpontja
+            let tx = (target.c * (brickWidth + brickPadding)) + brickOffsetLeft + brickWidth / 2;
+            let ty = (target.r * (brickHeight + brickPadding)) + brickOffsetTop + brickHeight / 2;
+
+            // Húzzuk a labdát a vonalra: A vonal egy függőleges egyenes pxCenter-nél
+            let pxCenter = paddle.x + paddle.width / 2;
+            // A labda mozgása: egyenesen a cél tégla felé
+            let dx = tx - ball.x;
+            let dy = ty - ball.y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < ball.radius + 10) {
+                // Elérte a téglát
+                B.status = 0;
+                addScore(10);
+                playSound(880, 0.05);
+                if (B.type === 'antenna') spawnPowerUp(B.x + brickWidth / 2, B.y + brickHeight / 2);
+                else if (B.type === 'optical') { startFlash(); startBorderFlash(); }
+                else if (B.type === 'sp') askQuestion();
+                else if (B.type === 'laser') spawnPowerUp(B.x + brickWidth / 2, B.y + brickHeight / 2);
+
+                if (checkAllBricksCleared()) { nextLevel(); return; }
+
+                cableIndex++;
+                if (cableIndex >= cableBrickTargets.length) {
+                    utpWireActive = false;
+                    return;
+                }
+            } else {
+                // Húzzuk a labdát a tégla felé
+                let angle = Math.atan2(dy, dx);
+                let speed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+                if (speed < 2) speed = 2; // kicsit gyorsabb legyen
+                ball.dx = Math.cos(angle) * speed;
+                ball.dy = Math.sin(angle) * speed;
+            }
+        }
+
+        function checkAllBricksCleared() {
+            for (let c = 0; c < brickColumnCount; c++) {
+                for (let r = 0; r < brickRowCount; r++) {
+                    if (bricks[c][r].status == 1) return false;
+                }
+            }
+            return true;
+        }
+
+        function applyMagnetism(ball) {
+            let closestDist = Infinity;
+            let px = paddle.x + paddle.width / 2;
+            let py = paddle.y;
+            let cx = 0, cy = 0;
+            for (let c = 0; c < brickColumnCount; c++) {
+                for (let r = 0; r < brickRowCount; r++) {
+                    let B = bricks[c][r];
+                    if (B.status == 1) {
+                        let bx = B.x + brickWidth / 2;
+                        let by = B.y + brickHeight / 2;
+                        let d = (ball.x - bx) ** 2 + (ball.y - by) ** 2;
+                        if (d < closestDist) { closestDist = d; cx = bx; cy = by; }
+                    }
+                }
+            }
+            if (closestDist < Infinity) {
+                let angle = Math.atan2(cy - ball.y, cx - ball.x);
+                ball.dx += Math.cos(angle) * 0.05;
+                ball.dy += Math.sin(angle) * 0.05;
+            }
+        }
+
+        function updateBalls() {
+            for (let i = balls.length - 1; i >= 0; i--) {
+                let ball = balls[i];
+                if (ball.x + ball.dx > WIDTH - ball.radius || ball.x + ball.dx < ball.radius) {
+                    ball.dx = -ball.dx; playSound(300, 0.05);
+                }
+                if (ball.y + ball.dy < ball.radius) {
+                    ball.dy = -ball.dy; playSound(300, 0.05);
+                } else if (ball.y + ball.dy > HEIGHT - ball.radius - paddle.height - 10) {
+                    if (ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
+                        ball.dy = -Math.abs(ball.dy);
+                        addScore(1);
+                        playSound(330, 0.05);
+                        applySpin(ball);
+                        // Ha utpWireActive van és cableBrickTargets nem üres, innentől a labda cable módba mehet
+                    } else if (ball.y + ball.dy > HEIGHT - ball.radius) {
+                        balls.splice(i, 1);
+                    }
+                }
+
+                if (ballMagnetic) applyMagnetism(ball);
+                if (utpWireActive && cableBrickTargets.length > 0 && cableIndex < cableBrickTargets.length) {
+                    applyUTPWireMode(ball);
+                }
+
+                ball.x += ball.dx;
+                ball.y += ball.dy;
+            }
+
+            if (balls.length === 0 && running && !questionActive && !waitingNextLevel) {
+                lives--;
+                livesEl.textContent = lives;
+                if (lives <= 0) gameOver(); else resetBalls();
+            }
+        }
+
+        function drawBackground() {
+            let t = Date.now() / 3000;
+            let grad = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
+            grad.addColorStop(0, `hsl(${(t * 50) % 360},80%,15%)`);
+            grad.addColorStop(1, `hsl(${(t * 50 + 180) % 360},80%,10%)`);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+            ctx.save();
+            for (let i = 0; i < 20; i++) {
+                let px = Math.sin(t + i) * WIDTH / 2 + WIDTH / 2;
+                let py = Math.cos(t + i * 2) * HEIGHT / 2 + HEIGHT / 2;
+                ctx.beginPath();
+                ctx.arc(px, py, 5, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${(t * 100 + i * 20) % 360},100%,50%,0.3)`;
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+        function drawBricks() {
+            for (let c = 0; c < brickColumnCount; c++) {
+                for (let r = 0; r < brickRowCount; r++) {
+                    let B = bricks[c][r];
+                    B.x = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                    B.y = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+                    B.draw();
+                }
+            }
+        }
+        function drawBalls() {
+            for (let ball of balls) {
+                let grad = ctx.createRadialGradient(ball.x, ball.y, ball.radius * 0.3, ball.x, ball.y, ball.radius);
+                if (ball.fireballActive) {
+                    grad.addColorStop(0, '#ff0');
+                    grad.addColorStop(1, '#f00');
+                } else {
+                    grad.addColorStop(0, '#fff');
+                    grad.addColorStop(1, '#ccc');
+                }
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawLaserIfAny() {
+            if (!laserActive) return;
+            ctx.save();
+            ctx.fillStyle = '#f0f';
+            ctx.beginPath();
+            ctx.arc(paddle.x, paddle.y + (paddle.height / 2), 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(paddle.x + paddle.width, paddle.y + (paddle.height / 2), 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            if (lastLaserShotTime && (Date.now() - lastLaserShotTime) < LASER_SHOT_DURATION) {
+                let alpha = 1 - (Date.now() - lastLaserShotTime) / LASER_SHOT_DURATION;
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.strokeStyle = 'rgba(255,0,0,0.8)';
+                ctx.lineWidth = 4;
+                let px = paddle.x + paddle.width / 2;
+                let lowestRow = -1;
+                for (let r = brickRowCount - 1; r >= 0; r--) {
+                    for (let c = 0; c < brickColumnCount; c++) {
+                        if (bricks[c][r].status == 1) { lowestRow = r; break; }
+                    }
+                    if (lowestRow != -1) break;
+                }
+                let endY = (lowestRow != -1) ? (lowestRow * (brickHeight + brickPadding) + brickOffsetTop) : 0;
+                if (lowestRow == -1) endY = 0;
+                ctx.beginPath();
+                ctx.moveTo(px, paddle.y);
+                ctx.lineTo(px, endY);
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        function drawPowerUps() {
+            for (let p of powerUps) p.draw();
+        }
+
+        function drawMagneticWaves() {
+            if (!ballMagnetic) return;
+            let px = paddle.x + paddle.width / 2;
+            let py = paddle.y;
+            let closestDist = Infinity; let tx = 0, ty = 0;
+            for (let c = 0; c < brickColumnCount; c++) {
+                for (let r = 0; r < brickRowCount; r++) {
+                    let B = bricks[c][r];
+                    if (B.status == 1) {
+                        let dist = (px - (B.x + brickWidth / 2)) ** 2 + (py - (B.y + brickHeight / 2)) ** 2;
+                        if (dist < closestDist) {
+                            closestDist = dist; tx = B.x + brickWidth / 2; ty = B.y + brickHeight / 2;
+                        }
+                    }
+                }
+            }
+            if (closestDist < Infinity) {
+                let steps = 20;
+                let baseAngle = Date.now() / 500;
+                for (let w = 0; w < 5; w++) {
+                    ctx.beginPath();
+                    let hue = (baseAngle * 50 + w * 40) % 360;
+                    ctx.strokeStyle = `hsla(${hue},100%,50%,0.5)`;
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(px, py);
+                    for (let i = 1; i <= steps; i++) {
+                        let t = i / steps;
+                        let X = px + (tx - px) * t;
+                        let Y = py + (ty - py) * t;
+                        let spiral = Math.sin(baseAngle + w + t * 10) * 20;
+                        X += Math.cos(baseAngle + t * 5) * spiral;
+                        Y += Math.sin(baseAngle + t * 5) * spiral;
+                        ctx.lineTo(X, Y);
+                    }
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawWireIfAny() {
+            if (!utpWireActive) return;
+            // Csak jelképesen rajzolunk egy vonalat az első téglától az ütőig (ha van még tégla)
+            if (cableIndex >= cableBrickTargets.length) {
+                // Nincs tégla, nincs vonal
+                return;
+            }
+            let startX = paddle.x + paddle.width / 2;
+            let startY = paddle.y;
+            // A következő cél tégla
+            let target = cableBrickTargets[cableIndex];
+            let B = bricks[target.c][target.r];
+            let tx = (target.c * (brickWidth + brickPadding)) + brickOffsetLeft + brickWidth / 2;
+            let ty = (target.r * (brickHeight + brickPadding)) + brickOffsetTop + brickHeight / 2;
+            if (B.status == 0) {
+                // Ha a tégla már elpusztult, próbáljunk a következőre menni
+                while (cableIndex < cableBrickTargets.length && bricks[cableBrickTargets[cableIndex].c][cableBrickTargets[cableIndex].r].status == 0) {
+                    cableIndex++;
+                }
+                if (cableIndex >= cableBrickTargets.length) {
+                    utpWireActive = false;
+                    return;
+                } else {
+                    target = cableBrickTargets[cableIndex];
+                    B = bricks[target.c][target.r];
+                    tx = (target.c * (brickWidth + brickPadding)) + brickOffsetLeft + brickWidth / 2;
+                    ty = (target.r * (brickHeight + brickPadding)) + brickOffsetTop + brickHeight / 2;
+                }
+            }
+
+            let t = Date.now() / 500;
+            let grad = ctx.createLinearGradient(startX, startY, tx, ty);
+            grad.addColorStop(0, `hsl(${(t * 100) % 360},100%,50%)`);
+            grad.addColorStop(0.5, '#aaa');
+            grad.addColorStop(1, `hsl(${((t * 100) + 180) % 360},100%,50%)`);
+
+            ctx.save();
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(tx, ty);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function updateTime() {
+            if (running) {
+                let elapsed = Math.floor((Date.now() - startTime) / 1000);
+                timeEl.textContent = elapsed;
+            }
+        }
+
+        function draw() {
+            if (!running) return;
+            ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+            drawBackground();
+            drawBricks();
+            drawBalls();
+            paddle.draw();
+            drawPowerUps();
+            drawLaserIfAny();
+            drawWireIfAny();
+            drawMagneticWaves();
+
+            collisionDetection();
+            updateBalls();
+            updatePowerUps();
+            updateTime();
+
+            oldPaddleX = paddle.x;
+
+            requestAnimationFrame(draw);
+        }
+
+        function showStartOverlay() { startOverlay.style.display = "block"; }
+        function resetGame() {
+            score = 0; lives = 3; level = 1; paddle.width = 120;
+            scoreEl.textContent = score;
+            livesEl.textContent = lives;
+            levelEl.textContent = level;
+            brickRowCount = 3; brickColumnCount = 7;
+            questionManager.usedIndices = [];
+            initBricks();
+            resetBalls();
+            paddle.x = (WIDTH - paddle.width) / 2;
+            powerUps = [];
+            ballMagnetic = false;
+            laserActive = false;
+            specialUsed = true;
+            laserBrickCount = 0;
+            utpWireActive = false;
+            cableBrickTargets = [];
+            cableIndex = 0;
+            lastLaserShotTime = null;
+            canvas.classList.remove('flash-bg');
+            canvas.classList.remove('border-flash');
+            running = false;
+            questionActive = false;
+        }
+
+        resetGame();
+        showStartOverlay();
+    </script>
 </body>
+
 </html>
