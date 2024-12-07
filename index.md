@@ -9,6 +9,12 @@ sandorpeteer.github.io/tavkozles
 [03 - VEZETÉK NÉLKÜLI - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/vezeteknelkul)   
 [04 - MOBIL TÁVKÖZLÉS - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/mobil)   
 
+---
+
+## SP JÁTÉK: 
+[Fallabda játék SP módra](https://sandorpeteer.github.io/tavkozles/game)  
+
+---
 
 ## JEGYZŐKÖNYVEK:   
 [DVB-T mérés 2024.10.03. Sándor Péter](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
