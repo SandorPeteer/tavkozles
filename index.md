@@ -17,7 +17,8 @@ sandorpeteer.github.io/tavkozles
 ---
 
 ## JEGYZŐKÖNYVEK:   
-[DVB-T mérés 2024.10.03. Sándor Péter](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)  
+[DVB-T mérés 2024.10.03. Sándor Péter](https://sandorpeteer.github.io/tavkozles/DVB-T_meres_SP)   
+[{Jegyzőkönyv minta}](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)
 
 ---  
 ## GYAKORLATI FELADATOK:   
@@ -32,9 +33,7 @@ sandorpeteer.github.io/tavkozles
 ### Johansson 8202 modulátor:   
 > [04 - Frekvencia vs. moduláció mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat)   
 > [05 - Bitsebesség vs. jelminőség mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat2)   
-> [06 - Antenna teljesítmény vs. jelszint/jelminőség](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat3)
-> 
-> [{Jegyzőkönyv minta}](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/jegyzokonyv_minta)   
+> [06 - Antenna teljesítmény vs. jelszint/jelminőség](https://sandorpeteer.github.io/tavkozles/Johansson_8202_modulator/feladat3)      
 
 ### Johansson 6700 Profiler:
 > [07 - Frekvencia áthelyezés mérési feladat](https://sandorpeteer.github.io/tavkozles/Johansson_6700_Profiler/feladat1)   
