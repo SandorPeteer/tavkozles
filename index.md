@@ -50,7 +50,7 @@ sandorpeteer.github.io/tavkozles
 - [Vezeték nélküli adatátvitel](https://drive.google.com/file/d/1atCYFilDRKF3jYGR3G-ug3GWAf1A07m_/view?usp=drive_link)   
 - [Antennák](https://drive.google.com/file/d/1o55MGlPLGShmrXSF5-LfJPJj-A-F6xdj/view?usp=drive_link)   
 - [Mobil távközlés](https://youtu.be/Jpbaa8ErL3Q?si=Wh_PltT4ShZLV2WJ)
-- [Műsorszóró berendezések](https://sandorpeteer.github.io/tavkozles/musorszoroas)
+- [Műsorszóró berendezések](https://sandorpeteer.github.io/tavkozles/musorszoras)
 
   
 - [OPTIKAI ADATÁTVITEL DOKUMENTÁCIÓ](https://docs.google.com/document/d/1dnqqqghsqOKc_PRbdLQtqtarTR4-t_Bkibqxh3Sk_7Y/edit?usp=sharing)  
