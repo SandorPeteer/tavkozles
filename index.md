@@ -4,10 +4,9 @@ sandorpeteer.github.io/tavkozles
 ---   
 
 ## DOGA:
-[01 - MŰSORSZÓRÓ RENDSZEREK - Google forms](https://forms.gle/Btj1BmNHp55TAZUZ8)   
-[02 - MŰSORSZÓRÓ - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/musorszoro)   
-[03 - VEZETÉK NÉLKÜLI - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/vezeteknelkul)   
-[04 - MOBIL TÁVKÖZLÉS - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/mobil)   
+[01 - MŰSORSZÓRÓ - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/musorszoro)   
+[02 - VEZETÉK NÉLKÜLI - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/vezeteknelkul)   
+[03 - MOBIL TÁVKÖZLÉS - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/mobil)   
 
 ---
 
