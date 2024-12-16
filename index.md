@@ -5,6 +5,8 @@ sandorpeteer.github.io/tavkozles
 
 ## DOGA:
 [01 - MŰSORSZÓRÓ - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/musorszoro)   
+[01 - MŰSORSZÓRÓ - DOLGOZAT KÉRDÉSEK](https://sandorpeteer.github.io/tavkozles/musorszoro_kerdesek)    
+
 [02 - VEZETÉK NÉLKÜLI - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/vezeteknelkul)   
 [03 - MOBIL TÁVKÖZLÉS - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/mobil)   
 
