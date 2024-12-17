@@ -1,4 +1,4 @@
-// Frekvenciasávok és cellás felépítés
+    * Frekvenciasávok és cellás felépítés
     "Milyen frekvenciatartományban működik a GSM uplink (UL) irányban?",
     "Mi a GSM downlink (DL) frekvenciatartománya?",
     "Mekkora sávszélességet használ a GSM rendszer, és hány vivőre oszlik?",
