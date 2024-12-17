@@ -15,8 +15,8 @@ sandorpeteer.github.io/tavkozles
 
 ---
 
-## SP JÁTÉK: 
-[Fallabda játék SP módra](https://sandorpeteer.github.io/tavkozles/game)  
+## JÁTÉK: 
+[Fallabda SP módra](https://sandorpeteer.github.io/tavkozles/game)  
 
 ---
 
