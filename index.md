@@ -7,10 +7,10 @@ sandorpeteer.github.io/tavkozles
 [01 - MŰSORSZÓRÓ - DOLGOZAT KÉRDÉSEK](https://sandorpeteer.github.io/tavkozles/musorszoro_kerdesek)    
 [01 - MŰSORSZÓRÓ - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/musorszoro)   
 
-[02 - VEZETÉK NÉLKÜLI - KÉRDÉSEK](https://sandorpeteer.github.io/tavkozles/vezeteknelkuli_kerdesek)   
+[02 - VEZETÉK NÉLKÜLI - DOLGOZAT KÉRDÉSEK](https://sandorpeteer.github.io/tavkozles/vezeteknelkuli_kerdesek)   
 [02 - VEZETÉK NÉLKÜLI - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/vezeteknelkul)   
 
-[03 - MOBIL TÁVKÖZLÉS - KÉRDÉSEK](https://sandorpeteer.github.io/tavkozles/mobil_kerdesek)   
+[03 - MOBIL TÁVKÖZLÉS - DOLGOZAT KÉRDÉSEK](https://sandorpeteer.github.io/tavkozles/mobil_kerdesek)   
 [03 - MOBIL TÁVKÖZLÉS - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/mobil)   
 
 ---
