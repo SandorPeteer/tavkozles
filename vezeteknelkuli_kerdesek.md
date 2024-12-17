@@ -1,4 +1,4 @@
- // I. Wireless alapok, elektromágneses hullámok
+ * I. Wireless alapok, elektromágneses hullámok   
     "Mi az elektromágneses hullám, és hogyan terjed?",
     "Hogyan jellemezhető az elektromágneses hullám hullámhossza és frekvenciája?",
     "Mit jelent a vezeték nélküli kommunikáció?",
@@ -8,7 +8,7 @@
     "Mitől függ, hogy egy hullám visszaverődik vagy áthalad egy tárgyon?",
     "Hogyan terjednek a rádióhullámok a Föld atmoszféráján belül és kívül?",
 
-    // II. Adatátvitelre is alkalmas elektromágneses hullámok
+    * II. Adatátvitelre is alkalmas elektromágneses hullámok
     "Milyen hullámok alkalmasak adatátvitelre?",
     "Hogyan működik az infravörös kommunikáció?",
     "Mi az infravörös kommunikáció két fő alkalmazási módja?",
@@ -20,7 +20,7 @@
     "Mi a különbség az ad-hoc és az infrastruktúra hálózat között?",
     "Hogyan működik a pont-pont adatkapcsolat kültéren?",
 
-    // III. Kültéri rádiós link építhetőségét befolyásoló tényezők
+    * III. Kültéri rádiós link építhetőségét befolyásoló tényezők
     "Miért fontos a rálátás a kültéri rádiós linkeknél?",
     "Mi a Fresnel-zóna, és miért kell figyelembe venni?",
     "Mi történhet, ha a Fresnel-zónát akadályozzák?",
@@ -30,7 +30,7 @@
     "Milyen problémákat okozhatnak a kültéri akadályok, például fák vagy épületek?",
     "Milyen gyakori telepítési hibák akadályozzák a kültéri rádiós linkek működését?",
 
-    // Vegyesen még kérdések a tananyagból
+    * Vegyesen még kérdések a tananyagból
     "Mi a vezeték nélküli kommunikáció lényege?",
     "Ki találta fel az elektromágneses hullámok elméletét?",
     "Mitől függ az elektromágneses hullám frekvenciája?",
