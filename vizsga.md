@@ -99,3 +99,107 @@ Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített
 
 **Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, hasonló eszközhasználattal és időigénnyel.**
   
+# Elektronikai összetett kapcsolások (60 perc)
+
+Az alábbi három tétel komplexebb áramkörök beüzemelését, méréstechnikai vizsgálatát és dokumentálását tartalmazza, a rendelkezésre álló alkatrészekhez igazítva.
+
+---
+
+## **Elektro 2A: TL072 műveleti erősítős feszültségerősítő áramkör építése és mérése**
+**Feladat:**
+- Építsen meg egy **nem invertáló műveleti erősítős feszültségerősítő** áramkört a TL072 IC felhasználásával.  
+- Alkalmazandó alkatrészek:  
+   - Bemeneti ellenállás: \(R_1 = 10 k\Omega\)  
+   - Visszacsatoló ellenállás: \(R_2 = 100 k\Omega\)  
+- Határozza meg az erősítést:  
+   \[
+   A_v = 1 + \frac{R_2}{R_1}
+   \]  
+- Mérje meg a kimeneti feszültséget különböző bemeneti amplitúdók és frekvenciák mellett.
+
+**Mérési feladatok:**
+- Feszültségerősítés mérése különböző bemeneti amplitúdóknál.  
+- Frekvenciamenet mérése 10 Hz – 10 kHz között.  
+- Fáziseltolódás vizsgálata oszcilloszkóppal.  
+
+**Elvárások:**
+- Az áramkör szakszerű felépítése.  
+- Mérési eredmények helyes dokumentálása.  
+
+**Időkeret:** 60 perc  
+
+---
+
+## **Elektro 2B: Digitális kombinációs hálózat építése logikai kapukból**
+**Feladat:**
+- Építsen meg egy **három bemenetű kombinációs logikai hálózatot** a rendelkezésre álló logikai kapukból.  
+- Alkalmazandó logikai kapuk: **AND, OR, NOT**.  
+- A logikai függvény:  
+   \[
+   Y = (A \cdot B) + (\neg C)
+   \]  
+- Mérje meg a logikai kimenetet minden bemeneti kombinációra.  
+
+**Mérési feladatok:**
+- Igazságtábla felállítása és kitöltése.  
+- Logikai szintek mérése (LOW/HIGH).  
+- Kapu késleltetés mérése (ha a mérőeszköz lehetővé teszi).  
+
+**Elvárások:**
+- Az áramkör helyes működésének igazolása igazságtábla alapján.  
+- Mérési jegyzőkönyv készítése.  
+
+**Időkeret:** 60 perc  
+
+---
+
+## **Elektro 2C: NE555 alapú PWM vezérlő LED fényerőszabályzáshoz**
+**Feladat:**
+- Építsen meg egy **PWM alapú fényerőszabályzó áramkört** az **NE555 időzítő IC** felhasználásával.  
+- Az áramkör astabil multivibrátorként működjön, amely szabályozza a LED fényerejét.  
+- **Alkalmazandó alkatrészek:**  
+   - **R1:** 4.7 kΩ  
+   - **R2:** 10 kΩ potméter (a kitöltési tényező szabályzásához)  
+   - **C:** 10 µF  
+- Mérje meg a kimeneti PWM jel frekvenciáját és kitöltési tényezőjét.
+
+**Mérési feladatok:**
+- Kimeneti feszültséghullámforma mérése oszcilloszkóppal.  
+- Frekvencia és kitöltési tényező mérése.  
+- LED fényerő változásának megfigyelése.  
+
+**Elvárások:**
+- Az áramkör helyes működésének igazolása.  
+- Mérési jegyzőkönyv készítése.  
+
+**Időkeret:** 60 perc  
+
+---
+
+## **Közös követelmények mindhárom tételnél:**
+- **Mérési eszközök:**  
+   - NI MyDAQ adatgyűjtő.  
+   - Multiméter, oszcilloszkóp.  
+- **Alkatrészek:**  
+   - TL072 műveleti erősítő.  
+   - NE555 időzítő IC.  
+   - Logikai kapuk (AND, OR, NOT).  
+   - Ellenállások, kondenzátorok, LED-ek, potenciométerek.  
+- **Dokumentáció:**  
+   - Kapcsolási rajz.  
+   - Mérési adatok táblázatban.  
+   - Grafikonok a mérésekhez.  
+
+---
+
+**Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, azonos technológiai szinten és komplexitással.**  
+
+
+
+# Elektronikai összetett kapcsolások (60 perc)
+
+A dokumentum MathJax támogatással készült, így a képletek webes környezetben helyesen jelennek meg.
+
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
