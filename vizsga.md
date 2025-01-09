@@ -352,7 +352,7 @@ Az alábbi tételek a rendelkezésre álló eszközök (CAT5 kábel, Johansson m
 
 ---
 
-## Koaxiális kábel szerelése és csillapításának mérése Johansson modulátorral**
+## Koaxiális kábel szerelése és csillapításának mérése Johansson modulátorral
 
 **Feladat:**
 - Készítsen egy **RG6 koaxiális kábelt** F csatlakozókkal mindkét végén.  
@@ -383,7 +383,7 @@ Az alábbi tételek a rendelkezésre álló eszközök (CAT5 kábel, Johansson m
 
 ---
 
-## Kábel TV rendszer csillapításának vizsgálata RF elosztókkal és erősítőkkel**
+## Kábel TV rendszer csillapításának vizsgálata RF elosztókkal és erősítőkkel
 
 **Feladat:**
 - Építsen össze egy **kábel TV elosztórendszert** 2, 3, 4, illetve 5 felé osztókkal.  
@@ -415,7 +415,7 @@ Az alábbi tételek a rendelkezésre álló eszközök (CAT5 kábel, Johansson m
 
 ---
 
-## **Közös követelmények mindhárom tételnél:**
+## **Közös követelmények mindhárom tételnél:
 - **Időkeret:** 60 perc.  
 - **Minden mérési eredményt elektronikus jegyzőkönyvben kell rögzíteni.**  
 - **A vizsgázónak szóbeli összegzést kell adnia az elvégzett munkáról.**  
