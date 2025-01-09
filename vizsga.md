@@ -3,13 +3,14 @@ A Távközlési Technikus 2023.11.21. KKK dokumentum szerint az **I. Távközlé
 1. Elektronikai alapfeladat:   
 	•	Alapelemekből épít egy egyszerű áramkört.   
 	•	Mérések elvégzése (feszültség, áramerősség, ellenállás mérése).   
-	•	Az elektronika alapvető törvényeinek igazolása (pl. Ohm-törvény).   
+	•	Az elektronika alapvető törvényeinek igazolása (pl. Ohm-törvény).
+	> Tétel 1: 
 
-2. Elektronikai összetett kapcsolások:   
+3. Elektronikai összetett kapcsolások:   
 	•	Komplexebb áramkörök beüzemelése (pl. erősítők, műveleti erősítők, digitális kombinációs hálózatok).  
 	•	A kapcsolás helyes működésének igazolása mérésekkel.  
 
-3. Távközlési alapfeladat:  
+4. Távközlési alapfeladat:  
 	•	Távközlési berendezések beüzemelése.  
 	•	Modulációs és multiplexált jelek mérése.  
 
