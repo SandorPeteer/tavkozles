@@ -396,7 +396,7 @@ A mérési eredményeket **elektronikus jegyzőkönyvben** kell rögzíteni, a f
 
 ### **Lépések:**
 1. **Rendszer felépítése:**
-   - **Johansson modulátor** kimenetéhez csatlakoztasson egy 2-irányú elosztót.  
+   - **Johansson modulátor vagy Profiler** kimenetéhez csatlakoztasson egy 2-irányú elosztót.  
    - Csatlakoztassa a két kimenetet különböző csillapítókhoz (pl. 6 dB és 10 dB csillapító).  
    - Az elosztó kimeneteihez csatlakoztasson két koaxiális kábelt.  
 
@@ -415,7 +415,7 @@ A mérési eredményeket **elektronikus jegyzőkönyvben** kell rögzíteni, a f
 ### **Eszközök:**
 - kábeltv koax elosztók  
 - Állítható csillapítók  
-- Johansson modulátor (stabil jelforrás)  
+- Johansson modulátor vagy Profiler (stabil jelforrás)  
 - Metek HDD spektrumanalizátor  
 - Koaxiális kábelek és F csatlakozók  
 
