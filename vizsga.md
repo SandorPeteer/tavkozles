@@ -91,7 +91,7 @@ Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített
 
 ---
 
-## **Eszközigény teremenként (9 tanulóhoz):**
+## **Eszközigény termenként (9 tanulóhoz):**
 - **9 db NI MyDAQ adatgyűjtő modul.**  
 - **9 db breadboard.**  
 - **Ellenállások, kondenzátorok, tekercsek, mérővezetékek.**  
