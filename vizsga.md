@@ -84,18 +84,18 @@ Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített
 ---
 
 ## **Közös követelmények mindhárom tételnél:**
-- **Az NI MyDAQ adatgyűjtő és breadboard kötelező használata.**  
-- **Minden mérési adat jegyzőkönyvben történő rögzítése.**  
-- **Kapcsolási rajz és számítások mellékelése.**  
-- **Az eredmények szakszerű dokumentálása.**  
+- Az NI MyDAQ adatgyűjtő és breadboard kötelező használata.  
+- Minden mérési adat jegyzőkönyvben történő rögzítése.  
+- Kapcsolási rajz és számítások mellékelése.  
+- Az eredmények szakszerű dokumentálása.  
 
 ---
 
 ## **Eszközigény termenként (9 tanulóhoz):**
-- **9 db NI MyDAQ adatgyűjtő modul.**  
-- **9 db breadboard.**  
-- **Ellenállások, kondenzátorok, tekercsek, mérővezetékek.**  
-- **NI Multisim vagy megfelelő szoftver.**  
+- 9 db NI MyDAQ adatgyűjtő modul.  
+- 9 db breadboard.  
+- Ellenállások, kondenzátorok, tekercsek, mérővezetékek.  
+- NI Multisim vagy megfelelő szoftver.  
 
 *Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, hasonló eszközhasználattal és időigénnyel.*
 
@@ -110,12 +110,10 @@ Az alábbi három tétel komplexebb áramkörök beüzemelését, méréstechnik
 **Feladat:**
 - Építsen meg egy **nem invertáló műveleti erősítős feszültségerősítő** áramkört a TL072 IC felhasználásával.  
 - Alkalmazandó alkatrészek:  
-   - Bemeneti ellenállás: \(R_1 = 10 k\Omega\)  
-   - Visszacsatoló ellenállás: \(R_2 = 100 k\Omega\)  
+   - Bemeneti ellenállás: $$\(R_1 = 10 k\Omega\)$$  
+   - Visszacsatoló ellenállás: $$\(R_2 = 100 k\Omega\)$$  
 - Határozza meg az erősítést:  
-   \[
-   A_v = 1 + \frac{R_2}{R_1}
-   \]  
+   $$\[ A_v = 1 + \frac{R_2}{R_1} \]$$  
 - Mérje meg a kimeneti feszültséget különböző bemeneti amplitúdók és frekvenciák mellett.
 
 **Mérési feladatok:**
@@ -136,9 +134,7 @@ Az alábbi három tétel komplexebb áramkörök beüzemelését, méréstechnik
 - Építsen meg egy **három bemenetű kombinációs logikai hálózatot** a rendelkezésre álló logikai kapukból.  
 - Alkalmazandó logikai kapuk: **AND, OR, NOT**.  
 - A logikai függvény:  
-   \[
-   Y = (A \cdot B) + (\neg C)
-   \]  
+   $$\[   Y = (A \cdot B) + (\neg C) \]$$  
 - Mérje meg a logikai kimenetet minden bemeneti kombinációra.  
 
 **Mérési feladatok:**
