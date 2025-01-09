@@ -18,7 +18,7 @@ Vizsgáztatás módja:
 	•	Eszközigény: Minden tanulónak külön mérőállomás szükséges, mivel mindenki saját tételt old meg.  
 	•	Mérési eredmények rögzítése: A mérési eredményeket a vizsgázónak elektronikus jegyzőkönyvben kell rögzítenie.  
  
-# Elektronikai alapfeladatok (60 perc)
+# Elektronikai alapfeladatok
 
 Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített áramkörök méréstechnikai vizsgálatát tartalmazzák. A feladatokat minden tanulónak egyéni eszközkészlettel kell végrehajtania, az eredményeket mérési jegyzőkönyvben kell dokumentálni.
 
@@ -28,7 +28,7 @@ Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített
 **Feladat:**
 - Építsen meg egy **T ellenállás hálózatot** breadboardon.  
 - Használja az **NI MyDAQ mérőadatgyűjtő modult** a mérésekhez.  
-- Mérje meg a **csillapítást** terheletlen állapotban, majd egy **600 Ω terhelés** mellett.  
+- Mérje meg a **csillapítást** terheletlen állapotban.  
 - Határozza meg a **bemeneti és kimeneti impedanciát**.  
 - Ismételje meg a méréseket **illesztett terheléssel**, és hasonlítsa össze az eredményeket.  
 
@@ -47,7 +47,7 @@ Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített
 ## **Elektro 1B: RC aluláteresztő szűrő építése és mérése**
 **Feladat:**
 - Építsen meg egy **RC aluláteresztő szűrőt** breadboardon.  
-- Használja az **NI MyDAQ adatgyűjtőt** és egy szinuszos jelgenerátort a vizsgálatokhoz.  
+- Használja az **NI MyDAQ adatgyűjtőt** a vizsgálatokhoz.  
 - Változtassa a bemeneti frekvenciát, és mérje meg a **kimeneti feszültséget** különböző frekvenciákon.  
 - Határozza meg a **-3 dB-es vágási frekvenciát**.  
 - Ábrázolja a **frekvenciamenetet (Bode-diagram)** a mért adatok alapján.  
@@ -67,14 +67,13 @@ Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített
 ## **Elektro 1C: Párhuzamos RLC rezgőkör rezonanciafrekvenciájának meghatározása**
 **Feladat:**
 - Építsen meg egy **párhuzamos RLC rezgőkört** breadboardon.  
-- Használjon **1 µF kapacitású kondenzátort**.  
-- Számítsa ki az induktivitás értékét a rezonanciafrekvencia **1 kHz** eléréséhez (**L = 25.33 mH**).  
-- Mérje meg az áramkör **feszültségerősítését** különböző frekvenciákon.  
+- Használjon **100 nF kapacitású kondenzátort**.  
+- Számítsa ki a rezonanciafrekvenciát (**L = 100 mH**).  
 - Határozza meg a **rezonanciafrekvenciát** a mért adatok alapján.  
+- Ábrázolja a **frekvenciamenetet (Bode-diagram)** a mért adatok alapján.  
 
 **Elvárások:**
-- Helyes alkatrészválasztás (1 kHz körüli rezonancia biztosítása).  
-- Az NI MyDAQ adatgyűjtő szakszerű alkalmazása az impedancia- és feszültségméréshez.  
+- Az NI MyDAQ adatgyűjtő szakszerű alkalmazása.  
 - Mérési eredmények rögzítése:  
    - Frekvenciamenet.  
    - Maximális erősítés frekvenciájának azonosítása.  
