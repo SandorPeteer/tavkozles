@@ -357,7 +357,7 @@ A mérési eredményeket **elektronikus jegyzőkönyvben** kell rögzíteni, a f
 
 ---
 
-## **Feladat 2: Koaxiális tápvonal szerelése és csillapításának mérése Johansson modulátorral**
+## **Feladat 2: Koaxiális tápvonal szerelése és csillapításának mérése Johansson modulátorral vagy Profilerrel**
 **Cél:** Koaxiális kábel szerelése, valamint a csillapítás mérése stabil RF jelforrással.
 
 ### **Lépések:**
@@ -366,7 +366,7 @@ A mérési eredményeket **elektronikus jegyzőkönyvben** kell rögzíteni, a f
    - F csatlakozók felszerelése mindkét végére.  
 
 2. **Referencia mérés:**
-   - **Johansson modulátor** beállítása egy adott frekvenciára.  
+   - **Johansson modulátor vagy Profiler** beállítása egy adott frekvenciára.  
    - A modulátor kimenetét közvetlenül a **Metek HDD spektrumanalizátorhoz** csatlakoztatni.  
    - A referencia jelszint rögzítése (pl. -10 dBm).  
 
