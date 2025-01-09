@@ -91,13 +91,6 @@ Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített
 
 ---
 
-## **Eszközigény termenként (9 tanulóhoz):**
-- 9 db NI MyDAQ adatgyűjtő modul.  
-- 9 db breadboard.  
-- Ellenállások, kondenzátorok, tekercsek, mérővezetékek.  
-- NI Multisim vagy megfelelő szoftver.  
-
-*Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, hasonló eszközhasználattal és időigénnyel.*
 
   
 # Elektronikai összetett kapcsolások (60 perc)
@@ -186,6 +179,12 @@ Az alábbi három tétel komplexebb áramkörök beüzemelését, méréstechnik
    - Kapcsolási rajz.  
    - Mérési adatok táblázatban.  
    - Grafikonok a mérésekhez.  
+
+## **Eszközigény termenként (9 tanulóhoz):**
+- 9 db NI MyDAQ adatgyűjtő modul.  
+- 9 db breadboard.  
+- Ellenállások, kondenzátorok, tekercsek, IC-k, mérővezetékek.  
+- NI Multisim vagy megfelelő szoftver.  
 
 ---
 
