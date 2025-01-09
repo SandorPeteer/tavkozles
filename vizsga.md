@@ -181,8 +181,8 @@ Az alábbi három tétel komplexebb áramkörök beüzemelését, méréstechnik
    - Grafikonok a mérésekhez.  
 
 ## **Eszközigény termenként (9 tanulóhoz):**
-- 9 db NI MyDAQ adatgyűjtő modul.  
-- 9 db breadboard.  
+- 6 db NI MyDAQ adatgyűjtő modul.  
+- 6 db breadboard.  
 - Ellenállások, kondenzátorok, tekercsek, IC-k, mérővezetékek.  
 - NI Multisim vagy megfelelő szoftver.  
 
