@@ -195,5 +195,6 @@ Az alábbi három tétel komplexebb áramkörök beüzemelését, méréstechnik
 
 *Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, azonos technológiai szinten és komplexitással.*
 
-A dokumentum MathJax támogatással készült, így a képletek webes környezetben helyesen jelennek meg.
+A dokumentum MathJax támogatással készült, így a képletek webes környezetben helyesen jelennek meg.  
+
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML"></script>
