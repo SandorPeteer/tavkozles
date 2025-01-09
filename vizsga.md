@@ -188,6 +188,100 @@ Az alábbi három tétel komplexebb áramkörök beüzemelését, méréstechnik
 
 ---
 
+
+# Távközlési alapfeladatok (60 perc)
+
+Az alábbi tételsor a rendelkezésre álló **két Johansson DVB-T modulátor**, **két Metek HDD spektrumanalizátor**, **J-FET alapú FM rádióadó áramkör** és **SDRplay spektrumanalizátor** alapján készült. A feladatok célja, hogy a vizsgázók önállóan végezzenek méréseket a különböző távközlési berendezéseken.
+
+---
+
+## **Távközlés 3A: DVB-T modulátor spektrális vizsgálata és jelszintmérés**
+
+**Feladat:**
+- Állítson be egy **Johansson DVB-T modulátort** egy adott frekvenciára (pl. 474 MHz).  
+- Csatlakoztassa a modulátor HDMI bemenetére egy videóforrást (pl. médialejátszó).  
+- A modulátor RF kimenetét csatlakoztassa a **Metek HDD spektrumanalizátorhoz**.  
+- Vizsgálja meg a modulált jel spektrumát, mérje meg a jelszintet és a sávszélességet.  
+
+**Mérési feladatok:**
+- Jelszint mérése spektrumanalizátorral.  
+- Spektrumkép mentése és kiértékelése.  
+- Az RF jel sávszélességének meghatározása.  
+
+**Eszközök:**  
+- 1 db Johansson DVB-T modulátor  
+- Metek HDD spektrumanalizátor  
+- HDMI forrás (pl. médialejátszó)  
+
+**Időkeret:** 60 perc  
+
+---
+
+## **Távközlés 3B: DVB-C modulátor spektrális vizsgálata és jelszintmérés**
+
+**Feladat:**
+- Állítson be egy **Johansson DVB-T modulátort** **DVB-C üzemmódban**, egy előre meghatározott frekvenciára (pl. 482 MHz).  
+- Csatlakoztassa a modulátor HDMI bemenetére egy videóforrást (pl. médialejátszó).  
+- A modulátor RF kimenetét csatlakoztassa a **Metek HDD spektrumanalizátorhoz**.  
+- Vizsgálja meg a modulált jel spektrumát, mérje meg a jelszintet és a sávszélességet.  
+
+**Mérési feladatok:**
+- Jelszint mérése spektrumanalizátorral.  
+- Spektrumkép mentése és kiértékelése.  
+- Az RF jel sávszélességének meghatározása.  
+
+**Eszközök:**  
+- 1 db Johansson DVB-T modulátor (DVB-C üzemmódban)  
+- Metek HDD spektrumanalizátor  
+- HDMI forrás (pl. médialejátszó)  
+
+**Időkeret:** 60 perc  
+
+---
+
+## **Távközlés 3C: FM rádióadó vizsgálata J-FET áramkörrel és SDRplay spektrumanalizátorral**
+
+**Feladat:**
+- Forrasszon egy megfelelő antennát a **J-FET alapú FM rádióadó áramkörre**.  
+- Hangolja be az FM adót egy szabad, **Miskolcon elérhető sávra**.  
+- Csatlakoztassa az **SDRplay spektrumanalizátort** egy antennával.  
+- Csatlakoztassa a laborban található **GAG-810 audiojel-generátort** az FM adó bemenetére, és állítson be egy megfelelő modulációs jelet.  
+- Végezzen spektrumanalízist a sugárzott FM jel frekvenciájának és spektrális jellemzőinek vizsgálatára.  
+
+**Mérési feladatok:**
+- Vivőfrekvencia pontos mérése.  
+- Jelszint meghatározása.  
+- Modulációs mélység és sávszélesség mérése.  
+
+**Eszközök:**  
+- J-FET alapú FM rádióadó áramkör  
+- SDRplay spektrumanalizátor  
+- GAG-810 audiojel-generátor  
+- Antennák (FM adóra és SDRplay-re külön-külön)  
+- Multiméter, forrasztópáka  
+
+**Időkeret:** 60 perc  
+
+---
+
+## **Közös követelmények mindhárom tételnél:**
+- **Eszközök:**  
+   - Johansson DVB-T modulátor  
+   - Metek HDD spektrumanalizátor  
+   - J-FET FM rádióadó áramkör  
+   - SDRplay spektrumanalizátor  
+   - GAG-810 audiojel-generátor  
+   - Számítógép megfelelő szoftverrel (pl. SDRUno)  
+
+- **Mérési dokumentáció:**  
+   - Kapcsolási rajzok és beállítások dokumentálása.  
+   - Mérési adatok táblázatos formában.  
+   - Spektrumképek mentése és elemzése.  
+
+---
+
+**Megjegyzés:** Minden tételhez külön modulátort és spektrumanalizátort rendelünk, az eszközök egyszerre párhuzamosan használhatók a vizsgázók között.
+
 *Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, azonos technológiai szinten és komplexitással.*
 
 A dokumentum MathJax támogatással készült, így a képletek webes környezetben helyesen jelennek meg.  
