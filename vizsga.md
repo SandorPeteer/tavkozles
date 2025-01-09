@@ -20,11 +20,11 @@ Vizsgáztatás módja:
 
 Tételszám és Eszközszükséglet Termenként (9 fő esetén):  
  
-	> Tétel 1: 
+> Tétel 1: 
+	 
+> Tétel 2:
  
-	> Tétel 2:
- 
- 	> Tétel 3:
+> Tétel 3:
   
   	
 
