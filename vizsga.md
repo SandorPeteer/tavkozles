@@ -284,6 +284,145 @@ Az alábbi tételsor a rendelkezésre álló **Johansson DVB-C modulátor**, **M
 
 *Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, azonos technológiai szinten és komplexitással.*
 
+
+# A KKK dokumentum szerint a II. vizsgarész a következőket tartalmazza:
+
+Infokommunikációs hálózatokban alkalmazott passzív hálózati eszközök szerelése és mérése:
+	•	Kommunikációs kábelek szerelése és mérése (pl. CAT5, CAT6 LAN kábelek krimpelése, mérőeszközzel ellenőrzése).
+	•	Koaxiális tápvonalak szerelése és mérése.
+	•	Rádiófrekvenciás passzív eszközök szerelése és mérése.
+
+Elvárt tevékenységek:
+	•	A vizsgázó a szerelési feladatokat önállóan végzi.
+	•	Az elkészült szerelések megfelelő minőségét méréssel kell igazolni.
+	•	Az eredményeket elektronikus jegyzőkönyvben kell dokumentálni.
+	•	A feladat befejezése után a vizsgázónak rövid szóbeli összegzést kell adnia az elvégzett tevékenységekről ￼.
+
+Tételsor javaslatok:
+
+## CAT6 UTP kábel szerelése és tesztelése
+	•	CAT6 UTP kábel levágása, krimpelése RJ45 csatlakozóval.
+	•	Mérőműszerrel (pl. LAN-tester) az elkészült kábel tesztelése.
+	•	Hibás kötés esetén a hiba feltárása és javítása.
+
+## Koaxiális kábel szerelése és mérés
+	•	RG6 koaxiális kábel levágása és F csatlakozó szerelése.
+	•	A kábel jelszintének mérése spektrumanalizátorral (Metek HDD).
+	•	A kábelcsillapítás ellenőrzése.
+
+## Rádiófrekvenciás passzív eszközök szerelése és mérése
+	•	Rádiófrekvenciás osztó vagy csillapító csatlakoztatása a tápvonalra.
+	•	A jelszint mérése a csillapítás mértékének ellenőrzése céljából.
+	•	A spektrumanalizátor segítségével a jel spektrális vizsgálata.
+
+Minden tétel esetén:
+	•	Mérési eredmények dokumentálása (elektronikus jegyzőkönyv).
+	•	Rövid szóbeli összefoglaló a vizsgáztató számára.
+
+# Kábel Szerelési Vizsgatételek (60 perc)
+
+Az alábbi tételek a rendelkezésre álló eszközök (CAT5 kábel, Johansson modulátor, koaxiális kábelek, kábel TV erősítők, állítható csillapítók, RF elosztók) alapján lettek összeállítva. Minden feladat önállóan végrehajtandó, az időkeret: **60 perc**.
+
+---
+
+## CAT5 UTP kábel szerelése és tesztelése**
+
+**Feladat:**
+- Vágjon méretre egy **CAT5 UTP kábelt**.  
+- Készítsen mindkét végére **RJ45 csatlakozót** TIA/EIA-568B szabvány szerint.  
+- Végezze el a kábel minőségi ellenőrzését egy **LAN kábelteszter** segítségével.  
+
+**Lépések:**
+1. **Kábel előkészítése:** Helyes hosszkiválasztás, burkolat eltávolítása, érpárak rendezése.  
+2. **Csatlakozók krimpelése:** RJ45 csatlakozó felszerelése és a vezetékek helyes sorrendjének biztosítása.  
+3. **Tesztelés:**  
+   - Csatlakoztassa a kábeltesztert mindkét végére.  
+   - Mérje meg az érpárok folytonosságát, hiba (keresztezés, szakadások) esetén javítsa a csatlakozót.  
+
+**Dokumentáció:**
+- A szerelés lépéseinek leírása.  
+- Hibák és javítások dokumentálása.  
+- Mérési eredmények rögzítése.  
+
+**Eszközök:**  
+- CAT5 kábel  
+- RJ45 csatlakozók  
+- Krimpelő fogó  
+- LAN kábelteszter  
+
+---
+
+## Koaxiális kábel szerelése és csillapításának mérése Johansson modulátorral**
+
+**Feladat:**
+- Készítsen egy **RG6 koaxiális kábelt** F csatlakozókkal mindkét végén.  
+- Mérje meg a kábel csillapítását a **Johansson modulátor** stabil RF jelével és a **Metek HDD spektrumanalizátorral**.  
+
+**Lépések:**
+1. **Kábel előkészítése:** Vágja le a szükséges hosszúságú RG6 kábelt, csatlakoztassa az **F csatlakozókat**.  
+2. **Referencia mérés:**  
+   - Csatlakoztassa a Johansson modulátor RF kimenetét közvetlenül a spektrumanalizátorhoz.  
+   - Jegyezze fel a jelszintet (pl. -10 dBm).  
+3. **Kábel mérése:**  
+   - Kösse be a koaxiális kábelt a jelforrás és a spektrumanalizátor közé.  
+   - Mérje meg az áthaladó jelszintet a kábel másik végén.  
+4. **Csillapítás számítása:**  
+
+   $$[A = P_{\text{in}} - P_{\text{out}}]$$
+
+**Dokumentáció:**
+- Kábel szerelési lépések bemutatása.  
+- Mérési eredmények rögzítése és csillapítás számítása.  
+
+**Eszközök:**  
+- RG6 koaxiális kábel  
+- F csatlakozók  
+- Krimpelő fogó  
+- Johansson modulátor  
+- Metek HDD spektrumanalizátor  
+
+---
+
+## Kábel TV rendszer csillapításának vizsgálata RF elosztókkal és erősítőkkel**
+
+**Feladat:**
+- Építsen össze egy **kábel TV elosztórendszert** 2, 3, 4, illetve 5 felé osztókkal.  
+- Végezze el a rendszer csillapításának mérését a **Johansson modulátor** és a **Metek HDD spektrumanalizátor** segítségével.  
+- Tesztelje az **állítható csillapító** és az **antennaerősítő** hatását.  
+
+**Lépések:**
+1. **Rendszer felépítése:**  
+   - Johansson modulátor RF kimenetére kösse az első elosztót.  
+   - Csatlakoztassa a különböző osztókat és állítható csillapítókat a rendszerbe.  
+2. **Referencia mérés:**  
+   - Mérje meg a jelszintet közvetlenül az első elosztónál.  
+3. **Mérés az osztók után:**  
+   - Mérje meg a csillapítást minden egyes kimeneten.  
+4. **Erősítő használata:**  
+   - Csatlakoztassa az **antennaerősítőt** a jelútba, és vizsgálja meg a jelszint növekedését.  
+
+**Dokumentáció:**
+- Az elosztási hálózat kapcsolási rajza.  
+- Mért csillapítások és jelszintek.  
+- Az erősítő hatásának dokumentálása.  
+
+**Eszközök:**  
+- Kábel TV elosztók (2, 3, 4, 5 felé osztók)  
+- Állítható csillapítók  
+- Antennaerősítő  
+- Johansson modulátor  
+- Metek HDD spektrumanalizátor  
+
+---
+
+## **Közös követelmények mindhárom tételnél:**
+- **Időkeret:** 60 perc.  
+- **Minden mérési eredményt elektronikus jegyzőkönyvben kell rögzíteni.**  
+- **A vizsgázónak szóbeli összegzést kell adnia az elvégzett munkáról.**  
+- **A hibás szerelések esetén javítást kell végezni, és újra kell mérni a csillapítást vagy folytonosságot.**
+
+
+
 A dokumentum MathJax támogatással készült, így a képletek webes környezetben helyesen jelennek meg.  
 
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML"></script>
