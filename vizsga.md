@@ -20,14 +20,85 @@ Vizsgáztatás módja:
 
 Tételszám és Eszközszükséglet Termenként (9 fő esetén):  
  
-> Tétel 1: 
-	 
-> Tétel 2:
- 
-> Tétel 3:
-  
-  	
+# Elektronikai alapfeladatok (60 perc)
 
-Összesítés 3 Teremre:  
-	•	Tételek száma: 3 tétel × 3 terem = 9 tétel.  
-	•	Eszközök száma: 9 db mérőállomás × 3 terem = 27 mérőállomás (minden tanulónak saját eszköz).  
+Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített áramkörök méréstechnikai vizsgálatát tartalmazzák. A feladatokat minden tanulónak egyéni eszközkészlettel kell végrehajtania, az eredményeket mérési jegyzőkönyvben kell dokumentálni.
+
+---
+
+## **Elektro 1A: T-ellenállás hálózat építése és mérése**
+**Feladat:**
+- Építsen meg egy **T ellenállás hálózatot** breadboardon.  
+- Használja az **NI MyDAQ mérőadatgyűjtő modult** a mérésekhez.  
+- Mérje meg a **csillapítást** terheletlen állapotban, majd egy **600 Ω terhelés** mellett.  
+- Határozza meg a **bemeneti és kimeneti impedanciát**.  
+- Ismételje meg a méréseket **illesztett terheléssel**, és hasonlítsa össze az eredményeket.  
+
+**Elvárások:**
+- Az áramkör szakszerű megépítése breadboardon.  
+- Pontos mérések végrehajtása.  
+- Mérési jegyzőkönyv készítése:  
+   - Kapcsolási rajz.  
+   - Mérési adatok rögzítése.  
+   - Bemeneti és kimeneti impedancia számítása.  
+
+**Időkeret:** 60 perc  
+
+---
+
+## **Elektro 1B: RC aluláteresztő szűrő építése és mérése**
+**Feladat:**
+- Építsen meg egy **RC aluláteresztő szűrőt** breadboardon.  
+- Használja az **NI MyDAQ adatgyűjtőt** és egy szinuszos jelgenerátort a vizsgálatokhoz.  
+- Változtassa a bemeneti frekvenciát, és mérje meg a **kimeneti feszültséget** különböző frekvenciákon.  
+- Határozza meg a **-3 dB-es vágási frekvenciát**.  
+- Ábrázolja a **frekvenciamenetet (Bode-diagram)** a mért adatok alapján.  
+
+**Elvárások:**
+- Szakszerű áramkörszerelés.  
+- Az RC szűrő helyes működésének igazolása mérésekkel.  
+- Jegyzőkönyv készítése, amely tartalmazza:  
+   - Kapcsolási rajz.  
+   - Mérési eredmények.  
+   - Frekvenciamenet kiértékelése.  
+
+**Időkeret:** 60 perc  
+
+---
+
+## **Elektro 1C: Párhuzamos RLC rezgőkör rezonanciafrekvenciájának meghatározása**
+**Feladat:**
+- Építsen meg egy **párhuzamos RLC rezgőkört** breadboardon.  
+- Használjon **1 µF kapacitású kondenzátort**.  
+- Számítsa ki az induktivitás értékét a rezonanciafrekvencia **1 kHz** eléréséhez (**L = 25.33 mH**).  
+- Mérje meg az áramkör **feszültségerősítését** különböző frekvenciákon.  
+- Határozza meg a **rezonanciafrekvenciát** a mért adatok alapján.  
+
+**Elvárások:**
+- Helyes alkatrészválasztás (1 kHz körüli rezonancia biztosítása).  
+- Az NI MyDAQ adatgyűjtő szakszerű alkalmazása az impedancia- és feszültségméréshez.  
+- Mérési eredmények rögzítése:  
+   - Frekvenciamenet.  
+   - Maximális erősítés frekvenciájának azonosítása.  
+   - Rezonanciafrekvencia számítása.  
+
+**Időkeret:** 60 perc  
+
+---
+
+## **Közös követelmények mindhárom tételnél:**
+- **Az NI MyDAQ adatgyűjtő és breadboard kötelező használata.**  
+- **Minden mérési adat jegyzőkönyvben történő rögzítése.**  
+- **Kapcsolási rajz és számítások mellékelése.**  
+- **Az eredmények szakszerű dokumentálása.**  
+
+---
+
+## **Eszközigény teremenként (9 tanulóhoz):**
+- **9 db NI MyDAQ adatgyűjtő modul.**  
+- **9 db breadboard.**  
+- **Ellenállások, kondenzátorok, tekercsek, mérővezetékek.**  
+- **NI Multisim vagy megfelelő szoftver.**  
+
+**Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, hasonló eszközhasználattal és időigénnyel.**
+  
