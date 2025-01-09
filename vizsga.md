@@ -17,8 +17,6 @@ Vizsgáztatás módja:
 	•	Tételhúzás: A tanuló egy feladatot húz a három közül, és csak azt kell teljesítenie.  
 	•	Eszközigény: Minden tanulónak külön mérőállomás szükséges, mivel mindenki saját tételt old meg.  
 	•	Mérési eredmények rögzítése: A mérési eredményeket a vizsgázónak elektronikus jegyzőkönyvben kell rögzítenie.  
-
-Tételszám és Eszközszükséglet Termenként (9 fő esetén):  
  
 # Elektronikai alapfeladatok (60 perc)
 
