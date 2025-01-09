@@ -4,7 +4,6 @@ A Távközlési Technikus 2023.11.21. KKK dokumentum szerint az **I. Távközlé
 	•	Alapelemekből épít egy egyszerű áramkört.   
 	•	Mérések elvégzése (feszültség, áramerősség, ellenállás mérése).   
 	•	Az elektronika alapvető törvényeinek igazolása (pl. Ohm-törvény).
-	> Tétel 1: 
 
 3. Elektronikai összetett kapcsolások:   
 	•	Komplexebb áramkörök beüzemelése (pl. erősítők, műveleti erősítők, digitális kombinációs hálózatok).  
@@ -20,12 +19,14 @@ Vizsgáztatás módja:
 	•	Mérési eredmények rögzítése: A mérési eredményeket a vizsgázónak elektronikus jegyzőkönyvben kell rögzítenie.  
 
 Tételszám és Eszközszükséglet Termenként (9 fő esetén):  
-	•	Tételek: 3 különböző tétel szükséges (1 elektronikai alapfeladat, 1 komplex elektronikai feladat, 1 távközlési feladat).  
-	 > Eszközök:  
-	 > 9 db multiméter.  
-	 > 9 db oszcilloszkóp.  
-	 > 9 db tápegység.  
-	 > Mérővezetékek és alkatrészek minden tanuló számára.  
+ 
+	> Tétel 1: 
+ 
+	> Tétel 2:
+ 
+ 	> Tétel 3:
+  
+  	
 
 Összesítés 3 Teremre:  
 	•	Tételek száma: 3 tétel × 3 terem = 9 tétel.  
