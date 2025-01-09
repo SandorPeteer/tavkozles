@@ -21,11 +21,11 @@ Vizsgáztatás módja:
 
 Tételszám és Eszközszükséglet Termenként (9 fő esetén):  
 	•	Tételek: 3 különböző tétel szükséges (1 elektronikai alapfeladat, 1 komplex elektronikai feladat, 1 távközlési feladat).  
-	> Eszközök:  
-	> 9 db multiméter.  
-	> 9 db oszcilloszkóp.  
-	> 9 db tápegység.  
-	> Mérővezetékek és alkatrészek minden tanuló számára.  
+	 > Eszközök:  
+	 > 9 db multiméter.  
+	 > 9 db oszcilloszkóp.  
+	 > 9 db tápegység.  
+	 > Mérővezetékek és alkatrészek minden tanuló számára.  
 
 Összesítés 3 Teremre:  
 	•	Tételek száma: 3 tétel × 3 terem = 9 tétel.  
