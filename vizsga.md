@@ -18,7 +18,7 @@ Vizsgáztatás módja:
 	•	Eszközigény: Minden tanulónak külön mérőállomás szükséges, mivel mindenki saját tételt old meg.  
 	•	Mérési eredmények rögzítése: A mérési eredményeket a vizsgázónak elektronikus jegyzőkönyvben kell rögzítenie.  
  
-# Elektronikai alapfeladatok
+# Elektronikai alapfeladatok Tételei:
 
 Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített áramkörök méréstechnikai vizsgálatát tartalmazzák. A feladatokat minden tanulónak egyéni eszközkészlettel kell végrehajtania, az eredményeket mérési jegyzőkönyvben kell dokumentálni.
 
