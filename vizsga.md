@@ -1,4 +1,4 @@
-A Távközlési Technikus 2023.11.21. KKK dokumentum szerint az **I. Távközlési alapmérések** során a vizsgázónak **tételhúzással** kell kiválasztania egy feladatot az alábbi három kategóriából, és azt önállóan kell végrehajtania:
+A Távközlési Technikus 2023.11.21. KKK dokumentum szerint az **I. Távközlési alapmérések** során a vizsgázónak **tételhúzással** kell kiválasztania egy feladatot az alábbi három kategóriából:
 
 1. Elektronikai alapfeladat:
 	•	Alapelemekből épít egy egyszerű áramkört.
