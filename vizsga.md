@@ -191,14 +191,14 @@ Az alábbi három tétel komplexebb áramkörök beüzemelését, méréstechnik
 
 # Távközlési alapfeladatok (60 perc)
 
-Az alábbi tételsor a rendelkezésre álló **két Johansson DVB-T modulátor**, **két Metek HDD spektrumanalizátor**, **J-FET alapú FM rádióadó áramkör** és **SDRplay spektrumanalizátor** alapján készült. A feladatok célja, hogy a vizsgázók önállóan végezzenek méréseket a különböző távközlési berendezéseken.
+Az alábbi tételsor a rendelkezésre álló **Johansson DVB-C modulátor**, **Metek HDD spektrumanalizátor**, **GRF-1300A RF és kommunikációs tréner** és **SDRplay spektrumanalizátor** alapján készült. A feladatok célja, hogy a vizsgázók önállóan végezzenek méréseket a különböző távközlési berendezéseken.
 
 ---
 
-## **Távközlés 3A: DVB-T modulátor spektrális vizsgálata és jelszintmérés**
+## **Távközlés 3A: DVB-C modulátor spektrális vizsgálata és jelszintmérés**
 
 **Feladat:**
-- Állítson be egy **Johansson DVB-T modulátort** egy adott frekvenciára (pl. 474 MHz).  
+- Állítson be egy **Johansson DVB-C modulátort** egy adott frekvenciára (pl. 482 MHz).  
 - Csatlakoztassa a modulátor HDMI bemenetére egy videóforrást (pl. médialejátszó).  
 - A modulátor RF kimenetét csatlakoztassa a **Metek HDD spektrumanalizátorhoz**.  
 - Vizsgálja meg a modulált jel spektrumát, mérje meg a jelszintet és a sávszélességet.  
@@ -209,7 +209,7 @@ Az alábbi tételsor a rendelkezésre álló **két Johansson DVB-T modulátor**
 - Az RF jel sávszélességének meghatározása.  
 
 **Eszközök:**  
-- 1 db Johansson DVB-T modulátor  
+- Johansson DVB-C modulátor  
 - Metek HDD spektrumanalizátor  
 - HDMI forrás (pl. médialejátszó)  
 
@@ -217,23 +217,23 @@ Az alábbi tételsor a rendelkezésre álló **két Johansson DVB-T modulátor**
 
 ---
 
-## **Távközlés 3B: DVB-C modulátor spektrális vizsgálata és jelszintmérés**
+## **Távközlés 3B: Amplitúdómoduláció vizsgálata a GRF-1300A trénerrel**
 
 **Feladat:**
-- Állítson be egy **Johansson DVB-T modulátort** **DVB-C üzemmódban**, egy előre meghatározott frekvenciára (pl. 482 MHz).  
-- Csatlakoztassa a modulátor HDMI bemenetére egy videóforrást (pl. médialejátszó).  
-- A modulátor RF kimenetét csatlakoztassa a **Metek HDD spektrumanalizátorhoz**.  
-- Vizsgálja meg a modulált jel spektrumát, mérje meg a jelszintet és a sávszélességet.  
+- Használja a **GRF-1300A RF és kommunikációs trénert** az amplitúdómoduláció (AM) előállítására.  
+- Állítson be egy megfelelő RF vivőfrekvenciát (pl. 900 MHz) és egy moduláló jelet (pl. 1 kHz szinuszjel).  
+- Csatlakoztassa a tréner RF kimenetét a hozzá tartozó spektrumanalizátorhoz.  
+- Vizsgálja meg az AM jel spektrumát, mérje meg a jelszintet, a sávszélességet és a modulációs mélységet.  
 
 **Mérési feladatok:**
 - Jelszint mérése spektrumanalizátorral.  
 - Spektrumkép mentése és kiértékelése.  
-- Az RF jel sávszélességének meghatározása.  
+- Modulációs mélység és sávszélesség meghatározása.  
 
 **Eszközök:**  
-- 1 db Johansson DVB-T modulátor (DVB-C üzemmódban)  
-- Metek HDD spektrumanalizátor  
-- HDMI forrás (pl. médialejátszó)  
+- GRF-1300A RF és kommunikációs tréner  
+- Spektrumanalizátor (a tréner része)  
+- Jelgenerátor a moduláló jel előállításához  
 
 **Időkeret:** 60 perc  
 
@@ -266,9 +266,9 @@ Az alábbi tételsor a rendelkezésre álló **két Johansson DVB-T modulátor**
 
 ## **Közös követelmények mindhárom tételnél:**
 - **Eszközök:**  
-   - Johansson DVB-T modulátor  
+   - Johansson DVB-C modulátor  
    - Metek HDD spektrumanalizátor  
-   - J-FET FM rádióadó áramkör  
+   - GRF-1300A RF és kommunikációs tréner  
    - SDRplay spektrumanalizátor  
    - GAG-810 audiojel-generátor  
    - Számítógép megfelelő szoftverrel (pl. SDRUno)  
