@@ -97,7 +97,8 @@ Az alábbi tételek az elektronikai alapméréseket, az alapelemekből épített
 - **Ellenállások, kondenzátorok, tekercsek, mérővezetékek.**  
 - **NI Multisim vagy megfelelő szoftver.**  
 
-**Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, hasonló eszközhasználattal és időigénnyel.**
+*Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, hasonló eszközhasználattal és időigénnyel.*
+
   
 # Elektronikai összetett kapcsolások (60 perc)
 
@@ -192,14 +193,7 @@ Az alábbi három tétel komplexebb áramkörök beüzemelését, méréstechnik
 
 ---
 
-**Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, azonos technológiai szinten és komplexitással.**  
-
-
-
-# Elektronikai összetett kapcsolások (60 perc)
+*Ez a tételsor kiegyensúlyozott, minden tanuló egyenértékű feladatot kap, azonos technológiai szinten és komplexitással.*
 
 A dokumentum MathJax támogatással készült, így a képletek webes környezetben helyesen jelennek meg.
-
-<script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML"></script>
