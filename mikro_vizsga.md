@@ -8,7 +8,7 @@
 
 - **Mikrotik LHG18 LTE antenna** (alapértelmezett IP: `192.168.188.1`)   
 
-<img src="https://github.com/user-attachments/assets/bd348bcc-664c-4348-ab69-c8d4478b8b71" alt="lhg18" style="width:200px;"/>
+<img src="https://github.com/user-attachments/assets/bd348bcc-664c-4348-ab69-c8d4478b8b71" alt="lhg18" style="width:100px;"/>
 
 - **Mikrotik nRay 60GHz mikrohullámú antenna szett** (eszközök IP-címei: `192.168.88.2` és `192.168.88.3`)   
 
