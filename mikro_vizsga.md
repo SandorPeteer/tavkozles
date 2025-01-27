@@ -124,7 +124,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 
 ### 3.2. Sávszélesség mérése (iperf használata)
 
-1. **Telepítse az iperf szoftvert** a kliens laptopra.
+1. **Telepítse az iperf szoftvert** a kliens laptopra.   
    (Download link iperf3)[https://iperf.fr/iperf-download.php]
 2. Az egyik eszközön futtassa szerverként:
    ```sh
