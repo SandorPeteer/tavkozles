@@ -70,7 +70,8 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 5. **Alláítsa be az eszközt**, hogy egy tartományba essen a hálózat többi elemével: pl: `192.168.88.1`. 
 5. **Mentse a beállításokat**, és ellenőrizze a kapcsolat állapotát.
 6. **Ellenőrizze a kapcsolat állapotát** és rögzítse a jelerősség paramétereit (RSRP, RSRQ, SINR, RSSI).
-
+   - Végezzen **ping tesztet** egy külső szerverhez (`8.8.8.8`), és mérje meg a késleltetést.   
+   - Dokumentálja a kapott **nyilvános IP címet** és a hálózati beállításokat.      
 
 ---
 
@@ -89,6 +90,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 1. Ismételje meg a fenti lépéseket a `192.168.88.3` IP-n.  
 2. **Állítsa be az eszközt "Slave" módban**, és csatlakozzon a Master antennához.   
    - Ellenőrizze a kapcsolat minőségét és rögzítse a jelminőségi paramétereket.
+   - Készítsen képernyőképet a kapcsolat **Throughput (Mbps)** értékéről.   
 
 ---
 
