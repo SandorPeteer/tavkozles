@@ -1,6 +1,6 @@
 # Távközlési Technikus Vizsgafeladat
 
-## Feladat címe: Komplex Távközlési Hálózat Tervezése, Telepítése és Mérése
+## Feladat: Komplex Távközlési Hálózat Tervezése, Telepítése és Mérése
 
 **Időtartam:** 2 óra
 
@@ -34,7 +34,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 #### **Mikrotik nRay 60GHz antennák resetelése:**
 1. Ismételje meg a fent leírt folyamatot mindkét antennán (`192.168.88.2` és `192.168.88.3`).
 
-#### **SOHO router (TP-LINK vagy ASUS) resetelése:**
+#### **SOHO router (D-LINK vagy TP-LINK vagy ASUS) resetelése:**
 1. Keresse meg a reset gombot az eszközön.
 2. Nyomja meg és tartsa lenyomva a gombot kb. **10 másodpercig**, amíg az eszköz újra nem indul.
 
