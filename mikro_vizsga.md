@@ -71,7 +71,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 4. **Konfigurálja az LTE kapcsolatot** a szolgáltató által megadott APN beállításokkal.
 5. **Alláítsa be az eszközt**, hogy egy tartományba essen a hálózat többi elemével: pl: `192.168.88.1`  
    - Az antenna legyen a DHCP szerver: `192.168.88.100-250`
-   - A NAT és egyéb szükséges opciók legyenek bekapcsolva.
+   - A NAT és egyéb szükséges opciók legyenek beállítva, alhálózati maszk: `255.255.255.0`
 6. **Mentse a beállításokat**, és ellenőrizze a kapcsolat állapotát.
 7. **Ellenőrizze a kapcsolat állapotát** és rögzítse a jelerősség paramétereit (RSRP, RSRQ, SINR, RSSI).
    - Végezzen **ping tesztet** egy külső szerverhez (`8.8.8.8`), és mérje meg a késleltetést.   
