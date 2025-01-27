@@ -53,7 +53,6 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 
 3. **Ügyeljen az IP-ütközések elkerülésére és az alhálózati maszk helyes beállítására (`255.255.255.0`).**  
 
-**Példa hálózati diagram:**
 ![Hálózati Diagram – Távközlési Vizsgafeladat](https://github.com/user-attachments/assets/df14fc14-d22e-43ab-8b7a-08c50ca15b5d)
 
 ---
