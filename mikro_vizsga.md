@@ -16,6 +16,9 @@
 <img src="https://github.com/user-attachments/assets/2ccd65b7-5b63-4b0b-a1e5-d55c70593576" alt="nray60" style="width:250px;"/>  
 
 - **D-LINK vagy TP-LINK vagy ASUS SOHO router** (AP módban)
+
+<img src="https://github.com/user-attachments/assets/70ec1eea-8cd0-4c06-9fdf-2e12e8bef59c" alt="asus" style="width:250px;"/>  
+
 - **HP switch** (opcionálisan felhasználható)
 - **Laptop vagy PC** a konfigurációkhoz és mérésekhez
 - **iperf szoftver** a sávszélesség mérésekhez
