@@ -45,8 +45,8 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 1. **Rajzoljon egy hálózati diagramot**, amely tartalmazza az összes eszközt és azok kapcsolatait.  
 2. **IP-cím kiosztás:**  
    - Mikrotik LHG18 LTE: `192.168.88.1`
-   - nRay 60GHz Master: `192.168.88.2`
-   - nRay 60GHz Slave: `192.168.88.3`
+   - Mikrotik nRay 60GHz Master: `192.168.88.2`
+   - Mikrotik nRay 60GHz Slave: `192.168.88.3`
    - Router (AP mód): `192.168.88.4 - 5`
    - Switch (ha szükséges): `192.168.88.254`
    - Kliens laptop: `192.168.88.100-250` (DHCP-ből)
