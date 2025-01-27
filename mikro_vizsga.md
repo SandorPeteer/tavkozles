@@ -49,9 +49,12 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    - nRay 60GHz Slave: `192.168.88.3`
    - Router (AP mód): `192.168.88.4 - 5`
    - Switch (ha szükséges): `192.168.88.254`
-   - Kliens laptop: `192.168.88.100-150` (DHCP-ből)
+   - Kliens laptop: `192.168.88.100-250` (DHCP-ből)
 
 3. **Ügyeljen az IP-ütközések elkerülésére és az alhálózati maszk helyes beállítására (`255.255.255.0`).**  
+
+**Példa hálózati diagram:**
+![Hálózati Diagram – Távközlési Vizsgafeladat](https://github.com/user-attachments/assets/df14fc14-d22e-43ab-8b7a-08c50ca15b5d)
 
 ---
 
@@ -67,9 +70,11 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    - Cím: `http://192.168.188.1`  
    - Felhasználónév: `admin`, jelszó: `antennán`.
 4. **Konfigurálja az LTE kapcsolatot** a szolgáltató által megadott APN beállításokkal.
-5. **Alláítsa be az eszközt**, hogy egy tartományba essen a hálózat többi elemével: pl: `192.168.88.1`. 
-5. **Mentse a beállításokat**, és ellenőrizze a kapcsolat állapotát.
-6. **Ellenőrizze a kapcsolat állapotát** és rögzítse a jelerősség paramétereit (RSRP, RSRQ, SINR, RSSI).
+5. **Alláítsa be az eszközt**, hogy egy tartományba essen a hálózat többi elemével: pl: `192.168.88.1`  
+   - Az antenna legyen a DHCP szerver: `192.168.88.100-250`
+   - A NAT és egyéb szükséges opciók legyenek bekapcsolva.
+6. **Mentse a beállításokat**, és ellenőrizze a kapcsolat állapotát.
+7. **Ellenőrizze a kapcsolat állapotát** és rögzítse a jelerősség paramétereit (RSRP, RSRQ, SINR, RSSI).
    - Végezzen **ping tesztet** egy külső szerverhez (`8.8.8.8`), és mérje meg a késleltetést.   
    - Dokumentálja a kapott **nyilvános IP címet** és a hálózati beállításokat.      
 
