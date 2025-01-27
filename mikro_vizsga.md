@@ -1,6 +1,6 @@
 # Távközlési Technikus Vizsgafeladat
 
-## Feladat: Komplex Távközlési Hálózat Tervezése, Telepítése és Mérése
+## Komplex Távközlési Hálózat Tervezése, Telepítése és Mérése
 
 **Időtartam:** 2 óra
 
