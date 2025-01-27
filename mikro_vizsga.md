@@ -47,13 +47,13 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    - Mikrotik LHG18 LTE: `192.168.88.1`
    - Mikrotik nRay 60GHz Master: `192.168.88.2`
    - Mikrotik nRay 60GHz Slave: `192.168.88.3`
-   - Router (AP mód): `192.168.88.4 - 5`
+   - Router (AP mód): `192.168.88.4`
    - Switch (ha szükséges): `192.168.88.254`
    - Kliens laptop: `192.168.88.100-250` (DHCP-ből)
 
 3. **Ügyeljen az IP-ütközések elkerülésére és az alhálózati maszk helyes beállítására (`255.255.255.0`).**  
 
-![Hálózati Diagram – Távközlési Vizsgafeladat](https://github.com/user-attachments/assets/df14fc14-d22e-43ab-8b7a-08c50ca15b5d)
+![Hálózati Diagram – Távközlési Vizsgafeladat](https://github.com/user-attachments/assets/85dce293-ca3b-4569-bed8-d9afd6a08380)   
 
 ---
 
