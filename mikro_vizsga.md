@@ -107,7 +107,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 ### 3.1. Ping teszt végrehajtása
 
 1. Nyisson egy parancssort (cmd vagy Terminal).
-2. Pingelje meg az alábbi eszközöket:
+2. Pingelje meg a hálózaton lévő eszközöket:
    ```sh
    ping 192.168.88.1
    ping 192.168.88.2
@@ -125,7 +125,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    ```
 3. A másik eszközön futtassa kliensként:
    ```sh
-   iperf -c 192.168.88.2
+   iperf -c 192.168.88.xxx (xxx - tesztelő eszköz IP címe)
    ```
 4. **Rögzítse az eredményeket (Mbps értékek).**
 
