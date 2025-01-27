@@ -6,11 +6,9 @@
 
 **Eszközök:**  
 - **Mikrotik LHG18 LTE antenna** (alapértelmezett IP: `192.168.188.1`)   
-![4-2-768x893](https://github.com/user-attachments/assets/05ecd09b-37fc-4f21-901d-265be9f592c7)
-
+<img src="[LHG18](https://github.com/user-attachments/assets/bd348bcc-664c-4348-ab69-c8d4478b8b71)" alt="lhg18" style="width:200px;"/>   
 - **Mikrotik nRay 60GHz mikrohullámú antenna szett** (eszközök IP-címei: `192.168.88.2` és `192.168.88.3`)   
-![NRAYG-60ADPAIR](https://github.com/user-attachments/assets/d2a01e7d-b319-45fd-a47f-dfb944018e1f)
-
+<img src="![NRAYG-60ADPAIR](https://github.com/user-attachments/assets/d2a01e7d-b319-45fd-a47f-dfb944018e1f)" alt="lhg18" style="width:200px;"/>   
 - **D-LINK vagy TP-LINK vagy ASUS SOHO router** (AP módban)
 - **HP switch** (opcionálisan felhasználható)
 - **Laptop vagy PC** a konfigurációkhoz és mérésekhez
