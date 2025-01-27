@@ -125,13 +125,14 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 ### 3.2. Sávszélesség mérése (iperf használata)
 
 1. **Telepítse az iperf szoftvert** a kliens laptopra.
+   (Download link iperf3)[https://iperf.fr/iperf-download.php]
 2. Az egyik eszközön futtassa szerverként:
    ```sh
-   iperf -s
+   iperf3 -s
    ```
 3. A másik eszközön futtassa kliensként:
    ```sh
-   iperf -c 192.168.88.xxx (xxx - tesztelő eszköz IP címe)
+   iperf3 -c 192.168.88.xxx (xxx - tesztelő eszköz IP címe)
    ```
 4. **Rögzítse az eredményeket (Mbps értékek).**
 
