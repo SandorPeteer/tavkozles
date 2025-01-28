@@ -83,12 +83,13 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    - Cím: `http://192.168.188.1`  
    - Felhasználónév: `admin`, jelszó: `antennán`.
 4. **Konfigurálja az LTE kapcsolatot** a szolgáltató által megadott APN beállításokkal.
-5. **Állítsa be az eszközt**, hogy egy tartományba essen a hálózat többi elemével: pl: `192.168.88.1`  
+5. **Figyeljen az aktuális DÁTUM / IDŐ beállítására a konfiguráláskor**
+6. **Állítsa be az eszközt**, hogy egy tartományba essen a hálózat többi elemével: pl: `192.168.88.1`  
    - Az antenna legyen a DHCP szerver: `192.168.88.100-250`
    - A NAT és egyéb szükséges opciók legyenek beállítva, alhálózati maszk: `255.255.255.0`
-6. **Mentse a beállításokat**
+7. **Mentse a beállításokat**
    - Figyeljen a `laptop IP` címének `automatikusra` visszaállítására
-7. **Ellenőrizze a kapcsolat állapotát** és rögzítse a jelerősség paramétereit (**RSRP, RSRQ, SINR, RSSI**).
+8. **Ellenőrizze a kapcsolat állapotát** és rögzítse a jelerősség paramétereit (**RSRP, RSRQ, SINR, RSSI**).
    - Végezzen **ping tesztet** egy külső szerverhez (`8.8.8.8`), és mérje meg a késleltetést.   
    - Dokumentálja a kapott **nyilvános IP címet** és a hálózati beállításokat.      
 
@@ -103,10 +104,12 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    - Felhasználónév: `admin`, jelszó `antennán`.  
 4. **Állítsa be az eszközt "Master" módban**. 
    - Ellenőrizze az IP címet és a beállításokat, hogy a Slave antenna képes legyen csatlakozni. 
+   - **Figyeljen az aktuális DÁTUM / IDŐ beállítására a konfiguráláskor**
 
 #### **Slave antenna (`192.168.88.3`) konfigurálása:**  
 1. Ismételje meg a fenti lépéseket a `192.168.88.3` IP-n.  
 2. **Állítsa be az eszközt "Slave" módban**, és csatlakozzon a Master antennához.   
+   - **Figyeljen az aktuális DÁTUM / IDŐ beállítására a konfiguráláskor**
    - Ellenőrizze a kapcsolat minőségét és rögzítse a jelminőségi paramétereket, `WIRELESS 60G STATUS`.
    - Készítsen képernyőképet a kapcsolat aktuális értékeiről.   
 
