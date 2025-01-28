@@ -160,8 +160,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    ```sh
    winget install iperf3
    ```
-   vagy [iperf3 letöltés](https://iperf.fr/iperf-download.php)
-   A telepítés után a terminál bezárása és ujraindítása szükséges lehet.   
+   vagy [iperf3 letöltés](https://iperf.fr/iperf-download.php) és telepítés után a terminál bezárása, majd ujraindítása szükséges lehet.   
 
 2. Az egyik laptopon futtassa szerverként:
 
