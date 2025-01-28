@@ -46,8 +46,10 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 1. Ismételje meg a fent leírt folyamatot mindkét antennán (`192.168.88.2` és `192.168.88.3`).
 
 #### **SOHO router (D-LINK vagy TP-LINK vagy ASUS) resetelése:**
-1. Keresse meg a reset gombot az eszközön.
-2. Nyomja meg és tartsa lenyomva a gombot kb. **10 másodpercig**, amíg az eszköz újra nem indul.
+1. Keresse meg a reset gombot az eszközön
+2. Áramtalanítás!
+3. Egy kis várakozási idő után nyomja be a reset gombot,
+4. Kapcsolja vissza az eszközt és tartsa lenyomva kb. **10 másodpercig**, amíg a gyári visszaállítás folyamata lezajlik.
 
 ---
 
