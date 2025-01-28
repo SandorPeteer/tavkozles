@@ -179,7 +179,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    ```
    A tűzfalon engedélyezni kell az alkalmazást!  
 
-4. **Rögzítse az eredményeket (Mbps értékek).**
+4. **Rögzítse az eredményeket (Mbps értékek), tesztelje az internet elérést és futtasson speedtest-et.**
 
 ---
 
