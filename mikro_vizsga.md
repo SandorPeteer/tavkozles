@@ -141,7 +141,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    ping 192.168.88.4
    stb...
    ```
-   - Ha hálózati kapcsolat problémák lépnek fel:
+   Ha hálózati kapcsolat problémák lépnek fel:
 
    ```sh
    ipconfig
@@ -160,8 +160,8 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    ```sh
    winget install iperf3
    ```
-   - vagy [iperf3 letöltés](https://iperf.fr/iperf-download.php)
-   - A telepítés után a terminál bezárása és ujraindítása szükséges lehet.   
+   vagy [iperf3 letöltés](https://iperf.fr/iperf-download.php)
+   A telepítés után a terminál bezárása és ujraindítása szükséges lehet.   
 
 2. Az egyik laptopon futtassa szerverként:
 
