@@ -173,12 +173,12 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    ```sh
    iperf3 -c 192.168.88.xxx (xxx - tesztelő eszköz IP címe)
    ```
-   - Ha a teszt nem indulna el, a `Windows hálózati felderítést be kell kapcsolni`:
+   Ha a teszt nem indulna el, a `Windows hálózati felderítést be kell kapcsolni`:
 
    ```sh
    netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
    ```
-   - valamint a tűzfalon engedélyezni az alkalmazást!  
+   A tűzfalon engedélyezni kell az alkalmazást!  
 
 4. **Rögzítse az eredményeket (Mbps értékek).**
 
