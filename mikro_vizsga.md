@@ -133,6 +133,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 
 1. Nyisson egy parancssort (cmd vagy Terminal).
 2. Pingelje meg a hálózaton lévő eszközöket:
+
    ```sh
    ping 192.168.88.1
    ping 192.168.88.2
@@ -141,6 +142,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    stb...
    ```
    - Ha hálózati kapcsolat problémák lépnek fel:
+
    ```sh
    ipconfig
    ipconfig /all
@@ -154,24 +156,30 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 ### 3.2. Sávszélesség mérése (iperf használata)
 
 1. **Telepítse az iperf szoftvert** a laptopokra.   
+
    ```sh
    winget install iperf3
    ```
    - vagy [iperf3 letöltés](https://iperf.fr/iperf-download.php)
-   - A telepítés után a terminál bezárása és ujraindítása szükséges lehet.
+   - A telepítés után a terminál bezárása és ujraindítása szükséges lehet.   
+
 2. Az egyik laptopon futtassa szerverként:
+
    ```sh
    iperf3 -s
    ```
 3. A másik végponti eszközön futtassa kliensként:
+
    ```sh
    iperf3 -c 192.168.88.xxx (xxx - tesztelő eszköz IP címe)
    ```
    - Ha a teszt nem indulna el, a `Windows hálózati felderítést be kell kapcsolni`:
+
    ```sh
    netsh advfirewall firewall set rule group="Network Discovery" new enable=Yes
    ```
-   - valamint a tűzfalon engedélyezni az alkalmazást! 
+   - valamint a tűzfalon engedélyezni az alkalmazást!  
+
 4. **Rögzítse az eredményeket (Mbps értékek).**
 
 ---
