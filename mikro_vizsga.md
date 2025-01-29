@@ -81,7 +81,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
    - Átjáró (gateway): `192.168.188.1`
 3. **Nyisson meg egy böngészőt, vagy a WinBox alkalmazást és lépjen be az LTE antenna konfig felületére:**  
    - Cím: `http://192.168.188.1`  
-   - Felhasználónév: `admin`, jelszó: `antennán`.
+   - Felhasználónév: `admin`, jelszó: `A1234567`. (Első bejelentkezésnél az antenna hátulján olvasható a default jelszó)
 4. **Konfigurálja az LTE kapcsolatot** a szolgáltató által megadott APN beállításokkal.
 5. **Figyeljen az aktuális DÁTUM / IDŐ beállítására a konfiguráláskor**
 6. **Állítsa be az eszközt**, hogy egy tartományba essen a hálózat többi elemével: pl: `192.168.88.1`  
