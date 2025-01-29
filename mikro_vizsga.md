@@ -100,8 +100,8 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
 #### **Master antenna (`192.168.88.2`) konfigurálása:**
 1. Csatlakozzon az eszközhöz Ethernet kábellel.
 2. Nyisson meg egy böngészőt vagy a WinBox alkalmazást és írja be: `http://192.168.88.2`
-3. Bejelentkezés:  
-   - Felhasználónév: `admin`, jelszó `antennán`.  
+3. Bejelentkezés (konfiguráláshoz az antenna hátulján olvasható a jelszó):  
+   - Felhasználónév: `admin`, jelszó `A1234567`.  
 4. **Állítsa be az eszközt "Master" módban**. 
    - Ellenőrizze az IP címet és a beállításokat, hogy a Slave antenna képes legyen csatlakozni. 
    - **Figyeljen az aktuális DÁTUM / IDŐ beállítására a konfiguráláskor**
