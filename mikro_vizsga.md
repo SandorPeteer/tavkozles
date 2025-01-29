@@ -124,7 +124,7 @@ Minden eszköz gyári alaphelyzetbe állítása szükséges a vizsga kezdetén:
     arp -a 
    ```
 4. Nyisson meg egy böngészőt, és érje el a megfelelő IP-címen.  
-5. **WiFI beállítása** SSID: `GazdaXX` jelszó: `G1234567`. (XX - egy azonosító szám, pl: Gazda01, Gazda02)   
+5. **WiFI és router adminisztrációjához a beállítás** SSID/felhasználó: `GazdaXX` jelszó: `G1234567`. (XX - egy azonosító szám, pl: Gazda01, Gazda02)   
 6. **Kapcsolja AP módba az eszközt** és konfigurálja át manuálisan a `192.168.88.xxx` tartományba, hogy ne ütközzön másik eszközzel.    
 7. **Figyeljen az átjáróra, és a többi opcionális beállításra.**   
 
