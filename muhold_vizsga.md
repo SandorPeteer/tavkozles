@@ -8,7 +8,7 @@
 
 ---
 
-## **1. Szükséges eszközök**
+# **1. Szükséges eszközök**
 - **Parabolaantenna:** D80 Mesh hálós acél parabola antenna (tripodra szerelve)
 - **Műholdvevő fej (LNB):** **A vizsgázó maga választja ki az elérhető Inverto ULTRA vagy Ekselans SATCR LNB-k közül**
 - **Set-top box:** Amiko HD 8265+ vagy Amiko Viper Combo 4K-V40
@@ -19,7 +19,7 @@
 
 ---
 
-## **2. Feladatok és időbeosztás**
+# **2. Feladatok és időbeosztás**
 
 ### **1. Előkészületek (10 perc)**
 - Ellenőrizze az összes szükséges eszközt.
@@ -85,7 +85,7 @@
 
 --- 
 
-### **.7 Szituációs feladat:**
+### **7. Szituációs feladat:**
 
 #### Ha a való életben egy családi házra vagy társasházra kellene felszerelnie a műholdas antennát, hova helyezné el azt, és miért?
 
@@ -100,7 +100,7 @@
 
 ---
 
-## **3. Értékelési szempontok**
+# **3. Értékelési szempontok**
 
 | Feladat | Pontszám |
 |---------|----------|
