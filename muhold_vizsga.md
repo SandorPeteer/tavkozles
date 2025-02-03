@@ -1,9 +1,10 @@
 # Távközlési technikus vizsgafeladat
 
-## **Téma:** Műholdas vételi rendszer telepítése, konfigurálása és mérése
+## **A tétel:** Műholdas vételi rendszer telepítése, konfigurálása és mérése
 
 
-**Feladat leírása:** A vizsgázó feladata egy műholdas vételi rendszer kiépítése a megadott eszközökkel, egy szabadon fogható (FTA) csatorna beállítása, valamint a jelszint mérése és dokumentálása. A vizsgázónak **internet alapú adatbázisból** ki kell választania egy **aktuálisan vehető műholdat és egy FTA csatornát**, amelyre a rendszert beállítja. A műhold pontos azonosítását és finomhangolását **METEK HDD műszerrel** kell elvégeznie. A beállított jelet **a villamos 3 laborba kell bevinni, ahol az már közvetlenül a set-top boxra csatlakoztatható.**   
+### **Feladat leírása:**    
+> A vizsgázó feladata egy műholdas vételi rendszer kiépítése a megadott eszközökkel, egy szabadon fogható (FTA) csatorna beállítása, valamint a jelszint mérése és dokumentálása. A vizsgázónak **internet alapú adatbázisból** ki kell választania egy **aktuálisan vehető műholdat és egy FTA csatornát**, amelyre a rendszert beállítja. A műhold pontos azonosítását és finomhangolását **METEK HDD műszerrel** kell elvégeznie. A beállított jelet **a villamos 3 laborba kell bevinni, ahol az már közvetlenül a set-top boxra csatlakoztatható.**   
 
 **Időkeret:** 120 perc  
 
