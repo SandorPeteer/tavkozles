@@ -77,12 +77,12 @@
   - Stream adatok rögzítése
   - az eredmények dokumentálása
 
-- Mérési eredmények rögzítése a jegyzőkönyvben:
+- DVB-T/T2 Mérési eredmények rögzítése a jegyzőkönyvben:
   - **Jelerősség (dBμV)**
   - **Jel-zaj viszony (SNR - dB)**
   - **Bit Error Rate (BER)**
   - **Modulation Error Ratio (MER - dB)**
-  - **Csillapítás (dB)**
+  - **Csillapítás (dB) az osztó után / előtte**
   - **Lock állapot:** [ ] Igen [ ] Nem
   - **Hőmérséklet és időjárási körülmények**
   - **Multiplex adatok és frekvenciák**
