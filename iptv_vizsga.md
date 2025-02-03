@@ -104,7 +104,20 @@ Ez a dokumentum segít a szükséges IPTV vizsgálati eszközök **Windows rends
 winget install -e --id VideoLAN.VLC
 ```
 - **`-e`** → Exact match (pontos egyezés az alkalmazás ID-jával)  
-- **`--id VideoLAN.VLC`** → A VLC hivatalos ID-je wingetben  
+- **`--id VideoLAN.VLC`** → A VLC hivatalos ID-je wingetben
+
+
+:: VLC hozzáadása a PATH környezeti változóhoz CMD-ben   
+:: CMD-t futtasd rendszergazdaként!   
+:: Majd a VLC bináris útvonal hozzáadása a rendszer PATH változóhoz
+```sh
+setx /M PATH "%PATH%;C:\Program Files\VideoLAN\VLC"
+```
+:: Ellenőrzés, hogy sikerült-e hozzáadni
+```sh
+echo %PATH%
+```
+:: Az új PATH változó frissítéséhez indíts újra minden CMD ablakot
 
 📌 **Wireshark telepítése**  
 ```sh
