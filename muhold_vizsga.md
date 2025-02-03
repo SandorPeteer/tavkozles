@@ -16,6 +16,8 @@
 
 ---
 
+![DVB-S-Logo](https://github.com/user-attachments/assets/21d74461-b011-4194-9d14-b2b6753336b6)
+
 # **1. Szükséges eszközök**
 - **Parabolaantenna:** D80 Mesh hálós acél parabola antenna (tripodra szerelve)
 - **Műholdvevő fej (LNB):** **A vizsgázó maga választja ki az elérhető Inverto ULTRA vagy Ekselans SATCR LNB-k közül**
