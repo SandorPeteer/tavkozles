@@ -97,7 +97,7 @@ Ez a dokumentum segít a szükséges IPTV vizsgálati eszközök **Windows rends
 
 ---
 
-## **1. VLC és TShark telepítése**
+## **1. VLC és WireShark telepítése**
 
 📌 **VLC telepítése**  
 ```sh
