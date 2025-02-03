@@ -81,23 +81,19 @@
   - **Lock állapot:** [ ] Igen [ ] Nem
   - **Hőmérséklet és időjárási körülmények**
   - **Transzponder adatok és frekvenciák**
-- **Szituációs feladat:**
-  ```sh
-  Ha a való életben egy családi házra vagy társasházra kellene felszerelnie a műholdas antennát,
-  hova helyezné el azt, és miért?
 
-  	-	Melyik tető- vagy homlokzati részt választaná az antenna felszereléséhez,
-      és milyen szempontokat venne figyelembe a döntés során?
-  	-	Hogyan biztosítaná, hogy az antenna megfelelő rálátást kapjon az adott műholdra,
-      és milyen módszerekkel határozná meg a pontos irányt és dőlésszöget?
-  	-	Milyen rögzítési megoldásokat alkalmazna a stabil és biztonságos telepítés érdekében?
-  	-	Hogyan kezelné az időjárási viszontagságokat (pl. erős szél, jég, hó) az antenna
-      rögzítése és védelme szempontjából?
-  	-	Ha hosszú koaxiális kábeleket kellene használnia a beltéri egységhez, 
-      milyen módon csökkentené a jelveszteséget?
-  
-  Írja le részletesen a választását, és indokolja meg a döntéseit a műholdas vétel minősége és a hosszú távú megbízhatóság szempontjából!
-  ```
+# **Szituációs feladat**
+
+### Ha a való életben egy családi házra vagy társasházra kellene felszerelnie a műholdas antennát, hova helyezné el azt, és miért?
+
+- **Melyik tető- vagy homlokzati részt választaná az antenna felszereléséhez, és milyen szempontokat venne figyelembe a döntés során?**  
+- **Hogyan biztosítaná, hogy az antenna megfelelő rálátást kapjon az adott műholdra, és milyen módszerekkel határozná meg a pontos irányt és dőlésszöget?**  
+- **Milyen rögzítési megoldásokat alkalmazna a stabil és biztonságos telepítés érdekében?**  
+- **Hogyan kezelné az időjárási viszontagságokat (pl. erős szél, jég, hó) az antenna rögzítése és védelme szempontjából?**  
+- **Ha hosszú koaxiális kábeleket kellene használnia a beltéri egységhez, milyen módon csökkentené a jelveszteséget?**  
+
+📌 **Írja le részletesen a választását, és indokolja meg a döntéseit a műholdas vétel minősége és a hosszú távú megbízhatóság szempontjából!**
+
 - **Jegyzőkönyv elkészítése és aláírása.**
 
 ---
