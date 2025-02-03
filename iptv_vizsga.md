@@ -105,11 +105,11 @@ winget install -e --id VideoLAN.VLC
 - **`-e`** → Exact match (pontos egyezés az alkalmazás ID-jával)  
 - **`--id VideoLAN.VLC`** → A VLC hivatalos ID-je wingetben  
 
-📌 **Wireshark (TShark) telepítése**  
+📌 **Wireshark telepítése**  
 ```sh
 winget install -e --id WiresharkFoundation.Wireshark
 ```
-- A telepítés után a `tshark` parancs **parancssorból közvetlenül elérhető lesz**.
+- A telepítés után a `Wireshark` a programok között feltelepítve megtalálható.
 
 ---
 
@@ -120,6 +120,7 @@ winget install -e --id WiresharkFoundation.Wireshark
 winget install -e --id Gyan.FFmpeg
 ```
 - Ez a **legfrissebb FFmpeg verziót** telepíti.
+- A telepítések után a parancssort újra kell nyitni! 
 
 📌 **Ellenőrzés, hogy az FFmpeg elérhető-e**  
 ```sh
@@ -129,70 +130,15 @@ Ha az FFmpeg verziószáma megjelenik, akkor sikeresen települt.
 
 ---
 
-## **3. iPerf3 telepítése hálózati teljesítményméréshez**
+## **3. Multicast forgalom és hálózati késleltetés vizsgálata**
 
-📌 **iPerf3 telepítése**  
-```sh
-winget install -e --id ESnet.iPerf3
-```
-
-📌 **Hálózati kapcsolat tesztelése multicast IP címre**  
-```sh
-iperf3 -c 239.1.1.1 -u -p 1234 -b 10M
-```
-- **`-c 239.1.1.1`** → A multicast IP cím, amit tesztelünk
-- **`-u`** → UDP mód (IPTV multicast teszthez szükséges)
-- **`-p 1234`** → A megfelelő port megadása
-- **`-b 10M`** → 10 Mbps sávszélesség vizsgálata
-
-📌 **iPerf szerver mód (fogadja a csomagokat)**  
-```sh
-iperf3 -s -u
-```
-- Indít egy UDP szervert, amely figyeli a multicast adatokat.
+📌 **Wireshark UDP stream vizsgálatához**
+  - Az NCAP telepítése még szükséges
+  - A programban az `UDP stream` opció mutatja az összes IPTV forgalmat.
 
 ---
 
-## **4. Multicast forgalom és hálózati késleltetés vizsgálata**
-
-📌 **Ping teszt IPTV szerverre**  
-```sh
-ping 239.1.1.1
-```
-- Ha magas a válaszidő (ms) vagy csomagvesztés tapasztalható, az hálózati problémára utalhat.
-
-📌 **Traceroute vizsgálat (útvonal ellenőrzése)**  
-**Windows**  
-```sh
-tracert 239.1.1.1
-```
-**Linux/macOS**  
-```sh
-traceroute 239.1.1.1
-```
-- Figyelje, hogy a csomagok merre haladnak, és hol van esetleges késleltetés.
-
-📌 **Wireshark CLI verzió (TShark) használata**
-```sh
-tshark -i eth0 -Y "ip.dst == 239.1.1.1"
-```
-- Csak az IPTV multicast csomagokat mutatja meg.
-
-📌 **Wireshark csomagrögzítés IPTV stream vizsgálatához**
-```sh
-tshark -i eth0 -w iptv_stream.pcap
-```
-- Az `iptv_stream.pcap` fájlba menti az IPTV forgalmat.
-
----
-
-## **5. IPTV stream mentése és elemzése**
-
-📌 **FFmpeg segítségével IPTV stream mentése**  
-```sh
-ffmpeg -i "udp://@239.1.1.1:1234" -c copy output.ts
-```
-- Az `output.ts` fájlba menti a streamet.
+## **4. IPTV stream mentése és elemzése**
 
 📌 **FFmpeg segítségével IPTV stream elemzése**  
 ```sh
@@ -208,22 +154,18 @@ ffmpeg -i "udp://@239.1.1.1:1234" -loglevel debug -f null -
 
 ---
 
-## **6. Ellenőrzés, hogy az összes szükséges eszköz telepítve van-e**
+## **5. Ellenőrzés, hogy az összes szükséges IPTV műsor elérhető**  
 
-📌 **Telepített csomagok listázása**
+📌 **FFplay segítségével az IPTV egyik csatornájának vizsgálata**  
 ```sh
-winget list | findstr "VLC Wireshark FFmpeg iPerf3"
+ffplay -i udp://@239.1.1.1:1234 -sn
 ```
-- Ha a listában megjelenik **VLC, Wireshark, FFmpeg, iPerf3**, akkor minden szükséges eszköz elérhető a vizsgához.
 
-📌 **Alternatív módszer: keresés a winget csomagok között**
+📌 **VLC segítségével is nézhető az IPTV stream és az adatfolyam vizsgálható**  
 ```sh
-winget search VLC
-winget search Wireshark
-winget search FFmpeg
-winget search iPerf3
+vlc udp://@239.1.1.1:10001
 ```
-- Ezek a parancsok megmutatják a pontos ID-t és verziót, amit telepíteni lehet.
+
 
 ---
 
@@ -234,9 +176,8 @@ winget search iPerf3
 | **VLC** | `VideoLAN.VLC` | IPTV stream lejátszása és tesztelése |
 | **Wireshark (TShark)** | `WiresharkFoundation.Wireshark` | Multicast csomagok figyelése |
 | **FFmpeg** | `Gyan.FFmpeg` | IPTV stream elemzése és rögzítése |
-| **iPerf3** | `ESnet.iPerf3` | Hálózati teljesítménymérés |
 
-🚀 **Ezekkel a parancsokkal a vizsgázók minden szükséges IPTV mérést és hibakeresést el tudnak végezni parancssorból!**
+🚀 **Ezekkel a parancsokkal a vizsgázók minden szükséges IPTV mérést és hibakeresést el tudnak végezni.**
 
 
 ---   
