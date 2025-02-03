@@ -82,9 +82,9 @@
   - **Hőmérséklet és időjárási körülmények**
   - **Transzponder adatok és frekvenciák**
 
-# **Szituációs feladat**
+### **Szituációs feladat:**
 
-### Ha a való életben egy családi házra vagy társasházra kellene felszerelnie a műholdas antennát, hova helyezné el azt, és miért?
+#### Ha a való életben egy családi házra vagy társasházra kellene felszerelnie a műholdas antennát, hova helyezné el azt, és miért?
 
 - **Melyik tető- vagy homlokzati részt választaná az antenna felszereléséhez, és milyen szempontokat venne figyelembe a döntés során?**  
 - **Hogyan biztosítaná, hogy az antenna megfelelő rálátást kapjon az adott műholdra, és milyen módszerekkel határozná meg a pontos irányt és dőlésszöget?**  
