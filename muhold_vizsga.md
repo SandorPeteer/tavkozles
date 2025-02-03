@@ -81,8 +81,11 @@
   - **Lock állapot:** [ ] Igen [ ] Nem
   - **Hőmérséklet és időjárási körülmények**
   - **Transzponder adatok és frekvenciák**
+- **Jegyzőkönyv elkészítése és aláírása.**
 
-### **Szituációs feladat:**
+--- 
+
+### **.7 Szituációs feladat:**
 
 #### Ha a való életben egy családi házra vagy társasházra kellene felszerelnie a műholdas antennát, hova helyezné el azt, és miért?
 
@@ -92,9 +95,8 @@
 - **Hogyan kezelné az időjárási viszontagságokat (pl. erős szél, jég, hó) az antenna rögzítése és védelme szempontjából?**  
 - **Ha hosszú koaxiális kábeleket kellene használnia a beltéri egységhez, milyen módon csökkentené a jelveszteséget?**  
 
-📌 **Írja le részletesen a választását, és indokolja meg a döntéseit a műholdas vétel minősége és a hosszú távú megbízhatóság szempontjából!**
+📌 **A jegyzőkönyvbe írja le részletesen a választását, és indokolja meg a döntéseit a műholdas vétel minősége és a hosszú távú megbízhatóság szempontjából!**
 
-- **Jegyzőkönyv elkészítése és aláírása.**
 
 ---
 
@@ -103,13 +105,14 @@
 | Feladat | Pontszám |
 |---------|----------|
 | Eszközök előkészítése | 5 pont |
-| LNB kiválasztása és felszerelése | 15 pont |
+| LNB kiválasztása és felszerelése | 10 pont |
 | Műhold kiválasztása internetes adatbázisból | 10 pont |
-| Antenna pontos beállítása és műhold azonosítása METEK HDD-vel | 20 pont |
-| Kábelezés, jelosztó használata és csatlakoztatás | 10 pont |
+| Antenna pontos beállítása és műhold azonosítása METEK HDD-vel | 25 pont |
+| Kábelezés, jelosztó használata és csatlakoztatás | 5 pont |
 | Set-top box megfelelő beállítása | 5 pont |
-| FTA csatorna megtalálása és beállítása | 15 pont |
+| FTA csatorna megtalálása és beállítása | 10 pont |
 | Részletes jelszintmérés és dokumentálás  | 20 pont |
+| Szituációs feladat  | 10 pont |
 | **Összesen:** | **100 pont** |
 
 **Sikeres vizsgához minimum 40 pont szükséges.**
