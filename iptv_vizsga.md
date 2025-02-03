@@ -164,9 +164,8 @@ ffplay -i udp://@239.1.1.1:1234 -sn
 
 📌 **VLC segítségével is nézhető az IPTV stream és az adatfolyam vizsgálható**  
 ```sh
-vlc udp://@239.1.1.1:10001
+vlc udp://@239.1.1.1:1234
 ```
-
 
 ---
 
