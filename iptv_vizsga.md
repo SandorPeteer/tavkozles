@@ -13,6 +13,8 @@
 
 ---
 
+![lemco-scl-824ct-8-dvb-s-s2-t-t2-c-to-4-dvb-t-c-ip-fta-fejallomas](https://github.com/user-attachments/assets/869b782c-e77b-4485-81ab-3d00005527cc)
+
 ## **1. Szükséges eszközök**
 - **Antenna:** Beltéri vagy kültéri antenna (a vizsgázó választása alapján)
 - **Fejállomás:** LEMCO SCL-824CT 8 × DVB-S/S2/T/T2/C to 4 × DVB-T/C & IP (FTA)
