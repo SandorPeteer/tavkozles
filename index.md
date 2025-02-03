@@ -5,10 +5,10 @@ sandorpeteer.github.io/tavkozles
 
 ## VIZSGAFELADATOK GYAKORLÁSRA:
 
-[IPTV](https://sandorpeteer.github.io/tavkozles/iptv_vizsga)    
-[DVB-T](https://sandorpeteer.github.io/tavkozles/dvb_vizsga)    
-[MŰHOLD](https://sandorpeteer.github.io/tavkozles/muhold_vizsga)    
-[MIKROHULLÁM](https://sandorpeteer.github.io/tavkozles/mikro_vizsga)    
+[IPTV (1 fő)](https://sandorpeteer.github.io/tavkozles/iptv_vizsga)    
+[DVB-T (4 fő)](https://sandorpeteer.github.io/tavkozles/dvb_vizsga)    
+[MŰHOLD (2 fő)](https://sandorpeteer.github.io/tavkozles/muhold_vizsga)    
+[MIKROHULLÁM (2 fő)](https://sandorpeteer.github.io/tavkozles/mikro_vizsga)    
 
 
 
