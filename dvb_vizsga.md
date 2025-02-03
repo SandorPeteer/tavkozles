@@ -13,6 +13,8 @@
 
 ---
 
+![dvb](https://github.com/user-attachments/assets/3c122ca7-9e70-4e0a-92ad-e9ea1788b259)
+
 ## **1. Szükséges eszközök**
 - **Antenna:** Beltéri vagy kültéri antenna (a vizsgázó választása alapján)
 - **Set-top box:** Viper 4K vagy Nytro Box
