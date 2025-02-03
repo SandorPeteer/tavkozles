@@ -139,7 +139,7 @@ Ha az FFmpeg verziószáma megjelenik, akkor sikeresen települt.
 
 ---
 
-## **4. IPTV stream mentése és elemzése**
+## **4. IPTV stream elemzése**
 
 📌 **FFmpeg segítségével IPTV stream elemzése**  
 ```sh
