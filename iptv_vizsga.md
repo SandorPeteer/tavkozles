@@ -196,6 +196,42 @@ iperf -s -u
 
 ---
 
+A winget csomagkezelővel egyszerűen telepíthető a VLC, iperf3 és Wireshark (TShark) Windows rendszeren.
+
+VLC és TShark telepítése winget segítségével
+
+📌 VLC telepítése
+
+winget install -e --id VideoLAN.VLC
+
+	•	-e → Exact match (pontos egyezés az alkalmazás ID-jával)
+	•	--id VideoLAN.VLC → A VLC hivatalos ID-je wingetben
+
+📌 Wireshark (TShark) telepítése
+
+winget install -e --id WiresharkFoundation.Wireshark
+
+	•	A telepítés után a tshark parancs parancssorból közvetlenül elérhető lesz.
+
+📌 Ellenőrzés, hogy telepítve vannak-e
+
+winget list | findstr "VLC Wireshark"
+
+Ha a listában megjelenik a VLC és a Wireshark, akkor sikeresen telepítve vannak.
+
+Alternatív módszer: winget keresés
+
+📌 Keresés a winget csomagok között
+
+winget search VLC
+winget search Wireshark
+
+Ez megmutatja a pontos ID-t és verziót, amit telepíteni lehet.
+
+🚀 Ezzel egyszerűen telepítheted VLC-t és TShark-ot Windows rendszeren winget segítségével!
+
+---
+
 ## **Összegzés**
 
 | Mérési feladat | Parancssoros eszköz |
