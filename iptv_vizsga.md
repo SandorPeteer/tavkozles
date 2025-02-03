@@ -17,6 +17,7 @@
 - **Antenna:** Beltéri vagy kültéri antenna (a vizsgázó választása alapján)
 - **Fejállomás:** LEMCO SCL-824CT 8 × DVB-S/S2/T/T2/C to 4 × DVB-T/C & IP (FTA)
 - **Set-top box:** MAG IPTV
+- **Hálózati elosztó:** pl: hp switch, vagy router
 - **Mérőműszer:** METEK HDD digitális TV jelmérő
 - **Koaxiális kábelek és csatlakozók (már előkészítve egy másik vizsgafeladat során)**
 - **Jelosztó:** jelosztó a fejállomás bemeneteire érkező jelek kialakításához
@@ -85,6 +86,128 @@
 - **Jegyzőkönyv elkészítése és aláírása.**
 
 ---
+
+# **IPTV Multicast Mérések és Hibakeresés – Parancssoros Segédlet**
+
+Ez a dokumentum segít az IPTV multicast stream mérések és hibakeresés parancssoros elvégzésében.
+
+---
+
+## **1. Multicast IP címek ellenőrzése**
+
+📌 **VLC használata a stream tesztelésére**  
+```sh
+vlc -vvv udp://@239.1.1.1:1234 --sout="#display"
+```
+- **`-vvv`** → Részletes logolás engedélyezése  
+- **`udp://@239.1.1.1:1234`** → IPTV multicast IP és port megadása  
+- **`--sout="#display"`** → A stream megjelenítése  
+
+📌 **Csak információk kiírása (videó nélkül)**
+```sh
+vlc -vvv udp://@239.1.1.1:1234 --intf dummy
+```
+
+📌 **Logfájlba mentés**
+```sh
+vlc -vvv udp://@239.1.1.1:1234 --sout="#display" > vlc_log.txt 2>&1
+```
+
+---
+
+## **2. IPTV stream stabilitásának mérése**
+
+📌 **FFmpeg segítségével IPTV stream vizsgálata**  
+```sh
+ffmpeg -i "udp://@239.1.1.1:1234" -f null -
+```
+- Kiírja a stream formátumát, bitrátáját, késleltetést és csomagvesztést.  
+
+📌 **IPTV stream mentése fájlba**  
+```sh
+ffmpeg -i "udp://@239.1.1.1:1234" -c copy output.ts
+```
+- A streamet veszteségmentesen menti el `output.ts` fájlba.
+
+📌 **IPTV stream csomagvesztés elemzés**  
+```sh
+ffmpeg -i "udp://@239.1.1.1:1234" -loglevel debug -f null -
+```
+- Részletes hibajelentést ír ki a hálózati problémákról, csomagvesztésről.
+
+---
+
+## **3. Hálózati késleltetés és csomagvesztés vizsgálata**
+
+📌 **Ping teszt IPTV szerverre**  
+```sh
+ping 239.1.1.1
+```
+- Ha magas a válaszidő (ms) vagy csomagvesztés tapasztalható, az hálózati problémára utalhat.
+
+📌 **Traceroute vizsgálat (útvonal ellenőrzése)**  
+**Windows**  
+```sh
+tracert 239.1.1.1
+```
+**Linux/macOS**  
+```sh
+traceroute 239.1.1.1
+```
+- Figyelje, hogy a csomagok merre haladnak, és hol van esetleges késleltetés.
+
+📌 **Wireshark CLI verzió (TShark)**
+```sh
+tshark -i eth0 -Y "ip.dst == 239.1.1.1"
+```
+- Csak az IPTV multicast csomagokat mutatja meg.
+
+---
+
+## **4. Stream adatok rögzítése és hálózati forgalom figyelése**
+
+📌 **Wireshark csomagrögzítés**
+```sh
+tshark -i eth0 -w iptv_stream.pcap
+```
+- Az `iptv_stream.pcap` fájlba menti az IPTV forgalmat.
+
+📌 **FFmpeg segítségével IPTV stream rögzítése**  
+```sh
+ffmpeg -i "udp://@239.1.1.1:1234" -c copy output.ts
+```
+- Az `output.ts` fájlba menti a streamet.
+
+---
+
+## **5. IPTV stream tesztelése és csomagvesztés mérése (iPerf)**
+
+📌 **Multicast forgalom vizsgálata**
+```sh
+iperf -c 239.1.1.1 -u -p 1234 -b 10M
+```
+- Elküld **10 Mbps adatot** a multicast címre, és méri a csomagvesztést.
+
+📌 **iPerf szerver mód multicast vizsgálatra**
+```sh
+iperf -s -u
+```
+- Indít egy UDP szervert, amely figyeli a multicast adatokat.
+
+---
+
+## **Összegzés**
+
+| Mérési feladat | Parancssoros eszköz |
+|---------------|---------------------|
+| **Multicast IP címek ellenőrzése** | VLC, tcpdump, tshark |
+| **IPTV stream stabilitásának mérése** | FFmpeg, VLC |
+| **Hálózati késleltetés és csomagvesztés vizsgálata** | iPerf, tshark |
+| **Stream adatok rögzítése** | FFmpeg, Wireshark |
+
+🚀 **Ezekkel a parancsokkal a vizsgázók teljes IPTV mérést és hibakeresést végezhetnek parancssorból!**   
+
+---   
 
 ## **3. Értékelési szempontok**
 
