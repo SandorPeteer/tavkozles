@@ -3,9 +3,11 @@
 ## **B tétel:** Földfelszíni digitális TV vételi rendszer telepítése, konfigurálása és mérése
 
 ### **Feladat leírása:**    
-> - A vizsgázó feladata egy földfelszíni digitális TV vételi rendszer kiépítése a megadott eszközökkel, egy elérhető adótorony (Miskolc, Avasi adótorony) adatbázisból történő kiválasztása.   
-> - A megfelelő frekvencia beállítása, valamint a jelszint és egyéb paraméterek mérése és dokumentálása.   
-> - A beállított jelet a villamos 3 laborba kell bevinni, ahol az már közvetlenül a set-top boxra csatlakoztatható.   
+> A vizsgázó feladata egy földfelszíni digitális TV vételi rendszer kiépítése a megadott eszközökkel, egy elérhető adótorony (Miskolc, Avasi adótorony) adatbázisból történő kiválasztása.
+
+> A megfelelő frekvencia beállítása, valamint a jelszint és egyéb paraméterek mérése és dokumentálása.
+
+> A beállított jelet a villamos 3 laborba kell bevinni, ahol az már közvetlenül a set-top boxra csatlakoztatható.   
 
 **Időkeret:** 120 perc  
 
