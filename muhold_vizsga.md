@@ -90,10 +90,10 @@
 | Feladat | Pontszám |
 |---------|----------|
 | Eszközök előkészítése | 5 pont |
-| LNB kiválasztása és felszerelése | 10 pont |
+| LNB kiválasztása és felszerelése | 15 pont |
 | Műhold kiválasztása internetes adatbázisból | 10 pont |
 | Antenna pontos beállítása és műhold azonosítása METEK HDD-vel | 20 pont |
-| Kábelezés, jelosztó használata és csatlakoztatás | 15 pont |
+| Kábelezés, jelosztó használata és csatlakoztatás | 10 pont |
 | Set-top box megfelelő beállítása | 5 pont |
 | FTA csatorna megtalálása és beállítása | 15 pont |
 | Részletes jelszintmérés és dokumentálás  | 20 pont |
