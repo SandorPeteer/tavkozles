@@ -63,7 +63,7 @@
   - Multiplex adatok (frekvencia, szimbólumráta, FEC)
   - Időjárási körülmények (hőmérséklet, szélsebesség, egyéb megjegyzések)
 
-### **6. Mérési eredmények rögzítése a jegyzőkönyvben:
+### **6. Mérési eredmények** rögzítése a jegyzőkönyvben:
   - **Jelerősség (dBμV)**
   - **Jel-zaj viszony (SNR - dB)**
   - **Bit Error Rate (BER)**
