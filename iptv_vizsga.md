@@ -86,7 +86,8 @@
   - **Lock állapot:** [ ] Igen [ ] Nem
   - **Hőmérséklet és időjárási körülmények**
   - **Multiplex adatok és frekvenciák**
-- **Jegyzőkönyv elkészítése és aláírása.**
+    
+- **A teljes jegyzőkönyv elkészítése és aláírása.**
 
 ---
 
