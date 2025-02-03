@@ -42,7 +42,14 @@
 - Használja az **iránytűt és a dőlésszögmérőt** az antenna azimut és eleváció beállításához az **interneten választott műhold** adatai alapján.
 - **METEK HDD műszer segítségével azonosítsa a műholdat.**
 - Végezze el a **finomhangolást** a maximális jelerősség eléréséhez.
-- Dokumentálja az antennánál a jelszinteket, jelminőséget.
+- **Mérések és dokumentáció az antennánál:**
+  - Spektrum analizátor képe
+  - Jelszintek és jelminőség
+  - Antenna pozíciók és szögek (azimut, eleváció)
+  - Kimenő feszültség és áramerősség az LNB-re
+  - Polarizáció
+  - Transzponder adatok (frekvencia, szimbólumráta, FEC)
+  - Időjárási körülmények (hőmérséklet, szélsebesség, egyéb megjegyzések)
 
 ### **4. Kábelezés, mérési pontok kialakítása és eszközök csatlakoztatása (20 perc)**
 - **LNB és set-top box összekötése:** Csatlakoztassa a megfelelő koaxiális kábelt.
@@ -56,15 +63,24 @@
   - A **korábban interneten kiválasztott műhold és FTA csatorna adatai alapján**.
   - **Automatikus csatornakeresés indítása**
   - Ellenőrizze a kijelölt **FTA csatorna** megfelelő működését.
+- **Mérések és dokumentáció bent, a set-top boxnál:**
+  - Spektrum analizátor képe (jelosztó után)
+  - Jelszintek és jelminőség
+  - Transzponder adatok ellenőrzése
+  - Kimenő feszültség az LNB-re
+  - Polarizáció
+  - Hőmérséklet, időjárás feljegyzése
 
 ### **6. Jelszintmérés és dokumentáció (15 perc)**
-- **Jelszint és jelerősség mérése** METEK HDD műszerrel.
 - Mérési eredmények rögzítése a jegyzőkönyvben:
-  - FTA csatorna neve: .......................
-  - **Jelerősség:** ............... dBμV
-  - **Jel-zaj viszony (SNR):** ............... dB
-  - **Bit Error Rate (BER):** ...............
+  - **Jelerősség (dBμV)**
+  - **Jel-zaj viszony (SNR - dB)**
+  - **Bit Error Rate (BER)**
+  - **Modulation Error Ratio (MER - dB)**
+  - **Csillapítás (dB)**
   - **Lock állapot:** [ ] Igen [ ] Nem
+  - **Hőmérséklet és időjárási körülmények**
+  - **Transzponder adatok és frekvenciák**
 - **Jegyzőkönyv elkészítése és aláírása.**
 
 ---
@@ -78,9 +94,9 @@
 | Műhold kiválasztása internetes adatbázisból | 10 pont |
 | Antenna pontos beállítása és műhold azonosítása METEK HDD-vel | 20 pont |
 | Kábelezés, jelosztó használata és csatlakoztatás | 15 pont |
-| Set-top box megfelelő beállítása | 15 pont |
+| Set-top box megfelelő beállítása | 5 pont |
 | FTA csatorna megtalálása és beállítása | 15 pont |
-| Jelszintmérés és dokumentálás | 10 pont |
+| Részletes jelszintmérés és dokumentálás  | 20 pont |
 | **Összesen:** | **100 pont** |
 
 **Sikeres vizsgához minimum 40 pont szükséges.**
