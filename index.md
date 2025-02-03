@@ -3,6 +3,17 @@
 sandorpeteer.github.io/tavkozles
 ---   
 
+## VIZSGAFELADATOK GYAKORLÁSRA:
+
+[IPTV](https://sandorpeteer.github.io/tavkozles/iptv_vizsga)    
+[DVB-T](https://sandorpeteer.github.io/tavkozles/dvb_vizsga)    
+[MŰHOLD](https://sandorpeteer.github.io/tavkozles/muhold_vizsga)    
+[MIKROHULLÁM](https://sandorpeteer.github.io/tavkozles/mikro_vizsga)    
+
+
+
+---
+
 ## DOGA:
 [01 - MŰSORSZÓRÓ - DOLGOZAT KÉRDÉSEK](https://sandorpeteer.github.io/tavkozles/musorszoro_kerdesek)    
 [01 - MŰSORSZÓRÓ - INTERAKTÍV DOLGOZAT](https://sandorpeteer.github.io/tavkozles/musorszoro)   
