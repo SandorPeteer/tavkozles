@@ -87,57 +87,70 @@
 
 ---
 
-# **IPTV Multicast Mérések és Hibakeresés – Parancssoros Segédlet**
+# **Winget csomagkezelő használata IPTV vizsgálati eszközök telepítésére**
 
-Ez a dokumentum segít az IPTV multicast stream mérések és hibakeresés parancssoros elvégzésében.
-
----
-
-## **1. Multicast IP címek ellenőrzése**
-
-📌 **VLC használata a stream tesztelésére**  
-```sh
-vlc -vvv udp://@239.1.1.1:1234 --sout="#display"
-```
-- **`-vvv`** → Részletes logolás engedélyezése  
-- **`udp://@239.1.1.1:1234`** → IPTV multicast IP és port megadása  
-- **`--sout="#display"`** → A stream megjelenítése  
-
-📌 **Csak információk kiírása (videó nélkül)**
-```sh
-vlc -vvv udp://@239.1.1.1:1234 --intf dummy
-```
-
-📌 **Logfájlba mentés**
-```sh
-vlc -vvv udp://@239.1.1.1:1234 --sout="#display" > vlc_log.txt 2>&1
-```
+Ez a dokumentum segít a szükséges IPTV vizsgálati eszközök **Windows rendszerre való telepítésében** a **winget** csomagkezelő segítségével.
 
 ---
 
-## **2. IPTV stream stabilitásának mérése**
+## **1. VLC és TShark telepítése**
 
-📌 **FFmpeg segítségével IPTV stream vizsgálata**  
+📌 **VLC telepítése**  
 ```sh
-ffmpeg -i "udp://@239.1.1.1:1234" -f null -
+winget install -e --id VideoLAN.VLC
 ```
-- Kiírja a stream formátumát, bitrátáját, késleltetést és csomagvesztést.  
+- **`-e`** → Exact match (pontos egyezés az alkalmazás ID-jával)  
+- **`--id VideoLAN.VLC`** → A VLC hivatalos ID-je wingetben  
 
-📌 **IPTV stream mentése fájlba**  
+📌 **Wireshark (TShark) telepítése**  
 ```sh
-ffmpeg -i "udp://@239.1.1.1:1234" -c copy output.ts
+winget install -e --id WiresharkFoundation.Wireshark
 ```
-- A streamet veszteségmentesen menti el `output.ts` fájlba.
-
-📌 **IPTV stream csomagvesztés elemzés**  
-```sh
-ffmpeg -i "udp://@239.1.1.1:1234" -loglevel debug -f null -
-```
-- Részletes hibajelentést ír ki a hálózati problémákról, csomagvesztésről.
+- A telepítés után a `tshark` parancs **parancssorból közvetlenül elérhető lesz**.
 
 ---
 
-## **3. Hálózati késleltetés és csomagvesztés vizsgálata**
+## **2. FFmpeg telepítése IPTV stream elemzéshez**
+
+📌 **FFmpeg telepítése**  
+```sh
+winget install -e --id Gyan.FFmpeg
+```
+- Ez a **legfrissebb FFmpeg verziót** telepíti.
+
+📌 **Ellenőrzés, hogy az FFmpeg elérhető-e**  
+```sh
+ffmpeg -version
+```
+Ha az FFmpeg verziószáma megjelenik, akkor sikeresen települt.
+
+---
+
+## **3. iPerf3 telepítése hálózati teljesítményméréshez**
+
+📌 **iPerf3 telepítése**  
+```sh
+winget install -e --id ESnet.iPerf3
+```
+
+📌 **Hálózati kapcsolat tesztelése multicast IP címre**  
+```sh
+iperf3 -c 239.1.1.1 -u -p 1234 -b 10M
+```
+- **`-c 239.1.1.1`** → A multicast IP cím, amit tesztelünk
+- **`-u`** → UDP mód (IPTV multicast teszthez szükséges)
+- **`-p 1234`** → A megfelelő port megadása
+- **`-b 10M`** → 10 Mbps sávszélesség vizsgálata
+
+📌 **iPerf szerver mód (fogadja a csomagokat)**  
+```sh
+iperf3 -s -u
+```
+- Indít egy UDP szervert, amely figyeli a multicast adatokat.
+
+---
+
+## **4. Multicast forgalom és hálózati késleltetés vizsgálata**
 
 📌 **Ping teszt IPTV szerverre**  
 ```sh
@@ -156,92 +169,72 @@ traceroute 239.1.1.1
 ```
 - Figyelje, hogy a csomagok merre haladnak, és hol van esetleges késleltetés.
 
-📌 **Wireshark CLI verzió (TShark)**
+📌 **Wireshark CLI verzió (TShark) használata**
 ```sh
 tshark -i eth0 -Y "ip.dst == 239.1.1.1"
 ```
 - Csak az IPTV multicast csomagokat mutatja meg.
 
----
-
-## **4. Stream adatok rögzítése és hálózati forgalom figyelése**
-
-📌 **Wireshark csomagrögzítés**
+📌 **Wireshark csomagrögzítés IPTV stream vizsgálatához**
 ```sh
 tshark -i eth0 -w iptv_stream.pcap
 ```
 - Az `iptv_stream.pcap` fájlba menti az IPTV forgalmat.
 
-📌 **FFmpeg segítségével IPTV stream rögzítése**  
+---
+
+## **5. IPTV stream mentése és elemzése**
+
+📌 **FFmpeg segítségével IPTV stream mentése**  
 ```sh
 ffmpeg -i "udp://@239.1.1.1:1234" -c copy output.ts
 ```
 - Az `output.ts` fájlba menti a streamet.
 
----
-
-## **5. IPTV stream tesztelése és csomagvesztés mérése (iPerf)**
-
-📌 **Multicast forgalom vizsgálata**
+📌 **FFmpeg segítségével IPTV stream elemzése**  
 ```sh
-iperf -c 239.1.1.1 -u -p 1234 -b 10M
+ffmpeg -i "udp://@239.1.1.1:1234" -f null -
 ```
-- Elküld **10 Mbps adatot** a multicast címre, és méri a csomagvesztést.
+- Kiírja a stream formátumát, bitrátáját, késleltetést és csomagvesztést.
 
-📌 **iPerf szerver mód multicast vizsgálatra**
+📌 **FFmpeg segítségével IPTV stream csomagvesztés vizsgálata**  
 ```sh
-iperf -s -u
+ffmpeg -i "udp://@239.1.1.1:1234" -loglevel debug -f null -
 ```
-- Indít egy UDP szervert, amely figyeli a multicast adatokat.
+- Részletes hibajelentést ír ki a hálózati problémákról, csomagvesztésről.
 
 ---
 
-A winget csomagkezelővel egyszerűen telepíthető a VLC, iperf3 és Wireshark (TShark) Windows rendszeren.
+## **6. Ellenőrzés, hogy az összes szükséges eszköz telepítve van-e**
 
-VLC és TShark telepítése winget segítségével
+📌 **Telepített csomagok listázása**
+```sh
+winget list | findstr "VLC Wireshark FFmpeg iPerf3"
+```
+- Ha a listában megjelenik **VLC, Wireshark, FFmpeg, iPerf3**, akkor minden szükséges eszköz elérhető a vizsgához.
 
-📌 VLC telepítése
-
-winget install -e --id VideoLAN.VLC
-
-	•	-e → Exact match (pontos egyezés az alkalmazás ID-jával)
-	•	--id VideoLAN.VLC → A VLC hivatalos ID-je wingetben
-
-📌 Wireshark (TShark) telepítése
-
-winget install -e --id WiresharkFoundation.Wireshark
-
-	•	A telepítés után a tshark parancs parancssorból közvetlenül elérhető lesz.
-
-📌 Ellenőrzés, hogy telepítve vannak-e
-
-winget list | findstr "VLC Wireshark"
-
-Ha a listában megjelenik a VLC és a Wireshark, akkor sikeresen telepítve vannak.
-
-Alternatív módszer: winget keresés
-
-📌 Keresés a winget csomagok között
-
+📌 **Alternatív módszer: keresés a winget csomagok között**
+```sh
 winget search VLC
 winget search Wireshark
-
-Ez megmutatja a pontos ID-t és verziót, amit telepíteni lehet.
-
-🚀 Ezzel egyszerűen telepítheted VLC-t és TShark-ot Windows rendszeren winget segítségével!
+winget search FFmpeg
+winget search iPerf3
+```
+- Ezek a parancsok megmutatják a pontos ID-t és verziót, amit telepíteni lehet.
 
 ---
 
 ## **Összegzés**
 
-| Mérési feladat | Parancssoros eszköz |
-|---------------|---------------------|
-| **Multicast IP címek ellenőrzése** | VLC, tcpdump, tshark |
-| **IPTV stream stabilitásának mérése** | FFmpeg, VLC |
-| **Hálózati késleltetés és csomagvesztés vizsgálata** | iPerf, tshark |
-| **Stream adatok rögzítése** | FFmpeg, Wireshark |
+| Telepítendő eszköz | Winget ID | Felhasználási cél |
+|----------------|----------------------------|---------------------------------|
+| **VLC** | `VideoLAN.VLC` | IPTV stream lejátszása és tesztelése |
+| **Wireshark (TShark)** | `WiresharkFoundation.Wireshark` | Multicast csomagok figyelése |
+| **FFmpeg** | `Gyan.FFmpeg` | IPTV stream elemzése és rögzítése |
+| **iPerf3** | `ESnet.iPerf3` | Hálózati teljesítménymérés |
 
-🚀 **Ezekkel a parancsokkal a vizsgázók teljes IPTV mérést és hibakeresést végezhetnek parancssorból!**   
+🚀 **Ezekkel a parancsokkal a vizsgázók minden szükséges IPTV mérést és hibakeresést el tudnak végezni parancssorból!**
+
 
 ---   
 
