@@ -55,7 +55,9 @@
   - Minden bemenetre megfelelő multiplex hozzárendelése.
   - A szabadon fogható (FTA) DVB-T jel feldolgozása és IP streamre konvertálása.
 - **Multicast IP tartomány megválasztása és konfigurálása** a streamelt IPTV csatornákhoz.
-- **IPTV Set-top-box (MAG IPTV) csatlakoztatása és router konfigurálása:**
+
+
+- **IPTV Set-top-box (MAG 522 IPTV) csatlakoztatása és IGMP v3 protokollal rendelkező ROUTER konfigurálása:**
   - DHCP szerver, internet, IGMP konfigurálása a routeren 
   - Hálózati kapcsolat létrehozása az eszközök között.
   - Multicast IP címek hozzáadása a csatornalistához.
