@@ -300,22 +300,22 @@ Elvárt tevékenységek:
 
 Tételsor javaslatok:
 
-## CAT6 UTP kábel szerelése és tesztelése
+## CAT6 UTP kábel szerelése és tesztelése   
 	•	CAT6 UTP kábel levágása, krimpelése RJ45 csatlakozóval.
 	•	Mérőműszerrel (pl. LAN-tester) az elkészült kábel tesztelése.
 	•	Hibás kötés esetén a hiba feltárása és javítása.
 
-## Koaxiális kábel szerelése és mérés
+## Koaxiális kábel szerelése és mérés   
 	•	RG6 koaxiális kábel levágása és F csatlakozó szerelése.
 	•	A kábel jelszintének mérése spektrumanalizátorral (Metek HDD).
 	•	A kábelcsillapítás ellenőrzése.
 
-## Rádiófrekvenciás passzív eszközök szerelése és mérése
+## Rádiófrekvenciás passzív eszközök szerelése és mérése   
 	•	Rádiófrekvenciás osztó vagy csillapító csatlakoztatása a tápvonalra.
 	•	A jelszint mérése a csillapítás mértékének ellenőrzése céljából.
 	•	A spektrumanalizátor segítségével a jel spektrális vizsgálata.
 
-Minden tétel esetén:
+## Minden tétel esetén:   
 	•	Mérési eredmények dokumentálása (elektronikus jegyzőkönyv).
 	•	Rövid szóbeli összefoglaló a vizsgáztató számára.
 
