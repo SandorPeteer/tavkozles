@@ -1,6 +1,4 @@
-# Távközlési technikus  
-
-sandorpeteer.github.io/tavkozles    
+Az oldal elérhetősége: sandorpeteer.github.io/tavkozles    
 
 ---   
 
