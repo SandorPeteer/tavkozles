@@ -3,14 +3,28 @@
 sandorpeteer.github.io/tavkozles
 ---   
 
+## PORTFÓLIÓ segédlet:  
+> [Portfólió 2025](https://drive.google.com/file/d/1KgEOoGC8da8Do3LfUpB7KLwipYN8X3ax/view?usp=sharing)
+
+---
+
 ## VIZSGAFELADATOK GYAKORLÁSRA:
 
-[IPTV (1 fő)](https://sandorpeteer.github.io/tavkozles/iptv_vizsga)    
-[DVB-T (4 fő)](https://sandorpeteer.github.io/tavkozles/dvb_vizsga)    
-[MŰHOLD (2 fő)](https://sandorpeteer.github.io/tavkozles/muhold_vizsga)    
-[MIKROHULLÁM (2 fő)](https://sandorpeteer.github.io/tavkozles/mikro_vizsga)    
+> Gyakorlati vizsgatevékenységek (60p + 60p):   
+> [Elektronika, digitális technika, modulációk + kábelszerelés (9 fő)](https://sandorpeteer.github.io/tavkozles/vizsga)    
 
+---
 
+> A TÉTEL:   
+> [MŰHOLD (2 fő)](https://sandorpeteer.github.io/tavkozles/muhold_vizsga)    
+
+> B TÉTEL:    
+> [DVB-T (4 fő)](https://sandorpeteer.github.io/tavkozles/dvb_vizsga)    
+
+> C TÉTEL:    
+> [MIKROHULLÁM (2 fő)](https://sandorpeteer.github.io/tavkozles/mikro_vizsga)    
+> [IPTV (1 fő)](https://sandorpeteer.github.io/tavkozles/iptv_vizsga)    
+ 
 
 ---
 
