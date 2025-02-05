@@ -1,6 +1,7 @@
 # Távközlési technikus  
 
-sandorpeteer.github.io/tavkozles
+sandorpeteer.github.io/tavkozles    
+
 ---   
 
 ## PORTFÓLIÓ segédlet:  
