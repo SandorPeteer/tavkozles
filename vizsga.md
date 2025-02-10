@@ -221,11 +221,13 @@ Az alábbi tételsor a rendelkezésre álló **Johansson DVB-C modulátor**, **M
 
 **Feladat:**
 - Használja a **GRF-1300A RF és kommunikációs trénert** az amplitúdómoduláció (AM) előállítására.  
-- Állítson be egy megfelelő RF vivőfrekvenciát (pl. 880 MHz) és egy moduláló jelet (pl. 100 kHz szinuszjel).  
 - Csatlakoztassa a tréner RF kimenetét a hozzá tartozó spektrumanalizátorhoz.  
 - Vizsgálja meg az AM jel spektrumát, mérje meg a jelszintet, a sávszélességet és a modulációs mélységet.
-- Állítson be 100% moduláációs mélységet és azt is dokumentálja.
-- Majd állítson be 63% modulációs mélységet, az eredményeket dokumentálva.  
+- Keressen egy megfelelő RF vivőfrekvenciát (pl. 880 MHz) és egy moduláló jelet (pl. 100 kHz szinuszjel).  
+- Állítson be 100% modulációs mélységet, dokumentálja.
+- Módosítsa a frekvenciát 900MHz-re, a moduláló jelet pedig 500kHz-re.
+- Állítson be 63% modulációs mélységet,
+- Az így kapott eredményeket is dokumentálja.
 
 **Mérési feladatok:**
 - Jelszint mérése spektrumanalizátorral.  
