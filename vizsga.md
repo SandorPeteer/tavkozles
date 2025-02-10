@@ -231,13 +231,15 @@ Az alábbi tételsor a rendelkezésre álló **Johansson DVB-C modulátor**, **M
 
 **Mérési feladatok:**
 - Jelszint mérése spektrumanalizátorral.  
-- Spektrumkép mentése és kiértékelése.  
+- Spektrumkép mentése és kiértékelése.
+- Moduláló jel szintjének dokumentálása az oszcilloszkóp segítségével (Vpp)
 - Modulációs mélység és sávszélesség meghatározása.  
 
 **Eszközök:**  
 - GRF-1300A RF és kommunikációs tréner  
 - Spektrumanalizátor (a tréner része)  
-- Jelgenerátor a moduláló jel előállításához  
+- Jelgenerátor a moduláló jel előállításához
+- Digitális tárolós oszcilloszkóp 
 
 **Időkeret:** 60 perc  
 
