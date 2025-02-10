@@ -237,9 +237,8 @@ Az alábbi tételsor a rendelkezésre álló **Johansson DVB-C modulátor**, **M
 
 **Eszközök:**  
 - GRF-1300A RF és kommunikációs tréner  
-- Spektrumanalizátor (a tréner része)  
-- Jelgenerátor a moduláló jel előállításához
-- Digitális tárolós oszcilloszkóp 
+- GSP-730 Spektrumanalizátor (a tréner része)  
+- HMO-1002 Digitális tárolós oszcilloszkóp 
 
 **Időkeret:** 60 perc  
 
