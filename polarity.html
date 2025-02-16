@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <title>Stabil Polaritás Mérés – Ciklus-összegző, VU Meterrel</title>
+  <title>Peak Detector VU Meter – Paraméterezhető</title>
   <style>
     body {
       font-family: sans-serif;
@@ -10,19 +10,19 @@
       text-align: center;
       margin: 20px;
     }
-    h1, h2 { color: #333; }
+    h1 { color: #333; }
     .section {
       border: 1px solid #ccc;
       background: #eee;
       padding: 10px;
       margin: 10px;
     }
-    button, select, input[type=range] {
+    button, input[type=range] {
       font-size: 1rem;
       margin: 0.5rem;
       padding: 0.3rem 0.8rem;
     }
-    #canvas, #vuCanvas {
+    #vuCanvas {
       border: 1px solid #ccc;
       background: #fff;
       margin: 20px auto;
@@ -32,295 +32,170 @@
   </style>
 </head>
 <body>
-  <h1>Stabil Polaritás Mérés – Ciklus-összegző, VU Meterrel</h1>
-  
-  <!-- Adó (Transmitter) rész -->
-  <div id="transmitterSection" class="section">
-    <h2>Adó (Transmitter)</h2>
-    <label for="txPolaritySelect">Tesztjel polaritása:</label>
-    <select id="txPolaritySelect">
-      <option value="normal">Normál (pozitív csúcs)</option>
-      <option value="inverted">Inverz (negatív csúcs)</option>
-    </select>
-    <br>
-    <button id="txStartBtn">Adó Start</button>
-    <button id="txStopBtn">Adó Stop</button>
-    <p id="txStatus">Adó: várakozás...</p>
-  </div>
+  <h1>Peak Detector VU Meter</h1>
   
   <!-- Vevő (Receiver) rész -->
   <div id="receiverSection" class="section">
-    <h2>Vevő (Receiver)</h2>
-    <button id="rxStartBtn">Vevő Start</button>
-    <button id="rxStopBtn">Vevő Stop</button>
-    <p id="rxResult">Eredmény: várakozás...</p>
-    <!-- VU Meter -->
+    <h2>Vevő (Receiver) – Peak Detector</h2>
+    <button id="startBtn">Start</button>
+    <button id="stopBtn">Stop</button>
+    <p id="peakDisplay">Current Peak: 0.00</p>
+    
+    <div class="sliderContainer">
+      <label for="decaySlider">Decay Faktor (0.90 - 1.00): <span id="decayVal">0.980</span></label><br>
+      <input type="range" id="decaySlider" min="0.90" max="1.00" step="0.001" value="0.980">
+    </div>
+    <div class="sliderContainer">
+      <label for="updateSlider">Frissítési idő (ms): <span id="updateVal">50</span></label><br>
+      <input type="range" id="updateSlider" min="20" max="200" step="10" value="50">
+    </div>
+    
+    <!-- A VU meter megjelenítéséhez -->
     <canvas id="vuCanvas" width="300" height="30"></canvas>
-    <!-- Állítható paraméterek -->
-    <div class="sliderContainer">
-      <label for="thresholdSlider">Minimum jel küszöb (amplitúdó): <span id="thresholdVal">0.30</span></label><br>
-      <input type="range" id="thresholdSlider" min="0" max="1" step="0.01" value="0.30">
-    </div>
-    <div class="sliderContainer">
-      <label for="windowSlider">Elemzési ablak mérete (ms): <span id="windowVal">50</span></label><br>
-      <input type="range" id="windowSlider" min="20" max="200" step="10" value="50">
-    </div>
   </div>
-  
-  <!-- Opcionális canvas az adó jel vizualizálásához -->
-  <canvas id="canvas" width="800" height="200"></canvas>
-  <p id="status">Állapot: várakozás...</p>
   
   <script>
     /********** Globális változók **********/
     let audioContext = null;
-    const statusElem = document.getElementById("status");
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
+    let micStream = null;
+    let scriptProcessor = null;
+    
+    // A jelenlegi peak érték (0-1 között)
+    let currentPeak = 0;
+    
+    // Paraméterek, melyek állíthatók a csúszkákkal
+    let decayFactor = parseFloat(document.getElementById("decaySlider").value); // pl. 0.980
+    let updateIntervalMs = parseInt(document.getElementById("updateSlider").value); // pl. 50 ms
+    
+    // Timer a peak decay frissítéséhez
+    let decayTimerId = null;
+    
+    // UI elemek
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const peakDisplay = document.getElementById("peakDisplay");
     const vuCanvas = document.getElementById("vuCanvas");
     const vuCtx = vuCanvas.getContext("2d");
+    const decaySlider = document.getElementById("decaySlider");
+    const decayValLabel = document.getElementById("decayVal");
+    const updateSlider = document.getElementById("updateSlider");
+    const updateValLabel = document.getElementById("updateVal");
     
-    /********** Adó oldal paraméterei **********/
-    const toneFreq = 500;       // 500 Hz
-    const toneDuration = 0.5;    // 0.5 s tónus
-    const silenceDuration = 0.5; // 0.5 s csend
-    const txPeriod = toneDuration + silenceDuration; // 1 s periódus
-    
-    /********** Vevő oldal változói **********/
-    let rxStream = null;
-    let rxProcessor = null;
-    let rxIntervalId = null;   // Automatikus értékelés ciklusainak időzítése
-    let ringBuffer = [];       // Mikrofon minták gyűjtése
-    
-    // Ciklusok eredményeinek tárolása (1 = normál, -1 = inverz, 0 = nem mérhető)
-    let cycleResults = [];
-    
-    /********** Beállítható paraméterek (sliderek) **********/
-    const thresholdSlider = document.getElementById("thresholdSlider");
-    const thresholdValLabel = document.getElementById("thresholdVal");
-    const windowSlider = document.getElementById("windowSlider");
-    const windowValLabel = document.getElementById("windowVal");
-    thresholdSlider.addEventListener("input", function() {
-      thresholdValLabel.textContent = this.value;
+    // Frissítjük a csúszka értékeit
+    decaySlider.addEventListener("input", function() {
+      decayFactor = parseFloat(this.value);
+      decayValLabel.textContent = this.value;
     });
-    windowSlider.addEventListener("input", function() {
-      windowValLabel.textContent = this.value;
+    updateSlider.addEventListener("input", function() {
+      updateIntervalMs = parseInt(this.value);
+      updateValLabel.textContent = this.value;
+      // Ha a timer már fut, újraindítjuk az update intervalt
+      if (decayTimerId) {
+        clearInterval(decayTimerId);
+        decayTimerId = setInterval(decayPeak, updateIntervalMs);
+      }
     });
     
-    /********** AudioContext **********/
+    /********** AudioContext létrehozása **********/
     function ensureAudioContext() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
     }
     
-    /********** Adó oldal: Tesztjel generálása és lejátszása **********/
-    function generateTestTone(txPolarity) {
-      ensureAudioContext();
-      const sampleRate = audioContext.sampleRate;
-      const length = Math.floor(toneDuration * sampleRate);
-      const buffer = new Float32Array(length);
-      for (let i = 0; i < length; i++) {
-        const t = i / sampleRate;
-        let sample = Math.sin(2 * Math.PI * toneFreq * t);
-        if (txPolarity === "inverted") {
-          sample = -sample;
+    /********** Peak Detector Logika **********/
+    // Decay függvény: csökkenti a currentPeak értékét, majd frissíti a VU metert és a numerikus kijelzést
+    function decayPeak() {
+      // Csak akkor csökkentsük, ha currentPeak > 0
+      if (currentPeak > 0) {
+        currentPeak *= decayFactor;
+        if (currentPeak < 0.001) { // ha nagyon kicsi, állítsuk 0-ra
+          currentPeak = 0;
         }
-        buffer[i] = sample;
+        updateVUMeterDisplay();
       }
-      return buffer;
     }
     
-    function playTestTone() {
-      ensureAudioContext();
-      const txPolarity = document.getElementById("txPolaritySelect").value;
-      const toneData = generateTestTone(txPolarity);
-      const sampleRate = audioContext.sampleRate;
-      
-      // Létrehozunk egy bufferet a tónushoz
-      const toneBuffer = audioContext.createBuffer(1, toneData.length, sampleRate);
-      toneBuffer.copyToChannel(toneData, 0);
-      const toneSource = audioContext.createBufferSource();
-      toneSource.buffer = toneBuffer;
-      toneSource.connect(audioContext.destination);
-      toneSource.start();
-      
-      // Létrehozunk csendet a periódus végére
-      const silenceSamples = Math.floor(silenceDuration * sampleRate);
-      const silenceBuffer = new Float32Array(silenceSamples);
-      const silenceAudioBuffer = audioContext.createBuffer(1, silenceBuffer.length, sampleRate);
-      silenceAudioBuffer.copyToChannel(silenceBuffer, 0);
-      const silenceSource = audioContext.createBufferSource();
-      silenceSource.buffer = silenceAudioBuffer;
-      silenceSource.connect(audioContext.destination);
-      silenceSource.start(audioContext.currentTime + toneDuration);
-      
-      // Rajzoljuk a tónus hullámformáját az adó canvasán
-      drawWaveform(toneData);
-      document.getElementById("txStatus").textContent =
-        "Adó: " + new Date().toLocaleTimeString() + " – tesztjel lejátszva (" + txPolarity + ")";
-      statusElem.textContent = "Adó: tesztjel lejátszva";
-    }
-    
-    let txIntervalId = null;
-    function startTransmitter() {
-      ensureAudioContext();
-      playTestTone();
-      txIntervalId = setInterval(playTestTone, txPeriod * 1000);
-    }
-    
-    function stopTransmitter() {
-      if (txIntervalId) {
-        clearInterval(txIntervalId);
-        txIntervalId = null;
-      }
-      document.getElementById("txStatus").textContent = "Adó: leállítva";
-      statusElem.textContent = "Adó: leállítva";
-    }
-    
-    /********** Vevő oldal: VU Meter és automatikus ciklus-összegzés **********/
-    // VU Meter: számolja az RMS értéket és rajzol egy sávot
-    function updateVUMeter(inputData) {
-      let sum = 0;
-      for (let i = 0; i < inputData.length; i++) {
-        sum += inputData[i] * inputData[i];
-      }
-      const rms = Math.sqrt(sum / inputData.length);
+    // Frissíti a VU meter kijelzését a currentPeak értéke alapján
+    function updateVUMeterDisplay() {
       const width = vuCanvas.width;
       const height = vuCanvas.height;
       vuCtx.clearRect(0, 0, width, height);
+      // Rajzoljuk a hátteret
       vuCtx.fillStyle = "#ddd";
       vuCtx.fillRect(0, 0, width, height);
-      const barWidth = Math.min(width, rms * width * 2); // érzékenység állítható
+      // A currentPeak érték arányában rajzoljuk meg a kitöltött sávot
+      const barWidth = Math.min(width, currentPeak * width);
       vuCtx.fillStyle = "#00aa00";
       vuCtx.fillRect(0, 0, barWidth, height);
+      // Frissítsük a numerikus kijelzést
+      peakDisplay.textContent = "Current Peak: " + currentPeak.toFixed(3);
     }
     
-    // Vevő: Start gombbal indítjuk a felvételt, a mikrofonból érkező adatokat egy ringBufferbe gyűjtjük
-    function startReceiver() {
+    /********** Mikrofon adatainak feldolgozása **********/
+    function startPeakDetection() {
       ensureAudioContext();
-      ringBuffer = []; // üres puffer
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(function(stream) {
-          rxStream = stream;
+          micStream = stream;
           const source = audioContext.createMediaStreamSource(stream);
-          rxProcessor = audioContext.createScriptProcessor(2048, 1, 1);
-          source.connect(rxProcessor);
-          rxProcessor.connect(audioContext.destination); // opcionális
-          rxProcessor.onaudioprocess = function(e) {
+          // A ScriptProcessorNode segítségével feldolgozzuk a mikrofon adatot
+          scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
+          source.connect(scriptProcessor);
+          scriptProcessor.connect(audioContext.destination); // Bizonyos böngészőkben szükséges
+          scriptProcessor.onaudioprocess = function(e) {
             const inputData = e.inputBuffer.getChannelData(0);
-            ringBuffer = ringBuffer.concat(Array.from(inputData));
-            updateVUMeter(inputData);
-            // Korlátozzuk a ringBuffer hosszát (pl. 5 s adat)
-            const maxLength = Math.floor(audioContext.sampleRate * 5);
-            if (ringBuffer.length > maxLength) {
-              ringBuffer = ringBuffer.slice(ringBuffer.length - maxLength);
+            // Keressük meg a frame legnagyobb abszolút értékét
+            let framePeak = 0;
+            for (let i = 0; i < inputData.length; i++) {
+              const absVal = Math.abs(inputData[i]);
+              if (absVal > framePeak) framePeak = absVal;
+            }
+            // Ha a framePeak nagyobb, mint a jelenlegi peak, akkor frissítjük
+            if (framePeak > currentPeak) {
+              currentPeak = framePeak;
+              updateVUMeterDisplay();
             }
           };
-          statusElem.textContent = "Vevő: rögzítés folyamatban...";
-          // Automatikus ciklus-összegzés: minden 1 s periódus végén értékeljük a ringBuffer tartalmát
-          rxIntervalId = setInterval(evaluateCycle, txPeriod * 1000);
+          // Indítsuk el a decay-t egy időzítővel
+          decayTimerId = setInterval(decayPeak, updateIntervalMs);
         })
         .catch(function(err) {
-          document.getElementById("rxResult").textContent = "Hiba: mikrofonhoz való hozzáférés megtagadva!";
-          console.error(err);
+          console.error("Hiba a mikrofon elérésében:", err);
         });
     }
     
-    // Ebben a függvényben egy ciklus eredményét határozzuk meg
-    // Megkeressük a legnagyobb amplitúdójú részt, majd az elemzési ablakban (slider által állított ms) kiszámoljuk az átlag előjelet
-    function evaluateCycle() {
-      if (ringBuffer.length === 0) return;
-      const sampleRate = audioContext.sampleRate;
-      const threshold = parseFloat(thresholdSlider.value);
-      let maxVal = 0, maxIndex = 0;
-      for (let i = 0; i < ringBuffer.length; i++) {
-        const a = Math.abs(ringBuffer[i]);
-        if (a > maxVal) { maxVal = a; maxIndex = i; }
+    function stopPeakDetection() {
+      if (scriptProcessor) {
+        scriptProcessor.disconnect();
+        scriptProcessor = null;
       }
-      // Ha a maximum érték kisebb, mint a küszöb, akkor nem mérünk érvényes jelciklust
-      if (maxVal < threshold) {
-        cycleResults.push(0);
-      } else {
-        const windowMs = parseFloat(windowSlider.value);
-        const windowSamples = Math.floor(windowMs / 1000 * sampleRate);
-        let sum = 0, count = 0;
-        for (let i = Math.max(0, maxIndex - windowSamples); i < Math.min(ringBuffer.length, maxIndex + windowSamples); i++) {
-          sum += ringBuffer[i];
-          count++;
-        }
-        const avg = sum / count;
-        const cycleResult = (avg > 0) ? 1 : (avg < 0 ? -1 : 0);
-        cycleResults.push(cycleResult);
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+        micStream = null;
       }
-      // Töröljük a ringBuffer-et, hogy a következő ciklusban csak új adat legyen
-      ringBuffer = [];
-      
-      // Ha elég ciklus eredményünk van (például 5), számoljuk ki az átlagot
-      if (cycleResults.length >= 5) {
-        const sumCycles = cycleResults.reduce((a, b) => a + b, 0);
-        let stableResult = 0;
-        if (sumCycles >= 3) stableResult = 1;
-        else if (sumCycles <= -3) stableResult = -1;
-        let resultText = (stableResult === 1) ? "Normál" : (stableResult === -1 ? "Inverz" : "Nem stabil");
-        document.getElementById("rxResult").textContent = "Stabil eredmény: " + resultText;
-        // Töröljük a ciklus eredményeket, hogy az új mérés újrainduljon
-        cycleResults = [];
+      if (decayTimerId) {
+        clearInterval(decayTimerId);
+        decayTimerId = null;
       }
-    }
-    
-    function stopReceiver() {
-      if (rxProcessor) {
-        rxProcessor.disconnect();
-        rxProcessor = null;
-      }
-      if (rxStream) {
-        rxStream.getTracks().forEach(track => track.stop());
-        rxStream = null;
-      }
-      if (rxIntervalId) {
-        clearInterval(rxIntervalId);
-        rxIntervalId = null;
-      }
-      document.getElementById("rxResult").textContent = "Eredmény: leállítva";
-      statusElem.textContent = "Vevő: leállítva";
-      ringBuffer = [];
-      cycleResults = [];
-    }
-    
-    /********** Canvas rajzoló **********/
-    function drawWaveform(data) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.beginPath();
-      const midY = canvas.height / 2;
-      const scaleX = canvas.width / data.length;
-      const scaleY = canvas.height / 2;
-      ctx.moveTo(0, midY);
-      for (let i = 0; i < data.length; i++) {
-        const x = i * scaleX;
-        const y = midY - data[i] * scaleY;
-        ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = "#0077cc";
-      ctx.stroke();
+      currentPeak = 0;
+      updateVUMeterDisplay();
     }
     
     /********** UI vezérlés **********/
-    document.getElementById("txStartBtn").addEventListener("click", function() {
+    document.getElementById("startBtn").addEventListener("click", function() {
       ensureAudioContext();
-      if (audioContext.state === "suspended") audioContext.resume();
-      startTransmitter();
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+      startPeakDetection();
     });
-    document.getElementById("txStopBtn").addEventListener("click", stopTransmitter);
     
-    document.getElementById("rxStartBtn").addEventListener("click", function() {
-      ensureAudioContext();
-      if (audioContext.state === "suspended") audioContext.resume();
-      startReceiver();
+    document.getElementById("stopBtn").addEventListener("click", function() {
+      stopPeakDetection();
     });
-    document.getElementById("rxStopBtn").addEventListener("click", stopReceiver);
     
-    // Egy kattintás a dokumentumon mindig feloldja az AudioContext-et (néhány böngészőben szükséges)
+    // Egy kattintás a dokumentumon feloldja az AudioContext-et (szükséges egyes böngészőkben)
     document.body.addEventListener("click", function() {
       if (audioContext && audioContext.state === "suspended") {
         audioContext.resume();
