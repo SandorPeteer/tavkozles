@@ -32,26 +32,25 @@
   </style>
 </head>
 <body>
-  <h1>Peak Detector VU Meter</h1>
+  <h1>Peak Detector VU Meter – Paraméterezhető</h1>
   
-  <!-- Vevő (Receiver) rész -->
   <div id="receiverSection" class="section">
     <h2>Vevő (Receiver) – Peak Detector</h2>
     <button id="startBtn">Start</button>
     <button id="stopBtn">Stop</button>
-    <p id="peakDisplay">Current Peak: 0.00</p>
+    <p id="peakDisplay">Current Peak: 0.000</p>
     
     <div class="sliderContainer">
-      <label for="decaySlider">Decay Faktor (0.90 - 1.00): <span id="decayVal">0.980</span></label><br>
-      <input type="range" id="decaySlider" min="0.90" max="1.00" step="0.001" value="0.980">
+      <label for="decaySlider">Decay Faktor (0.900 – 1.000): <span id="decayVal">0.980</span></label><br>
+      <input type="range" id="decaySlider" min="0.900" max="1.000" step="0.001" value="0.980">
     </div>
     <div class="sliderContainer">
       <label for="updateSlider">Frissítési idő (ms): <span id="updateVal">50</span></label><br>
       <input type="range" id="updateSlider" min="20" max="200" step="10" value="50">
     </div>
     
-    <!-- A VU meter megjelenítéséhez -->
-    <canvas id="vuCanvas" width="300" height="30"></canvas>
+    <!-- VU Meter Canvas -->
+    <canvas id="vuCanvas" width="300" height="50"></canvas>
   </div>
   
   <script>
@@ -60,14 +59,14 @@
     let micStream = null;
     let scriptProcessor = null;
     
-    // A jelenlegi peak érték (0-1 között)
+    // Jelenlegi peak érték (0-1 között)
     let currentPeak = 0;
     
-    // Paraméterek, melyek állíthatók a csúszkákkal
+    // Paraméterek: decay faktor és update intervallum (ms)
     let decayFactor = parseFloat(document.getElementById("decaySlider").value); // pl. 0.980
     let updateIntervalMs = parseInt(document.getElementById("updateSlider").value); // pl. 50 ms
     
-    // Timer a peak decay frissítéséhez
+    // Timer a decay kezelésére
     let decayTimerId = null;
     
     // UI elemek
@@ -81,7 +80,7 @@
     const updateSlider = document.getElementById("updateSlider");
     const updateValLabel = document.getElementById("updateVal");
     
-    // Frissítjük a csúszka értékeit
+    // Slider események frissítéséhez
     decaySlider.addEventListener("input", function() {
       decayFactor = parseFloat(this.value);
       decayValLabel.textContent = this.value;
@@ -89,7 +88,6 @@
     updateSlider.addEventListener("input", function() {
       updateIntervalMs = parseInt(this.value);
       updateValLabel.textContent = this.value;
-      // Ha a timer már fut, újraindítjuk az update intervalt
       if (decayTimerId) {
         clearInterval(decayTimerId);
         decayTimerId = setInterval(decayPeak, updateIntervalMs);
@@ -104,12 +102,11 @@
     }
     
     /********** Peak Detector Logika **********/
-    // Decay függvény: csökkenti a currentPeak értékét, majd frissíti a VU metert és a numerikus kijelzést
+    // Decay függvény: ha nincs újabb nagyobb csúcs, csökkenti a currentPeak értékét
     function decayPeak() {
-      // Csak akkor csökkentsük, ha currentPeak > 0
       if (currentPeak > 0) {
         currentPeak *= decayFactor;
-        if (currentPeak < 0.001) { // ha nagyon kicsi, állítsuk 0-ra
+        if (currentPeak < 0.001) {
           currentPeak = 0;
         }
         updateVUMeterDisplay();
@@ -121,14 +118,14 @@
       const width = vuCanvas.width;
       const height = vuCanvas.height;
       vuCtx.clearRect(0, 0, width, height);
-      // Rajzoljuk a hátteret
+      // Háttér rajzolása
       vuCtx.fillStyle = "#ddd";
       vuCtx.fillRect(0, 0, width, height);
-      // A currentPeak érték arányában rajzoljuk meg a kitöltött sávot
+      // A currentPeak érték alapján rajzoljuk a kitöltött sávot
       const barWidth = Math.min(width, currentPeak * width);
       vuCtx.fillStyle = "#00aa00";
       vuCtx.fillRect(0, 0, barWidth, height);
-      // Frissítsük a numerikus kijelzést
+      // Numerikus érték kijelzése
       peakDisplay.textContent = "Current Peak: " + currentPeak.toFixed(3);
     }
     
@@ -139,29 +136,30 @@
         .then(function(stream) {
           micStream = stream;
           const source = audioContext.createMediaStreamSource(stream);
-          // A ScriptProcessorNode segítségével feldolgozzuk a mikrofon adatot
           scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
           source.connect(scriptProcessor);
-          scriptProcessor.connect(audioContext.destination); // Bizonyos böngészőkben szükséges
+          // Bizonyos böngészőkben hasznos lehet a destination-re csatlakoztatás is:
+          scriptProcessor.connect(audioContext.destination);
           scriptProcessor.onaudioprocess = function(e) {
             const inputData = e.inputBuffer.getChannelData(0);
-            // Keressük meg a frame legnagyobb abszolút értékét
             let framePeak = 0;
             for (let i = 0; i < inputData.length; i++) {
               const absVal = Math.abs(inputData[i]);
-              if (absVal > framePeak) framePeak = absVal;
+              if (absVal > framePeak) {
+                framePeak = absVal;
+              }
             }
-            // Ha a framePeak nagyobb, mint a jelenlegi peak, akkor frissítjük
+            // Ha az új frame peak nagyobb, mint a jelenlegi, akkor frissítjük a currentPeak-et
             if (framePeak > currentPeak) {
               currentPeak = framePeak;
               updateVUMeterDisplay();
             }
           };
-          // Indítsuk el a decay-t egy időzítővel
+          // Indítsuk el a decay időzítőt
           decayTimerId = setInterval(decayPeak, updateIntervalMs);
         })
         .catch(function(err) {
-          console.error("Hiba a mikrofon elérésében:", err);
+          console.error("Mikrofon hiba:", err);
         });
     }
     
@@ -183,7 +181,7 @@
     }
     
     /********** UI vezérlés **********/
-    document.getElementById("startBtn").addEventListener("click", function() {
+    startBtn.addEventListener("click", function() {
       ensureAudioContext();
       if (audioContext.state === "suspended") {
         audioContext.resume();
@@ -191,11 +189,11 @@
       startPeakDetection();
     });
     
-    document.getElementById("stopBtn").addEventListener("click", function() {
+    stopBtn.addEventListener("click", function() {
       stopPeakDetection();
     });
     
-    // Egy kattintás a dokumentumon feloldja az AudioContext-et (szükséges egyes böngészőkben)
+    // Egy kattintás a dokumentumon feloldja az AudioContext-et (bizonyos böngészőkben szükséges)
     document.body.addEventListener("click", function() {
       if (audioContext && audioContext.state === "suspended") {
         audioContext.resume();
