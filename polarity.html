@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <title>Automatikus Polaritás Teszt – Start/Stop és VU Meter</title>
+  <title>Stabil Polaritás Mérés – Ciklus-összegző, VU Meterrel</title>
   <style>
     body {
       font-family: sans-serif;
@@ -22,33 +22,25 @@
       margin: 0.5rem;
       padding: 0.3rem 0.8rem;
     }
-    #canvas {
+    #canvas, #vuCanvas {
       border: 1px solid #ccc;
       background: #fff;
       margin: 20px auto;
       display: block;
     }
-    #vuCanvas {
-      border: 1px solid #ccc;
-      background: #fff;
-      margin: 10px auto;
-      display: block;
-    }
-    .sliderContainer {
-      margin: 10px;
-    }
+    .sliderContainer { margin: 10px; }
   </style>
 </head>
 <body>
-  <h1>Automatikus Polaritás Teszt – Start/Stop és VU Meter</h1>
+  <h1>Stabil Polaritás Mérés – Ciklus-összegző, VU Meterrel</h1>
   
   <!-- Adó (Transmitter) rész -->
   <div id="transmitterSection" class="section">
     <h2>Adó (Transmitter)</h2>
     <label for="txPolaritySelect">Tesztjel polaritása:</label>
     <select id="txPolaritySelect">
-      <option value="normal">Normál</option>
-      <option value="inverted">Inverz</option>
+      <option value="normal">Normál (pozitív csúcs)</option>
+      <option value="inverted">Inverz (negatív csúcs)</option>
     </select>
     <br>
     <button id="txStartBtn">Adó Start</button>
@@ -62,7 +54,7 @@
     <button id="rxStartBtn">Vevő Start</button>
     <button id="rxStopBtn">Vevő Stop</button>
     <p id="rxResult">Eredmény: várakozás...</p>
-    <!-- VU meter -->
+    <!-- VU Meter -->
     <canvas id="vuCanvas" width="300" height="30"></canvas>
     <!-- Állítható paraméterek -->
     <div class="sliderContainer">
@@ -75,7 +67,7 @@
     </div>
   </div>
   
-  <!-- Opcionális canvas a tesztjel vizualizálásához (adó oldal) -->
+  <!-- Opcionális canvas az adó jel vizualizálásához -->
   <canvas id="canvas" width="800" height="200"></canvas>
   <p id="status">Állapot: várakozás...</p>
   
@@ -89,7 +81,7 @@
     const vuCtx = vuCanvas.getContext("2d");
     
     /********** Adó oldal paraméterei **********/
-    const toneFreq = 500;       // 500 Hz-es tónus
+    const toneFreq = 500;       // 500 Hz
     const toneDuration = 0.5;    // 0.5 s tónus
     const silenceDuration = 0.5; // 0.5 s csend
     const txPeriod = toneDuration + silenceDuration; // 1 s periódus
@@ -97,8 +89,11 @@
     /********** Vevő oldal változói **********/
     let rxStream = null;
     let rxProcessor = null;
-    let rxIntervalId = null;   // A tesztjel ciklusonkénti automatikus értékeléshez
-    let ringBuffer = [];       // Itt gyűjtjük a mikrofonból érkező adatokat
+    let rxIntervalId = null;   // Automatikus értékelés ciklusainak időzítése
+    let ringBuffer = [];       // Mikrofon minták gyűjtése
+    
+    // Ciklusok eredményeinek tárolása (1 = normál, -1 = inverz, 0 = nem mérhető)
+    let cycleResults = [];
     
     /********** Beállítható paraméterek (sliderek) **********/
     const thresholdSlider = document.getElementById("thresholdSlider");
@@ -112,14 +107,14 @@
       windowValLabel.textContent = this.value;
     });
     
-    /********** AudioContext létrehozása **********/
+    /********** AudioContext **********/
     function ensureAudioContext() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
     }
     
-    /********** Adó oldal: Tesztjel generálása **********/
+    /********** Adó oldal: Tesztjel generálása és lejátszása **********/
     function generateTestTone(txPolarity) {
       ensureAudioContext();
       const sampleRate = audioContext.sampleRate;
@@ -160,7 +155,7 @@
       silenceSource.connect(audioContext.destination);
       silenceSource.start(audioContext.currentTime + toneDuration);
       
-      // Frissítjük a vizualizációs canvas-t (adó oldal)
+      // Rajzoljuk a tónus hullámformáját az adó canvasán
       drawWaveform(toneData);
       document.getElementById("txStatus").textContent =
         "Adó: " + new Date().toLocaleTimeString() + " – tesztjel lejátszva (" + txPolarity + ")";
@@ -183,8 +178,8 @@
       statusElem.textContent = "Adó: leállítva";
     }
     
-    /********** Vevő oldal: VU Meter és automatikus értékelés **********/
-    // VU meter: az aktuális mikrofon RMS értéket jeleníti meg
+    /********** Vevő oldal: VU Meter és automatikus ciklus-összegzés **********/
+    // VU Meter: számolja az RMS értéket és rajzol egy sávot
     function updateVUMeter(inputData) {
       let sum = 0;
       for (let i = 0; i < inputData.length; i++) {
@@ -196,12 +191,12 @@
       vuCtx.clearRect(0, 0, width, height);
       vuCtx.fillStyle = "#ddd";
       vuCtx.fillRect(0, 0, width, height);
-      const barWidth = Math.min(width, rms * width * 2); // szorzóval kicsit érzékenyebb
+      const barWidth = Math.min(width, rms * width * 2); // érzékenység állítható
       vuCtx.fillStyle = "#00aa00";
       vuCtx.fillRect(0, 0, barWidth, height);
     }
     
-    // A ScriptProcessor frissíti a ringBufferet és a VU metert
+    // Vevő: Start gombbal indítjuk a felvételt, a mikrofonból érkező adatokat egy ringBufferbe gyűjtjük
     function startReceiver() {
       ensureAudioContext();
       ringBuffer = []; // üres puffer
@@ -216,16 +211,15 @@
             const inputData = e.inputBuffer.getChannelData(0);
             ringBuffer = ringBuffer.concat(Array.from(inputData));
             updateVUMeter(inputData);
-            // Korlátozzuk a puffer hosszát (pl. 5 másodperc adat)
+            // Korlátozzuk a ringBuffer hosszát (pl. 5 s adat)
             const maxLength = Math.floor(audioContext.sampleRate * 5);
             if (ringBuffer.length > maxLength) {
               ringBuffer = ringBuffer.slice(ringBuffer.length - maxLength);
             }
           };
-          document.getElementById("rxResult").textContent = "Vevő: rögzítés folyamatban...";
           statusElem.textContent = "Vevő: rögzítés folyamatban...";
-          // Automatikus értékelés: minden txPeriod idő után értékeljük a puffer tartalmát
-          rxIntervalId = setInterval(evaluateCapturedSignal, txPeriod * 1000);
+          // Automatikus ciklus-összegzés: minden 1 s periódus végén értékeljük a ringBuffer tartalmát
+          rxIntervalId = setInterval(evaluateCycle, txPeriod * 1000);
         })
         .catch(function(err) {
           document.getElementById("rxResult").textContent = "Hiba: mikrofonhoz való hozzáférés megtagadva!";
@@ -233,44 +227,46 @@
         });
     }
     
-    // Az automatikus értékelés: kiválasztjuk a legnagyobb amplitúdójú részt és kiszámoljuk az átlag előjelét
-    function evaluateCapturedSignal() {
-      if (ringBuffer.length === 0) {
-        document.getElementById("rxResult").textContent = "Eredmény: nincs rögzített adat";
-        return;
-      }
-      // Keressük meg a maximum abszolút értéket
-      let maxVal = 0;
-      let maxIndex = 0;
-      for (let i = 0; i < ringBuffer.length; i++) {
-        const absVal = Math.abs(ringBuffer[i]);
-        if (absVal > maxVal) {
-          maxVal = absVal;
-          maxIndex = i;
-        }
-      }
-      // Az elemzési ablak mérete (ms-ben) slider-rel állítható
-      const windowMs = parseFloat(windowSlider.value);
+    // Ebben a függvényben egy ciklus eredményét határozzuk meg
+    // Megkeressük a legnagyobb amplitúdójú részt, majd az elemzési ablakban (slider által állított ms) kiszámoljuk az átlag előjelet
+    function evaluateCycle() {
+      if (ringBuffer.length === 0) return;
       const sampleRate = audioContext.sampleRate;
-      const windowSamples = Math.floor(windowMs / 1000 * sampleRate);
-      let sum = 0, count = 0;
-      for (let i = Math.max(0, maxIndex - windowSamples); i < Math.min(ringBuffer.length, maxIndex + windowSamples); i++) {
-        sum += ringBuffer[i];
-        count++;
+      const threshold = parseFloat(thresholdSlider.value);
+      let maxVal = 0, maxIndex = 0;
+      for (let i = 0; i < ringBuffer.length; i++) {
+        const a = Math.abs(ringBuffer[i]);
+        if (a > maxVal) { maxVal = a; maxIndex = i; }
       }
-      const avg = sum / count;
-      let result = "";
-      if (avg > 0) {
-        result = "Normál";
-      } else if (avg < 0) {
-        result = "Inverz";
+      // Ha a maximum érték kisebb, mint a küszöb, akkor nem mérünk érvényes jelciklust
+      if (maxVal < threshold) {
+        cycleResults.push(0);
       } else {
-        result = "Nem meghatározható";
+        const windowMs = parseFloat(windowSlider.value);
+        const windowSamples = Math.floor(windowMs / 1000 * sampleRate);
+        let sum = 0, count = 0;
+        for (let i = Math.max(0, maxIndex - windowSamples); i < Math.min(ringBuffer.length, maxIndex + windowSamples); i++) {
+          sum += ringBuffer[i];
+          count++;
+        }
+        const avg = sum / count;
+        const cycleResult = (avg > 0) ? 1 : (avg < 0 ? -1 : 0);
+        cycleResults.push(cycleResult);
       }
-      document.getElementById("rxResult").textContent =
-        "Eredmény: " + result + " polaritás (átlag: " + avg.toFixed(2) + ")";
-      // Töröljük a ringBuffer-t, hogy a következő ciklusban csak új adat legyen
+      // Töröljük a ringBuffer-et, hogy a következő ciklusban csak új adat legyen
       ringBuffer = [];
+      
+      // Ha elég ciklus eredményünk van (például 5), számoljuk ki az átlagot
+      if (cycleResults.length >= 5) {
+        const sumCycles = cycleResults.reduce((a, b) => a + b, 0);
+        let stableResult = 0;
+        if (sumCycles >= 3) stableResult = 1;
+        else if (sumCycles <= -3) stableResult = -1;
+        let resultText = (stableResult === 1) ? "Normál" : (stableResult === -1 ? "Inverz" : "Nem stabil");
+        document.getElementById("rxResult").textContent = "Stabil eredmény: " + resultText;
+        // Töröljük a ciklus eredményeket, hogy az új mérés újrainduljon
+        cycleResults = [];
+      }
     }
     
     function stopReceiver() {
@@ -289,9 +285,10 @@
       document.getElementById("rxResult").textContent = "Eredmény: leállítva";
       statusElem.textContent = "Vevő: leállítva";
       ringBuffer = [];
+      cycleResults = [];
     }
     
-    /********** Canvas rajzoló függvény **********/
+    /********** Canvas rajzoló **********/
     function drawWaveform(data) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
@@ -323,7 +320,7 @@
     });
     document.getElementById("rxStopBtn").addEventListener("click", stopReceiver);
     
-    // Egy kattintás a dokumentumon feloldja az AudioContext-et (néhány böngészőben szükséges)
+    // Egy kattintás a dokumentumon mindig feloldja az AudioContext-et (néhány böngészőben szükséges)
     document.body.addEventListener("click", function() {
       if (audioContext && audioContext.state === "suspended") {
         audioContext.resume();
