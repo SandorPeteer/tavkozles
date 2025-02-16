@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Receiver – Polaritás Detektálás</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f7f7f7;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 { color: #333; }
+    button, input[type=range] {
+      font-size: 1rem;
+      margin: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+    }
+    #result {
+      font-size: 24px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    #waveCanvas {
+      border: 1px solid #ccc;
+      background: #fff;
+      margin: 20px auto;
+      display: block;
+      width: 600px;
+      height: 150px;
+    }
+    .sliderContainer {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Receiver – Polaritás Detektálás</h1>
+  <button id="startBtn">Vevő Start</button>
+  <button id="stopBtn">Vevő Stop</button>
+  <p id="result">Polaritás: (nincs mérés)</p>
+  
+  <div class="sliderContainer">
+    <label for="thresholdSlider">Küszöb (amplitúdó): <span id="thresholdVal">0.1</span></label><br>
+    <input type="range" id="thresholdSlider" min="0.01" max="2.0" step="0.01" value="0.1">
+  </div>
+  
+  <div class="sliderContainer">
+    <label for="windowSlider">Elemzési ablak (ms): <span id="windowVal">20</span></label><br>
+    <input type="range" id="windowSlider" min="10" max="100" step="5" value="20">
+  </div>
+  
+  <canvas id="waveCanvas"></canvas>
+  
+  <script>
+    let audioContext = null;
+    let micStream = null;
+    let processor = null;
+    let lastUpdateTime = 0;  // cooldown méréshez
+    const cooldown = 1000;   // 1 s cooldown
+    let threshold = 0.1;
+    
+    const resultElem = document.getElementById("result");
+    const waveCanvas = document.getElementById("waveCanvas");
+    const waveCtx = waveCanvas.getContext("2d");
+    
+    const thresholdSlider = document.getElementById("thresholdSlider");
+    const thresholdVal = document.getElementById("thresholdVal");
+    thresholdSlider.addEventListener("input", function() {
+      threshold = parseFloat(this.value);
+      thresholdVal.textContent = threshold.toFixed(2);
+    });
+    
+    const windowSlider = document.getElementById("windowSlider");
+    const windowVal = document.getElementById("windowVal");
+    windowSlider.addEventListener("input", function() {
+      windowVal.textContent = this.value;
+    });
+    
+    function ensureAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if(audioContext.state === "suspended") audioContext.resume();
+    }
+    
+    // Folyamatosan gyűjti a mikrofon adatait
+    function startReceiver() {
+      ensureAudioContext();
+      micStream = null;
+      navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        micStream = stream;
+        const source = audioContext.createMediaStreamSource(stream);
+        processor = audioContext.createScriptProcessor(1024, 1, 1);
+        source.connect(processor);
+        processor.connect(audioContext.destination);
+        processor.onaudioprocess = function(e) {
+          const data = e.inputBuffer.getChannelData(0);
+          // Rajzoljuk a bejövő adatot
+          drawWaveform(data);
+          // Vizsgáljuk az első impulzust a megadott ablakban
+          // Az elemzési ablak hossza (ms) slider-rel állítható
+          const windowMs = parseInt(windowSlider.value);
+          const windowSamples = Math.floor(windowMs / 1000 * audioContext.sampleRate);
+          for (let i = 1; i < Math.min(data.length, windowSamples); i++) {
+            if (Math.abs(data[i]) > threshold && Math.abs(data[i-1]) < threshold/2) {
+              let now = performance.now();
+              if (now - lastUpdateTime >= cooldown) {
+                let polarity = data[i] > 0 ? "Normál" : "Inverz";
+                resultElem.textContent = "Polaritás: " + polarity + " (érték: " + data[i].toFixed(2) + ")";
+                lastUpdateTime = now;
+              }
+              break;
+            }
+          }
+        };
+        resultElem.textContent = "Polaritás: (mérés folyamatban)";
+      })
+      .catch(err => {
+        console.error("Mikrofon hiba:", err);
+        resultElem.textContent = "Hiba: mikrofonhoz való hozzáférés megtagadva!";
+      });
+    }
+    
+    function stopReceiver() {
+      if (processor) {
+        processor.disconnect();
+        processor = null;
+      }
+      if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+        micStream = null;
+      }
+      resultElem.textContent = "Polaritás: (leállítva)";
+    }
+    
+    function drawWaveform(data) {
+      const width = waveCanvas.width;
+      const height = waveCanvas.height;
+      waveCtx.clearRect(0, 0, width, height);
+      waveCtx.beginPath();
+      const midY = height / 2;
+      const scaleX = width / data.length;
+      waveCtx.moveTo(0, midY);
+      for (let i = 0; i < data.length; i++) {
+        const x = i * scaleX;
+        const y = midY - data[i] * midY;
+        waveCtx.lineTo(x, y);
+      }
+      waveCtx.strokeStyle = "#0077cc";
+      waveCtx.stroke();
+    }
+    
+    document.getElementById("startBtn").addEventListener("click", startReceiver);
+    document.getElementById("stopBtn").addEventListener("click", stopReceiver);
+    
+    document.body.addEventListener("click", function() {
+      if (audioContext && audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+    });
+  </script>
+</body>
+</html>
