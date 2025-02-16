@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <title>Digitális Kód Alapú Polaritás Mérő (8 bit, 160 Hz)</title>
+  <title>Chirp alapú Polaritás Mérő</title>
   <style>
     body {
       font-family: sans-serif;
@@ -31,8 +31,7 @@
   </style>
 </head>
 <body>
-  <h1>Digitális Kód Alapú Polaritás Mérő</h1>
-  
+  <h1>Chirp alapú Polaritás Mérő</h1>
   <!-- Üzemmód választás -->
   <div>
     <label for="modeSelect">Üzemmód:</label>
@@ -45,7 +44,7 @@
   <!-- Adó rész -->
   <div id="transmitterSection" class="section">
     <h2>Adó (Transmitter)</h2>
-    <label for="txPolaritySelect">Kód polaritása:</label>
+    <label for="txPolaritySelect">Chirp polaritása:</label>
     <select id="txPolaritySelect">
       <option value="normal">Normál</option>
       <option value="inverted">Inverz</option>
@@ -78,65 +77,66 @@
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     
-    // Adó paraméterek
-    const fc = 160;          // carrier frekvencia: 160 Hz
-    const Tbit = 0.1;        // bit időtartama: 100 ms
-    // 8 bites kód (pl.: 1,0,1,0,1,0,1,0); 1 => +1, 0 => -1
-    const codeBitsRaw = [1,0,1,0,1,0,1,0];
-    const codeBits = codeBitsRaw.map(b => b === 1 ? 1 : -1);
-    const Nbits = codeBits.length; // 8 bit
-    const templateDuration = Nbits * Tbit; // 8 * 0.1 = 0.8 s
-    const gapAfter = 0.2; // 200 ms csend a kód után
-    const txPeriod = templateDuration + gapAfter; // 1 s periódus
+    // Chirp paraméterek (Adó):
+    const Tchirp = 0.5;      // chirp időtartam (0.5 s)
+    const f0 = 100;          // kezdő frekvencia (Hz)
+    const f1 = 1000;         // végfrekvencia (Hz)
+    const chirpGap = 0.5;    // csend idő (0.5 s) a chirp után → teljes periódus: 1 s
     
-    // Vevő paraméterek
-    let ringBuffer = [];  // A mikrofonból érkező mintákat gyűjti
+    // Vevő oldali paraméterek:
+    let ringBuffer = [];     // mikrofonból érkező minták tárolása
     let rxStream = null;
     let rxProcessor = null;
     let rxTimer = null;
     
-    // Transmitter időzítő
+    // Időzítők:
     let txIntervalId = null;
     
-    /********** AudioContext **********/
+    // Downsampling faktor a vevő korrelációhoz (pl. 10-szeres downsample)
+    const DS_FACTOR = 10;
+    
+    /********** AudioContext létrehozása **********/
     function ensureAudioContext() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
     }
     
-    /********** Adó oldal **********/
-    // Generálja a digitális kódot BPSK modulációval (Hann ablakos átmenettel)
-    function generateTemplate(txPolarity) {
+    /********** Adó oldal: Chirp generálása **********/
+    // Generál egy lineáris chirp-et a Tchirp időtartamon, f0-tól f1-ig
+    // Alkalmazunk egy sima fade-in/fade-out Hann ablakot
+    function generateChirp(txPolarity) {
       ensureAudioContext();
       const sampleRate = audioContext.sampleRate;
-      const samplesPerBit = Math.floor(Tbit * sampleRate);
-      const totalSamples = samplesPerBit * Nbits;
-      const template = new Float32Array(totalSamples);
-      for (let bit = 0; bit < Nbits; bit++) {
-        const bitVal = (txPolarity === "normal") ? codeBits[bit] : -codeBits[bit];
-        for (let n = 0; n < samplesPerBit; n++) {
-          const t = n / sampleRate;
-          // Sine wave a fc frekvencián
-          let sample = Math.sin(2 * Math.PI * fc * t);
-          sample *= bitVal;
-          // Hann ablak
-          const win = 0.5 * (1 - Math.cos(2 * Math.PI * n / (samplesPerBit - 1)));
-          template[bit * samplesPerBit + n] = sample * win;
-        }
+      const totalSamples = Math.floor(Tchirp * sampleRate);
+      const chirp = new Float32Array(totalSamples);
+      // Számoljuk ki a frekvenciaváltozás mértékét
+      const k = (f1 - f0) / Tchirp;
+      // txPolarity: "normal" => faktor = 1, "inverted" => faktor = -1
+      const polarityFactor = (txPolarity === "normal") ? 1 : -1;
+      for (let i = 0; i < totalSamples; i++) {
+        const t = i / sampleRate;
+        // Lineáris chirp: f(t) = f0 + k*t; fázis = 2π (f0*t + 0.5*k*t^2)
+        const phase = 2 * Math.PI * (f0 * t + 0.5 * k * t * t);
+        let sample = Math.sin(phase);
+        // Alkalmazzuk a polaritást
+        sample *= polarityFactor;
+        // Alkalmazzunk Hann ablakot (fade-in és fade-out)
+        const windowVal = 0.5 * (1 - Math.cos(2 * Math.PI * i / (totalSamples - 1)));
+        chirp[i] = sample * windowVal;
       }
-      return template;
+      return chirp;
     }
     
-    // Lejátszás: A kódot lejátszuk, majd a kód teljes időtartama után csendet adunk
-    function playTemplate(txPolarity) {
+    // Lejátszás: A chirp-et lejátszuk, majd a chirp hosszának megfelelő csendet adunk hozzá
+    function playChirp(txPolarity) {
       ensureAudioContext();
       const sampleRate = audioContext.sampleRate;
-      const codeData = generateTemplate(txPolarity);
-      const silenceSamples = Math.floor(gapAfter * sampleRate);
-      // Összefűzzük a kódot és a csendet
-      const composite = new Float32Array(codeData.length + silenceSamples);
-      composite.set(codeData, 0);
+      const chirpData = generateChirp(txPolarity);
+      const silenceSamples = Math.floor(chirpGap * sampleRate);
+      // Összefűzzük a chirp-et és a csendet
+      const composite = new Float32Array(chirpData.length + silenceSamples);
+      composite.set(chirpData, 0);
       // A csend rész marad 0
       const buffer = audioContext.createBuffer(1, composite.length, sampleRate);
       buffer.copyToChannel(composite, 0);
@@ -144,22 +144,22 @@
       source.buffer = buffer;
       source.connect(audioContext.destination);
       source.start();
-      // Megjelenítjük a kód hullámformáját a canvas-on (csak egyszer, nem folyamatosan)
-      drawWaveform(codeData);
-      document.getElementById("txStatus").textContent = "Adó: " + new Date().toLocaleTimeString() + " – kód lejátszva";
-      statusElem.textContent = "Adó: kód lejátszva";
+      // Kirajzoljuk a chirp hullámformáját a canvas-ra
+      drawWaveform(chirpData);
+      document.getElementById("txStatus").textContent = "Adó: " + new Date().toLocaleTimeString() + " – chirp lejátszva";
+      statusElem.textContent = "Adó: chirp lejátszva";
     }
     
     function startTransmitter() {
       ensureAudioContext();
       const txPolarity = document.getElementById("txPolaritySelect").value;
       // Azonnali lejátszás:
-      playTemplate(txPolarity);
-      // Ismétlődő lejátszás: a kód teljes időtartama után (1 s)
+      playChirp(txPolarity);
+      // Ismétlődő lejátszás a teljes periódus után (Tchirp + chirpGap)
       txIntervalId = setInterval(() => {
-        playTemplate(txPolarity);
-      }, txPeriod * 1000);
-      document.getElementById("txStatus").textContent = "Adó mód aktív: kód folyamatos lejátszása...";
+        playChirp(txPolarity);
+      }, (Tchirp + chirpGap) * 1000);
+      document.getElementById("txStatus").textContent = "Adó mód aktív: chirp folyamatos lejátszása...";
       statusElem.textContent = "Adó: mód aktív";
     }
     
@@ -172,40 +172,65 @@
       statusElem.textContent = "Adó: leállítva";
     }
     
-    /********** Vevő oldal **********/
-    // A vevőnél a ringBuffer-ben gyűjtjük a mikrofonból érkező mintákat.
-    // Ezután 1 s-enként végzünk korrelációs kiértékelést a "normál" referencia kóddal.
-    function checkForCode() {
+    /********** Vevő oldal: Downsampling és korreláció **********/
+    // Downsample egy tömböt a megadott faktorral
+    function downsampleBuffer(buffer, factor) {
+      const len = Math.floor(buffer.length / factor);
+      const down = new Float32Array(len);
+      for (let i = 0; i < len; i++) {
+        down[i] = buffer[i * factor];
+      }
+      return down;
+    }
+    
+    // Egyszerű korreláció: a "signal" és a "template" dot terméke, csúsztatva a signal-ben
+    function crossCorrelate(signal, template) {
+      let bestCorr = 0;
+      let bestIndex = 0;
+      for (let i = 0; i <= signal.length - template.length; i++) {
+        let sum = 0;
+        for (let j = 0; j < template.length; j++) {
+          sum += signal[i + j] * template[j];
+        }
+        if (Math.abs(sum) > Math.abs(bestCorr)) {
+          bestCorr = sum;
+          bestIndex = i;
+        }
+      }
+      return bestCorr;
+    }
+    
+    // A vevő oldalon a ringBuffer-ben tárolt adatokból ellenőrizzük a chirp-et
+    function checkForChirp() {
       ensureAudioContext();
       const sampleRate = audioContext.sampleRate;
-      const template = generateTemplate("normal"); // Referenciaként a normál kód
-      const L = template.length;
-      if (ringBuffer.length < L) return; // Ha nincs elég adat
-      let correlations = [];
-      const step = 20; // kisebb lépés, mert az adatok sűrűbbek
-      for (let i = 0; i <= ringBuffer.length - L; i += step) {
-        let corr = 0;
-        for (let j = 0; j < L; j++) {
-          corr += ringBuffer[i + j] * template[j];
-        }
-        // Csak akkor vesszük figyelembe, ha a korreláció abszolút értéke elég nagy
-        if (Math.abs(corr) > 0.3 * L) {
-          correlations.push(corr);
-        }
-      }
+      // Ha nincs elég adat, ne csináljunk semmit
+      if (ringBuffer.length < sampleRate * (Tchirp + chirpGap) * 0.5) return;
+      
+      // Downsample-eljük a ringBuffer-t a DS_FACTOR segítségével
+      const dsBuffer = downsampleBuffer(ringBuffer, DS_FACTOR);
+      // Generáljuk a referenciaként használt "normál" chirp sablont, majd downsample-eljük
+      const refChirp = generateChirp("normal");
+      const dsRef = downsampleBuffer(refChirp, DS_FACTOR);
+      
+      // Végezünk egy csúszókorrelációt a downsample-elt adatokon
+      const corr = crossCorrelate(dsBuffer, dsRef);
+      
+      // Állítsuk be egy küszöbértéket (kísérleti)
+      const threshold = 0.3 * dsRef.length;
+      
       let rxResultElem = document.getElementById("rxResult");
-      if (correlations.length === 0) {
-        rxResultElem.textContent = "Eredmény: kód nem detektálható";
+      if (Math.abs(corr) < threshold) {
+        rxResultElem.textContent = "Eredmény: nem detektálható tiszta chirp";
       } else {
-        // Átlagoljuk a korrelációkat (hibajavítás)
-        const avgCorr = correlations.reduce((a, b) => a + b, 0) / correlations.length;
-        const result = avgCorr > 0 ? "Normál" : "Inverz";
-        rxResultElem.textContent = "Eredmény: " + result + " polaritás (átlag: " + avgCorr.toFixed(2) + ")";
-        // Ha kódot észlelünk, kirajzoljuk a kódhoz tartozó részt a canvas-ra
-        const segment = ringBuffer.slice(0, L);
-        drawWaveform(segment);
+        // Ha a korreláció pozitív, akkor a bejövő chirp fázisa megegyezik a referenciával (Normál)
+        // Ha negatív, akkor ellentétes fázisú (Inverz)
+        const result = (corr > 0) ? "Normál" : "Inverz";
+        rxResultElem.textContent = "Eredmény: " + result + " polaritás (korreláció: " + corr.toFixed(2) + ")";
       }
-      // Töröljük a ringBuffer régebbi részét: megtartjuk az utolsó L mintát a jobb szinkronizációhoz
+      
+      // Az erőforrások optimalizálása: megtartjuk az utolsó néhány másodperc adatait
+      const L = Math.floor(sampleRate * (Tchirp + chirpGap));
       if (ringBuffer.length > 2 * L) {
         ringBuffer = ringBuffer.slice(ringBuffer.length - L);
       }
@@ -219,25 +244,20 @@
           const source = audioContext.createMediaStreamSource(stream);
           rxProcessor = audioContext.createScriptProcessor(2048, 1, 1);
           source.connect(rxProcessor);
-          // A csatlakozás a destination-re opcionális – itt csak a feldolgozás miatt
+          // A destination-re csatlakozás opcionális, de segíthet néhány böngészőben
           rxProcessor.connect(audioContext.destination);
           rxProcessor.onaudioprocess = function(e) {
             const inputData = e.inputBuffer.getChannelData(0);
             // Gyűjtsük a mintákat a ringBuffer-be
             ringBuffer = ringBuffer.concat(Array.from(inputData));
-            // Korlátozzuk a ringBuffer hosszát (pl. 5 másodperc)
-            const maxLength = Math.floor(audioContext.sampleRate * 5);
-            if (ringBuffer.length > maxLength) {
-              ringBuffer = ringBuffer.slice(ringBuffer.length - maxLength);
-            }
-            // Ne frissítsük folyamatosan a canvas-t, csak a kódellenőrzésnél
+            // Ne próbáljuk folyamatosan frissíteni a canvas-t – csak a kódellenőrzésnél
           };
-          // Indítsuk el a kódellenőrzést 1 s-enként
-          rxTimer = setInterval(checkForCode, 1000);
+          // Időzítjük a chirpellenőrzést (pl. 1 s-enként)
+          rxTimer = setInterval(checkForChirp, 1000);
           statusElem.textContent = "Vevő: mikrofon aktív, figyelem...";
         })
         .catch(function(err) {
-          statusElem.textContent = "Vevő: Hiba – mikrofon hozzáférés megtagadva!";
+          statusElem.textContent = "Vevő: Hiba – mikrofonhoz való hozzáférés megtagadva!";
           console.error(err);
         });
     }
@@ -260,8 +280,7 @@
       statusElem.textContent = "Vevő: leállítva";
     }
     
-    /********** Canvas rajzoló függvény **********/
-    // Ez a függvény kirajzolja a megadott adatokat a canvas-ra
+    /********** Canvas rajzoló **********/
     function drawWaveform(data) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
