@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangszóró Polaritás Teszt</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        button { font-size: 18px; padding: 10px; cursor: pointer; }
+        #result { font-size: 24px; margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Hangszóró Polaritás Teszt</h1>
+    <button onclick="startTest()">🎤 Indítás</button>
+    <p id="result">Várakozás...</p>
+
+    <script>
+        function startTest() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    const audioContext = new AudioContext();
+                    const analyser = audioContext.createAnalyser();
+                    const microphone = audioContext.createMediaStreamSource(stream);
+                    const dataArray = new Float32Array(analyser.fftSize);
+                    
+                    analyser.fftSize = 1024;
+                    analyser.smoothingTimeConstant = 0;
+                    microphone.connect(analyser);
+                    
+                    function checkPolarity() {
+                        analyser.getFloatTimeDomainData(dataArray);
+                        let firstNonZeroIndex = dataArray.findIndex(val => Math.abs(val) > 0.01);
+                        
+                        if (firstNonZeroIndex !== -1) {
+                            let firstPeak = dataArray[firstNonZeroIndex];
+                            let polarity = firstPeak > 0 ? '✔️ Helyes polaritás' : '❌ Fordított polaritás';
+                            document.getElementById('result').innerText = polarity;
+                        }
+                        requestAnimationFrame(checkPolarity);
+                    }
+                    
+                    checkPolarity();
+                })
+                .catch(error => console.error('Hozzáférési hiba:', error));
+        }
+    </script>
+</body>
+</html>
