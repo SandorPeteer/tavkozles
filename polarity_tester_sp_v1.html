@@ -30,7 +30,7 @@
                     
                     function checkPolarity() {
                         analyser.getFloatTimeDomainData(dataArray);
-                        let firstNonZeroIndex = dataArray.findIndex(val => Math.abs(val) > 0.11);
+                        let firstNonZeroIndex = dataArray.findIndex(val => Math.abs(val) > 0.01);
                         
                         if (firstNonZeroIndex !== -1) {
                             let firstPeak = dataArray[firstNonZeroIndex];
