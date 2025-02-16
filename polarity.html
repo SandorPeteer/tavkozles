@@ -1,132 +1,223 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hangszóró Polaritás Teszt</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        canvas { border: 1px solid black; display: block; margin: 20px auto; }
-        button { font-size: 18px; padding: 10px; margin: 10px; cursor: pointer; }
-        input[type=range] { width: 80%; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Hangszóró Polaritás Ellenőrzés</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+      background: #f7f7f7;
+    }
+    h1 {
+      color: #333;
+    }
+    select, button {
+      font-size: 1rem;
+      padding: 0.5rem;
+      margin: 0.5rem;
+    }
+    #waveformCanvas {
+      border: 1px solid #ccc;
+      background: #fff;
+      margin: 20px auto;
+      display: block;
+    }
+    p {
+      max-width: 800px;
+      margin: 10px auto;
+      color: #555;
+    }
+  </style>
 </head>
 <body>
-    <h1>Hangszóró Polaritás Teszt</h1>
-    
-    <button onclick="startTestSignal()">▶️ Tesztjel indítása</button>
-    <button onclick="stopTestSignal()">⏹️ Leállítás</button>
-    <p>Ez a tesztjel folyamatosan szól a hangszóróból, a telefonon pedig a mikrofon érzékeli és kiértékeli.</p>
-    
-    <h2>Polaritás eredmény:</h2>
-    <p id="result">Nincs mérés...</p>
-    
-    <canvas id="waveform" width="800" height="300"></canvas>
-    
-    <h3>Érzékenység beállítása:</h3>
-    <input type="range" id="sensitivity" min="1000" max="20000" value="5000" oninput="updateSensitivity()">
-    <p id="sensitivityLabel">Érzékenység: 5000</p>
-    
-    <script>
-        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        let oscillator, gainNode;
-        let analyser = audioCtx.createAnalyser();
-        let microphone;
-        let dataArray = new Float32Array(analyser.fftSize);
-        let canvas = document.getElementById("waveform");
-        let ctx = canvas.getContext("2d");
-        let scaleFactor = 5000;
-        let detectionThreshold = 0.02;
+  <h1>Hangszóró Polaritás Ellenőrzés</h1>
+  <p>
+    Használat:
+    Ha számítógépen vagy, válaszd a <strong>Lejátszás (számítógép)</strong> módot, és indítsd el a hang lejátszását a PA rendszer hangszóróin.
+    Ha mobilon vagy, válaszd a <strong>Mikrofon ellenőrzés (mobil)</strong> módot, majd indítsd el a rögzítést, hogy a mikrofon segítségével ellenőrizhesd a lejátszott tesztjel polaritását.
+    Ügyelj arra, hogy a lejátszás és a rögzítés időablaka átfedje egymást!
+  </p>
+  <label for="modeSelect">Üzemmód választása:</label>
+  <select id="modeSelect">
+    <option value="playback">Lejátszás (számítógép)</option>
+    <option value="record">Mikrofon ellenőrzés (mobil)</option>
+  </select>
+  <br>
+  <button id="startButton">Indítás</button>
+  <p id="status">Állapot: Várakozás...</p>
+  <canvas id="waveformCanvas" width="800" height="200"></canvas>
+  
+  <script>
+    // Globális változók
+    const startButton = document.getElementById("startButton");
+    const modeSelect = document.getElementById("modeSelect");
+    const statusElem = document.getElementById("status");
+    const canvas = document.getElementById("waveformCanvas");
+    const ctx = canvas.getContext("2d");
 
-        function startTestSignal() {
-            if (oscillator) stopTestSignal();
-            oscillator = audioCtx.createOscillator();
-            gainNode = audioCtx.createGain();
-            oscillator.type = 'square';
-            oscillator.frequency.setValueAtTime(50, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            let now = audioCtx.currentTime;
-            let step = 0.1;
-            
-            // Folyamatosan ismétlődő tesztjel
-            setInterval(() => {
-                let time = audioCtx.currentTime;
-                gainNode.gain.setValueAtTime(1, time);
-                gainNode.gain.setValueAtTime(0, time + step);
-                gainNode.gain.setValueAtTime(-1, time + step * 2);
-                gainNode.gain.setValueAtTime(0, time + step * 3);
-            }, 400);
+    // AudioContext (létrehozása csak egyszer, amikor szükséges)
+    let audioContext;
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.start();
+    /**
+     * Generál egy tesztimpulzust – egy unipoláris fél-szinusz hullámformát.
+     * Alapértelmezett időtartam: 20 ms.
+     */
+    function generateTestSignal(duration = 0.02) {
+      const sampleRate = audioContext.sampleRate;
+      const length = Math.floor(sampleRate * duration);
+      const buffer = new Float32Array(length);
+      for (let i = 0; i < length; i++) {
+        // Fél-szinusz: értékek 0-tól 1-ig, majd vissza 0-ra.
+        buffer[i] = Math.sin(Math.PI * i / (length - 1));
+      }
+      return buffer;
+    }
+
+    /**
+     * Kirajzolja a hullámformát a canvas-ra.
+     */
+    function drawWaveform(data) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      const middleY = canvas.height / 2;
+      const scaleX = canvas.width / data.length;
+      const scaleY = canvas.height / 2;
+      ctx.moveTo(0, middleY);
+      for (let i = 0; i < data.length; i++) {
+        const x = i * scaleX;
+        const y = middleY - data[i] * scaleY;
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = "#0077cc";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    /**
+     * Lejátszás módban: generálja és lejátssza a tesztimpulzust.
+     */
+    function playTestSignal() {
+      statusElem.textContent = "Állapot: Hang lejátszása...";
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const testSignal = generateTestSignal();
+      drawWaveform(testSignal);
+      // AudioBuffer létrehozása és feltöltése a tesztjellel (1 csatorna)
+      const buffer = audioContext.createBuffer(1, testSignal.length, audioContext.sampleRate);
+      buffer.copyToChannel(testSignal, 0);
+      const source = audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContext.destination);
+      source.start();
+
+      // A lejátszás vége után frissítjük az állapotot (kis késleltetéssel)
+      setTimeout(() => {
+        statusElem.textContent = "Állapot: Lejátszás befejezve.";
+      }, (testSignal.length / audioContext.sampleRate) * 1000 + 200);
+    }
+
+    /**
+     * Mikrofonos rögzítés és elemzés módban: kérjük a mikrofonhoz való hozzáférést,
+     * majd rögzítjük az audio jelet, végül a rögzített adatból meghatározzuk a tesztimpulzus
+     * polaritását a legnagyobb amplitúdójú rész elemzésével.
+     */
+    function recordAndAnalyze() {
+      statusElem.textContent = "Állapot: Mikrofon hozzáférés kérése...";
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        statusElem.textContent = "Állapot: Rögzítés folyamatban...";
+        const source = audioContext.createMediaStreamSource(stream);
+        // ScriptProcessorNode létrehozása (4096 minta buffer méret)
+        const processor = audioContext.createScriptProcessor(4096, 1, 1);
+        const recordedChunks = [];
+        processor.onaudioprocess = function(e) {
+          const inputData = e.inputBuffer.getChannelData(0);
+          // Másolatot készítünk az aktuális pufferről
+          recordedChunks.push(new Float32Array(inputData));
+        };
+        source.connect(processor);
+        // Bizonyos böngészőkben a processzor aktiválásához szükséges lehet a destination-re is kötni
+        processor.connect(audioContext.destination);
+
+        // Rögzítünk például 5 másodpercig
+        const recordDuration = 5000; // ms
+        setTimeout(() => {
+          // Rögzítés leállítása
+          processor.disconnect();
+          source.disconnect();
+          stream.getTracks().forEach(track => track.stop());
+          statusElem.textContent = "Állapot: Rögzítés befejezve, elemzés...";
+          // Az összegyűjtött darabok összefűzése egy Float32Array-be
+          const totalLength = recordedChunks.reduce((sum, chunk) => sum + chunk.length, 0);
+          const recordedData = new Float32Array(totalLength);
+          let offset = 0;
+          recordedChunks.forEach(chunk => {
+            recordedData.set(chunk, offset);
+            offset += chunk.length;
+          });
+          // Elemzés: meghatározzuk a maximális amplitúdójú részt, majd annak átlagértéke alapján döntünk
+          analyzePolarity(recordedData);
+        }, recordDuration);
+      })
+      .catch(err => {
+        statusElem.textContent = "Hiba: Mikrofon hozzáférés nem engedélyezett!";
+        console.error(err);
+      });
+    }
+
+    /**
+     * Elemzi a rögzített audio adatot: megkeresi a legnagyobb abszolút értékű mintát,
+     * majd egy kis ablakban (±5 minta) számolja az átlagot. Ha az átlag pozitív, a
+     * hangszóró polaritása helyes, ha negatív, akkor inverz.
+     */
+    function analyzePolarity(data) {
+      let maxVal = 0;
+      let maxIndex = 0;
+      for (let i = 0; i < data.length; i++) {
+        const absVal = Math.abs(data[i]);
+        if (absVal > maxVal) {
+          maxVal = absVal;
+          maxIndex = i;
         }
+      }
+      // Ha a maximális érték nem éri el a megadott küszöböt, nem észlelhető a tesztjel
+      const detectionThreshold = 0.2;
+      if (maxVal < detectionThreshold) {
+        statusElem.textContent = "Eredmény: Nem észlelhető a teszthullám, vagy túl alacsony a hangerő.";
+        return;
+      }
+      // Az impulzus csúcsa körüli kis ablak átlagának számítása (±5 minta)
+      const windowSize = 5;
+      let sum = 0, count = 0;
+      for (let i = Math.max(0, maxIndex - windowSize); i < Math.min(data.length, maxIndex + windowSize + 1); i++) {
+        sum += data[i];
+        count++;
+      }
+      const avg = sum / count;
+      let resultText = "";
+      if (avg > 0) {
+        resultText = "Eredmény: A hangszóró polaritása helyes.";
+      } else {
+        resultText = "Eredmény: A hangszóró polaritása megfordult (inverz).";
+      }
+      statusElem.textContent = resultText;
+    }
 
-        function stopTestSignal() {
-            if (oscillator) {
-                oscillator.stop();
-                oscillator.disconnect();
-                gainNode.disconnect();
-                oscillator = null;
-            }
-        }
-
-        function updateSensitivity() {
-            scaleFactor = parseInt(document.getElementById("sensitivity").value);
-            document.getElementById("sensitivityLabel").innerText = "Érzékenység: " + scaleFactor;
-        }
-
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                microphone = audioCtx.createMediaStreamSource(stream);
-                microphone.connect(analyser);
-                analyser.fftSize = 512;
-                analyser.smoothingTimeConstant = 0;
-                analyser.minDecibels = -80;
-                analyser.maxDecibels = -10;
-                checkPolarity();
-            })
-            .catch(error => console.error("Hozzáférési hiba:", error));
-
-        function drawWaveform(snapshot) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath();
-            ctx.strokeStyle = "blue";
-            ctx.lineWidth = 2;
-            const midY = canvas.height / 2;
-            const sliceWidth = canvas.width / snapshot.length;
-            let x = 0;
-            for (let i = 0; i < snapshot.length; i++) {
-                let y = midY - (snapshot[i] * scaleFactor);
-                y = Math.max(0, Math.min(canvas.height, y));
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-                x += sliceWidth;
-            }
-            ctx.stroke();
-        }
-
-        function checkPolarity() {
-            analyser.getFloatTimeDomainData(dataArray);
-            let maxIndex = 0;
-            let maxValue = -Infinity;
-            for (let i = 0; i < dataArray.length; i++) {
-                if (Math.abs(dataArray[i]) > maxValue) {
-                    maxValue = Math.abs(dataArray[i]);
-                    maxIndex = i;
-                }
-            }
-            if (maxValue >= detectionThreshold) {
-                let firstPeak = dataArray[maxIndex];
-                let polarity = firstPeak > 0 ? '✔️ Helyes polaritás' : '❌ Fordított polaritás';
-                document.getElementById('result').innerText = polarity;
-                drawWaveform([...dataArray]);
-            }
-            requestAnimationFrame(checkPolarity);
-        }
-    </script>
+    // Az "Indítás" gomb eseménykezelője – az aktuális üzemmód szerint hívja meg a megfelelő függvényt
+    startButton.addEventListener("click", () => {
+      const mode = modeSelect.value;
+      if (mode === "playback") {
+        playTestSignal();
+      } else if (mode === "record") {
+        recordAndAnalyze();
+      }
+    });
+  </script>
 </body>
 </html>
