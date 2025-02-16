@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangszóró Polaritás Teszt</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        canvas { border: 1px solid black; display: block; margin: 20px auto; }
+        button { font-size: 18px; padding: 10px; margin: 10px; cursor: pointer; }
+        input[type=range] { width: 80%; }
+    </style>
+</head>
+<body>
+    <h1>Hangszóró Polaritás Teszt</h1>
+    
+    <button onclick="startTestSignal()">▶️ Tesztjel indítása</button>
+    <button onclick="stopTestSignal()">⏹️ Leállítás</button>
+    <p>Ez a tesztjel folyamatosan szól a hangszóróból, a telefonon pedig a mikrofon érzékeli és kiértékeli.</p>
+    
+    <h2>Polaritás eredmény:</h2>
+    <p id="result">Nincs mérés...</p>
+    
+    <canvas id="waveform" width="800" height="300"></canvas>
+    
+    <h3>Érzékenység beállítása:</h3>
+    <input type="range" id="sensitivity" min="1000" max="20000" value="5000" oninput="updateSensitivity()">
+    <p id="sensitivityLabel">Érzékenység: 5000</p>
+    
+    <script>
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let oscillator, gainNode;
+        let analyser = audioCtx.createAnalyser();
+        let microphone;
+        let dataArray = new Float32Array(analyser.fftSize);
+        let canvas = document.getElementById("waveform");
+        let ctx = canvas.getContext("2d");
+        let scaleFactor = 5000;
+        let detectionThreshold = 0.02;
+
+        function startTestSignal() {
+            if (oscillator) stopTestSignal();
+            oscillator = audioCtx.createOscillator();
+            gainNode = audioCtx.createGain();
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(50, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            let now = audioCtx.currentTime;
+            let step = 0.1;
+            
+            // Folyamatosan ismétlődő tesztjel
+            setInterval(() => {
+                let time = audioCtx.currentTime;
+                gainNode.gain.setValueAtTime(1, time);
+                gainNode.gain.setValueAtTime(0, time + step);
+                gainNode.gain.setValueAtTime(-1, time + step * 2);
+                gainNode.gain.setValueAtTime(0, time + step * 3);
+            }, 400);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+        }
+
+        function stopTestSignal() {
+            if (oscillator) {
+                oscillator.stop();
+                oscillator.disconnect();
+                gainNode.disconnect();
+                oscillator = null;
+            }
+        }
+
+        function updateSensitivity() {
+            scaleFactor = parseInt(document.getElementById("sensitivity").value);
+            document.getElementById("sensitivityLabel").innerText = "Érzékenység: " + scaleFactor;
+        }
+
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                microphone = audioCtx.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 512;
+                analyser.smoothingTimeConstant = 0;
+                analyser.minDecibels = -80;
+                analyser.maxDecibels = -10;
+                checkPolarity();
+            })
+            .catch(error => console.error("Hozzáférési hiba:", error));
+
+        function drawWaveform(snapshot) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.strokeStyle = "blue";
+            ctx.lineWidth = 2;
+            const midY = canvas.height / 2;
+            const sliceWidth = canvas.width / snapshot.length;
+            let x = 0;
+            for (let i = 0; i < snapshot.length; i++) {
+                let y = midY - (snapshot[i] * scaleFactor);
+                y = Math.max(0, Math.min(canvas.height, y));
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                x += sliceWidth;
+            }
+            ctx.stroke();
+        }
+
+        function checkPolarity() {
+            analyser.getFloatTimeDomainData(dataArray);
+            let maxIndex = 0;
+            let maxValue = -Infinity;
+            for (let i = 0; i < dataArray.length; i++) {
+                if (Math.abs(dataArray[i]) > maxValue) {
+                    maxValue = Math.abs(dataArray[i]);
+                    maxIndex = i;
+                }
+            }
+            if (maxValue >= detectionThreshold) {
+                let firstPeak = dataArray[maxIndex];
+                let polarity = firstPeak > 0 ? '✔️ Helyes polaritás' : '❌ Fordított polaritás';
+                document.getElementById('result').innerText = polarity;
+                drawWaveform([...dataArray]);
+            }
+            requestAnimationFrame(checkPolarity);
+        }
+    </script>
+</body>
+</html>
