@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <title>Testjel alapú Polaritás Mérő</title>
+  <title>Manuális Start/Stop Polaritás Teszt</title>
   <style>
     body {
       font-family: sans-serif;
@@ -31,23 +31,15 @@
   </style>
 </head>
 <body>
-  <h1>Testjel alapú Polaritás Mérő</h1>
-  <!-- Üzemmód választás -->
-  <div>
-    <label for="modeSelect">Üzemmód:</label>
-    <select id="modeSelect">
-      <option value="transmitter">Adó (Transmitter)</option>
-      <option value="receiver">Vevő (Receiver)</option>
-    </select>
-  </div>
+  <h1>Manuális Polaritás Teszt – Start/Stop</h1>
   
   <!-- Adó (Transmitter) rész -->
   <div id="transmitterSection" class="section">
     <h2>Adó (Transmitter)</h2>
-    <label for="txPolaritySelect">Testjel polaritása:</label>
+    <label for="txPolaritySelect">Tesztjel polaritása:</label>
     <select id="txPolaritySelect">
-      <option value="normal">Normál</option>
-      <option value="inverted">Inverz</option>
+      <option value="normal">Normál (pozitív csúcs)</option>
+      <option value="inverted">Inverz (negatív csúcs)</option>
     </select>
     <br>
     <button id="txStartBtn">Adó Start</button>
@@ -56,132 +48,100 @@
   </div>
   
   <!-- Vevő (Receiver) rész -->
-  <div id="receiverSection" class="section" style="display: none;">
+  <div id="receiverSection" class="section">
     <h2>Vevő (Receiver)</h2>
     <button id="rxStartBtn">Vevő Start</button>
     <button id="rxStopBtn">Vevő Stop</button>
     <p id="rxResult">Eredmény: várakozás...</p>
   </div>
   
-  <!-- Canvas: opcionális, a jel vizualizálásához -->
+  <!-- Canvas (opcionális, a jel vizualizálásához) -->
   <canvas id="canvas" width="800" height="200"></canvas>
   <p id="status">Állapot: várakozás...</p>
   
   <script>
     /********** Globális változók **********/
     let audioContext = null;
-    let mode = "transmitter"; // alapértelmezett üzemmód
-    const modeSelect = document.getElementById("modeSelect");
-    const transmitterSection = document.getElementById("transmitterSection");
-    const receiverSection = document.getElementById("receiverSection");
+    let mode = "transmitter"; // ide nem szükséges üzemmód váltás, mert külön eszközökön futtatjuk
     const statusElem = document.getElementById("status");
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
     
-    // Testjel paraméterek (Adó):
-    const T_total = 1.5;   // a teljes testjel időtartama (s)
-    const T_ramp = 0.2;    // felfutás idő (s)
-    const T_hold = 0.8;    // hold rész idő (s); ebből:
-                           // – első fele: 0.2–0.6 s: fázis +1
-                           // – második fele: 0.6–1.0 s: fázis -1
-    const T_fade = 0.5;    // lecsengés idő (s)
-    const fc = 500;        // carrier frekvencia (Hz)
-    // A testjelet ismételjük, például 2 s periódusban
-    const txPeriod = 2.0;
+    // --- Adó oldal paraméterei ---
+    // Egyszerű tesztjel: egy 500 Hz-es tónus, melyet a felhasználó polaritásának megfelelően (normál vagy inverz) játszunk le
+    // A jel 0.5 s hosszú, majd 0.5 s csend → periódus 1 s
+    const toneFreq = 500;       // 500 Hz
+    const toneDuration = 0.5;    // 0.5 s
+    const silenceDuration = 0.5; // 0.5 s csend
+    const txPeriod = toneDuration + silenceDuration;
     
-    // Vevő oldali változók:
-    let ringBuffer = [];   // itt gyűlnek a mikrofonból érkező minták
+    // --- Vevő oldal változói ---
     let rxStream = null;
     let rxProcessor = null;
-    let rxTimer = null;
+    let rxCapturing = false; // Ezt a felhasználó indítja/állítja le
+    let ringBuffer = [];     // itt gyűjtjük a mikrofonból érkező adatokat
     
-    // Időzítők:
-    let txIntervalId = null;
-    
-    /********** AudioContext **********/
+    // --- AudioContext létrehozása ---
     function ensureAudioContext() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
     }
     
-    /********** Adó oldal: Testjel generálása **********/
-    // generateTestSignal: előállít egy 1.5 s hosszú testjelet az alábbi felépítéssel:
-    // – 0 ... T_ramp: fade-in Hann ablakos felfutás (0→1)
-    // – T_ramp ... T_ramp+T_hold: hold rész; itt a fázis:
-    //     • első fele: +1, második fele: -1
-    // – T_ramp+T_hold ... T_total: fade-out Hann ablakos lecsengés (1→0)
-    // A txPolarity paraméterrel további globális inverzió is alkalmazható: normal = +1, inverted = -1.
-    function generateTestSignal(txPolarity) {
+    /********** Adó oldal: Tesztjel generálása és lejátszása **********/
+    function generateTestTone(txPolarity) {
       ensureAudioContext();
       const sampleRate = audioContext.sampleRate;
-      const totalSamples = Math.floor(T_total * sampleRate);
-      const rampSamples = Math.floor(T_ramp * sampleRate);
-      const holdSamples = Math.floor(T_hold * sampleRate);
-      const fadeSamples = Math.floor(T_fade * sampleRate);
-      const buffer = new Float32Array(totalSamples);
-      // paraméter: 1 vagy -1
-      const globalPolarity = (txPolarity === "normal") ? 1 : -1;
-      
-      for (let i = 0; i < totalSamples; i++) {
+      const length = Math.floor(toneDuration * sampleRate);
+      const buffer = new Float32Array(length);
+      for (let i = 0; i < length; i++) {
         const t = i / sampleRate;
-        let env = 0;
-        // Fade-in
-        if (t < T_ramp) {
-          env = 0.5 * (1 - Math.cos(Math.PI * t / T_ramp));
+        let sample = Math.sin(2 * Math.PI * toneFreq * t);
+        // Alkalmazzuk a polaritást: normál esetben marad +, inverz esetben megfordítjuk
+        if (txPolarity === "inverted") {
+          sample = -sample;
         }
-        // Hold
-        else if (t < T_ramp + T_hold) {
-          env = 1;
-        }
-        // Fade-out
-        else {
-          const t_fade = t - (T_ramp + T_hold);
-          env = 0.5 * (1 + Math.cos(Math.PI * t_fade / T_fade));
-        }
-        // Fázis faktor a hold részre:
-        let phaseFactor = 1;
-        if (t >= T_ramp && t < T_ramp + T_hold) {
-          const t_hold = t - T_ramp;
-          // Első fele hold: +1, második fele hold: -1
-          phaseFactor = (t_hold < T_hold/2) ? 1 : -1;
-        }
-        // Egyébként a fázis faktor legyen 1
-        // Carrier: sine wave fc frekvencián
-        const carrier = Math.sin(2 * Math.PI * fc * t);
-        buffer[i] = env * phaseFactor * globalPolarity * carrier;
+        buffer[i] = sample;
       }
       return buffer;
     }
     
-    // playTestSignal: lejátsza a generált testjelet, majd azonnal egy kis csendet (ha szükséges)
-    function playTestSignal(txPolarity) {
-      ensureAudioContext();
-      const sampleRate = audioContext.sampleRate;
-      const testData = generateTestSignal(txPolarity);
-      // Nem illeszthetünk külön csendet, mert a testjel már 1.5 s; a txPeriod-ben a csend van
-      // Hozzunk létre egy AudioBuffer-t a testData alapján
-      const buffer = audioContext.createBuffer(1, testData.length, sampleRate);
-      buffer.copyToChannel(testData, 0);
-      const source = audioContext.createBufferSource();
-      source.buffer = buffer;
-      source.connect(audioContext.destination);
-      source.start();
-      // Frissítsük a canvas-t egyszer (a testjel hullámformája)
-      drawWaveform(testData);
-      document.getElementById("txStatus").textContent = "Adó: " + new Date().toLocaleTimeString() + " – testjel lejátszva";
-      statusElem.textContent = "Adó: testjel lejátszva";
-    }
-    
-    function startTransmitter() {
+    function playTestTone() {
       ensureAudioContext();
       const txPolarity = document.getElementById("txPolaritySelect").value;
-      playTestSignal(txPolarity);
-      txIntervalId = setInterval(() => {
-        playTestSignal(txPolarity);
-      }, txPeriod * 1000);
-      document.getElementById("txStatus").textContent = "Adó mód aktív: testjel folyamatos lejátszása...";
-      statusElem.textContent = "Adó: mód aktív";
+      const toneData = generateTestTone(txPolarity);
+      const sampleRate = audioContext.sampleRate;
+      // Létrehozunk egy bufferet a tónushoz
+      const toneBuffer = audioContext.createBuffer(1, toneData.length, sampleRate);
+      toneBuffer.copyToChannel(toneData, 0);
+      const toneSource = audioContext.createBufferSource();
+      toneSource.buffer = toneBuffer;
+      toneSource.connect(audioContext.destination);
+      toneSource.start();
+      // Most hozzunk létre egy csendet is a periódus befejezéséhez:
+      const silenceSamples = Math.floor(silenceDuration * sampleRate);
+      const silenceBuffer = new Float32Array(silenceSamples); // minden elem 0
+      const silenceAudioBuffer = audioContext.createBuffer(1, silenceBuffer.length, sampleRate);
+      silenceAudioBuffer.copyToChannel(silenceBuffer, 0);
+      const silenceSource = audioContext.createBufferSource();
+      silenceSource.buffer = silenceAudioBuffer;
+      silenceSource.connect(audioContext.destination);
+      silenceSource.start(audioContext.currentTime + toneDuration);
+      
+      // Rajzoljuk ki a tónus hullámformáját a canvas-ra (csak a tónus rész)
+      drawWaveform(toneData);
+      
+      document.getElementById("txStatus").textContent =
+        "Adó: " + new Date().toLocaleTimeString() + " – tesztjel lejátszva (" + txPolarity + ")";
+      statusElem.textContent = "Adó: tesztjel lejátszva";
+    }
+    
+    // Folyamatosan ismételjük az adó oldalon a jel lejátszását
+    let txIntervalId = null;
+    function startTransmitter() {
+      ensureAudioContext();
+      playTestTone();
+      txIntervalId = setInterval(playTestTone, txPeriod * 1000);
     }
     
     function stopTransmitter() {
@@ -193,115 +153,78 @@
       statusElem.textContent = "Adó: leállítva";
     }
     
-    /********** Vevő oldal: Detektálás **********/
-    // A vevő oldalon a mikrofonból érkező mintákat egy ringBuffer-be gyűjtjük.
-    // Ha elég adat érkezik, a checkForTestSignal függvény megkísérli a testjel detektálását a referenciaként
-    // használt, "normál" testjellel (saját generált sablon) történő korrelációval.
-    // Ha a korreláció erős, akkor a hold részből kiszámoljuk a két fel átlagát:
-    // • 0.2–0.6 s: firstHold átlag
-    // • 0.6–1.0 s: secondHold átlag
-    // Ha az első átlag pozitív és a második negatív → "Normál",
-    // ha fordítva → "Inverz".
-    function checkForTestSignal() {
+    /********** Vevő oldal: Start/Stop alapú rögzítés és elemzés **********/
+    // A felvétel során a ringBufferbe gyűjtjük a mikrofon adatait.
+    // Amikor a felhasználó a "Receiver Stop" gombot nyomja, leállítjuk a felvételt,
+    // majd a ringBuffer-ből kiválasztjuk a legnagyobb amplitúdójú részt, és egy rövid ablakban kiszámoljuk az átlag előjelét.
+    function analyzeCapturedSignal() {
       ensureAudioContext();
-      const sampleRate = audioContext.sampleRate;
-      // Előállítjuk a referenciaként használt "normál" testjelet
-      const refSignal = generateTestSignal("normal");
-      const L = refSignal.length;
-      if (ringBuffer.length < L) return; // nincs elég adat
-      // Egyszerű korreláció: csúsztassuk végig a ringBuffer-t, keressük a maximum korrelációt
-      let bestCorr = 0;
-      let bestIndex = 0;
-      const step = 10;
-      for (let i = 0; i <= ringBuffer.length - L; i += step) {
-        let sum = 0;
-        for (let j = 0; j < L; j++) {
-          sum += ringBuffer[i + j] * refSignal[j];
-        }
-        if (Math.abs(sum) > Math.abs(bestCorr)) {
-          bestCorr = sum;
-          bestIndex = i;
+      if (ringBuffer.length === 0) {
+        document.getElementById("rxResult").textContent = "Eredmény: Nincs rögzített adat";
+        return;
+      }
+      // Keressük meg a maximum abszolút értékű mintát
+      let maxVal = 0;
+      let maxIndex = 0;
+      for (let i = 0; i < ringBuffer.length; i++) {
+        const absVal = Math.abs(ringBuffer[i]);
+        if (absVal > maxVal) {
+          maxVal = absVal;
+          maxIndex = i;
         }
       }
-      // Állítsunk be egy küszöböt – ez kísérleti, de pl. 0.4-szerese a refSignal energiájának
-      let energy = 0;
-      for (let j = 0; j < L; j++) {
-        energy += refSignal[j] * refSignal[j];
+      // Vegyünk egy ±20 minta ablakot a csúcspont körül
+      const windowSize = 20;
+      let sum = 0, count = 0;
+      for (let i = Math.max(0, maxIndex - windowSize); i < Math.min(ringBuffer.length, maxIndex + windowSize); i++) {
+        sum += ringBuffer[i];
+        count++;
       }
-      const threshold = 0.4 * energy;
-      
-      const rxResultElem = document.getElementById("rxResult");
-      if (Math.abs(bestCorr) < threshold) {
-        rxResultElem.textContent = "Eredmény: testjel nem detektálható";
+      const avg = sum / count;
+      let result = "";
+      if (avg > 0) {
+        result = "Normál";
+      } else if (avg < 0) {
+        result = "Inverz";
       } else {
-        // Ha detektáltuk a testjelet, vesszük ki a hold részt:
-        // A hold rész a testjelben 0.2 s-től 1.0 s-ig tart, azaz:
-        const startHold = Math.floor(0.2 * sampleRate);
-        const midHold = Math.floor(0.6 * sampleRate);
-        const endHold = Math.floor(1.0 * sampleRate);
-        // A "detektált" testjel szegmens:
-        const detected = ringBuffer.slice(bestIndex, bestIndex + L);
-        // Első hold fél átlag:
-        let sumFirst = 0, countFirst = 0;
-        for (let i = startHold; i < midHold; i++) {
-          sumFirst += detected[i];
-          countFirst++;
-        }
-        const avgFirst = sumFirst / countFirst;
-        // Második hold fél átlag:
-        let sumSecond = 0, countSecond = 0;
-        for (let i = midHold; i < endHold; i++) {
-          sumSecond += detected[i];
-          countSecond++;
-        }
-        const avgSecond = sumSecond / countSecond;
-        let result;
-        if (avgFirst > 0 && avgSecond < 0) {
-          result = "Normál";
-        } else if (avgFirst < 0 && avgSecond > 0) {
-          result = "Inverz";
-        } else {
-          result = "Inkonzisztens";
-        }
-        rxResultElem.textContent = "Eredmény: " + result + " polaritás (corr=" + bestCorr.toFixed(2) + ")";
+        result = "Nem meghatározható";
       }
-      // A ringBuffer-t megtartjuk a jobb szinkronizáció érdekében: töröljük az eddigi részt, de megtartjuk az utolsó L mintát
-      if (ringBuffer.length > 2 * L) {
-        ringBuffer = ringBuffer.slice(ringBuffer.length - L);
-      }
+      document.getElementById("rxResult").textContent =
+        "Eredmény: " + result + " polaritás (átlag: " + avg.toFixed(2) + ")";
+      // Frissítsük a canvas-t a kiválasztott ablak adataival (opcionális)
+      const segment = ringBuffer.slice(Math.max(0, maxIndex - windowSize), Math.min(ringBuffer.length, maxIndex + windowSize));
+      drawWaveform(segment);
     }
     
     function startReceiver() {
       ensureAudioContext();
+      rxCapturing = true;
+      ringBuffer = []; // ürítjük az előző felvételt
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(function(stream) {
           rxStream = stream;
           const source = audioContext.createMediaStreamSource(stream);
           rxProcessor = audioContext.createScriptProcessor(2048, 1, 1);
           source.connect(rxProcessor);
-          // A destination-re csatlakozás opcionális, de egyes böngészőkben segíthet
+          // A csatlakozás a destination-re opcionális
           rxProcessor.connect(audioContext.destination);
           rxProcessor.onaudioprocess = function(e) {
+            if (!rxCapturing) return; // ha leállítottuk a felvételt, ne gyűjtsünk több adatot
             const inputData = e.inputBuffer.getChannelData(0);
             ringBuffer = ringBuffer.concat(Array.from(inputData));
-            // Korlátozzuk a ringBuffer hosszát (pl. 5 másodperc adat)
-            const maxLength = Math.floor(audioContext.sampleRate * 5);
-            if (ringBuffer.length > maxLength) {
-              ringBuffer = ringBuffer.slice(ringBuffer.length - maxLength);
-            }
-            // Ne frissítsük folyamatosan a canvas-t – csak a detektálásnál
+            // Nem frissítjük folyamatosan a canvas-t, mert az erőforrásokat a vételre koncentráljuk
           };
-          // Indítsuk el a testjel-ellenőrzést például 1 s-enként
-          rxTimer = setInterval(checkForTestSignal, 1000);
-          statusElem.textContent = "Vevő: mikrofon aktív, figyelem...";
+          document.getElementById("rxResult").textContent = "Vevő: rögzítés folyamatban...";
+          statusElem.textContent = "Vevő: rögzítés folyamatban...";
         })
         .catch(function(err) {
-          statusElem.textContent = "Vevő: Hiba – mikrofon hozzáférés megtagadva!";
+          document.getElementById("rxResult").textContent = "Hiba: mikrofonhoz való hozzáférés megtagadva!";
           console.error(err);
         });
     }
     
     function stopReceiver() {
+      rxCapturing = false;
       if (rxProcessor) {
         rxProcessor.disconnect();
         rxProcessor = null;
@@ -310,12 +233,7 @@
         rxStream.getTracks().forEach(track => track.stop());
         rxStream = null;
       }
-      if (rxTimer) {
-        clearInterval(rxTimer);
-        rxTimer = null;
-      }
-      ringBuffer = [];
-      document.getElementById("rxResult").textContent = "Eredmény: leállítva";
+      analyzeCapturedSignal();
       statusElem.textContent = "Vevő: leállítva";
     }
     
@@ -337,19 +255,6 @@
     }
     
     /********** UI vezérlés **********/
-    modeSelect.addEventListener("change", function() {
-      mode = this.value;
-      if (mode === "transmitter") {
-        transmitterSection.style.display = "block";
-        receiverSection.style.display = "none";
-        stopReceiver();
-      } else {
-        transmitterSection.style.display = "none";
-        receiverSection.style.display = "block";
-        stopTransmitter();
-      }
-    });
-    
     document.getElementById("txStartBtn").addEventListener("click", function() {
       ensureAudioContext();
       if (audioContext.state === "suspended") audioContext.resume();
@@ -366,7 +271,7 @@
     
     document.getElementById("rxStopBtn").addEventListener("click", stopReceiver);
     
-    // Egy kattintás a dokumentumon feloldja az AudioContext-et (szükséges egyes böngészőkben)
+    // Egy kattintás a dokumentumon feloldja az AudioContext-et (néhány böngészőben szükséges)
     document.body.addEventListener("click", function() {
       if (audioContext && audioContext.state === "suspended") {
         audioContext.resume();
