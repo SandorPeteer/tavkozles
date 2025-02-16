@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <title>Robusztus Hangszóró Polaritás Ellenőrzés</title>
+  <title>Hangszóró Polaritás & Csatorna Teszt</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,12 +13,19 @@
     h1 {
       color: #333;
     }
-    label, select {
+    label, select, button {
       font-size: 1rem;
       margin: 0.5rem;
     }
     #controls {
       margin-bottom: 1rem;
+    }
+    #txControls, #rxControls {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #eee;
+      display: none;
     }
     #waveformCanvas {
       border: 1px solid #ccc;
@@ -34,237 +41,245 @@
   </style>
 </head>
 <body>
-  <h1>Robusztus Hangszóró Polaritás Ellenőrzés</h1>
+  <h1>Hangszóró Polaritás & Csatorna Teszt</h1>
   <p>
-    Használat:<br>
-    <strong>Adó (Transmitter):</strong> A számítógépen futtatva a rendszer automatikusan, 3 s időközönként lejátssza a tesztjelet, mely két egymást követő hangimpulzusból áll:  
-    - Referencia-burst: 0,2 s normál hang (1000 Hz)  
-    - 0,1 s csend  
-    - Teszt-burst: 0,2 s hang (1000 Hz), melynek polaritása választható (Normál vagy Inverz).<br><br>
-    <strong>Vevő (Receiver):</strong> A mobilos (vagy más) eszközön a mikrofonból érkező jelet folyamatosan elemzi a rendszer. Amint megtalálja a fenti mintázatot, automatikusan kiszámolja a két burst közötti polaritás viszonyát és megjeleníti az eredményt.<br><br>
-    Ügyelj arra, hogy a mikrofonhoz való hozzáférést (HTTPS és engedély) biztosítsd, valamint ha szükséges, koppints a képernyőre az AudioContext feloldásához!
+    <strong>Használat:</strong><br>
+    <em>Adó (Transmitter) mód:</em> A számítógépen (vagy más eszközön) a rendszer folyamatosan, ismétlődően lejátszik egy összetett tesztjelet, amelyben három csatorna szerepel:<br>
+    • Sub: 80 Hz<br>
+    • Mid: 1000 Hz<br>
+    • High: 8000 Hz<br>
+    Minden csatornához egy referencia impulzus (mindig normál) és egy teszt impulzus tartozik, melynek polaritását választhatod.<br><br>
+    <em>Vevő (Receiver) mód:</em> A mobilon (vagy más eszközön) a mikrofon folyamatosan rögzíti a hangot. A rendszer a beérkező adatból automatikusan detektálja a fenti, ismétlődő mintázatot, majd megállapítja a Sub, Mid és High csatornák polaritását.<br>
+    (Mindkét oldalon a Start/Stop gombokkal indíthatod/leállíthatod a működést!)
   </p>
-
+  
   <div id="controls">
     <label for="modeSelect">Üzemmód:</label>
     <select id="modeSelect">
       <option value="transmitter">Adó (Transmitter)</option>
       <option value="receiver">Vevő (Receiver)</option>
     </select>
-    <span id="txControls" style="display: inline;">
-      <label for="polaritySelect">Tesztjel polaritás:</label>
-      <select id="polaritySelect">
-        <option value="normal">Normál (pozitív csúcs)</option>
-        <option value="inverted">Inverz (negatív csúcs)</option>
-      </select>
-    </span>
   </div>
-
+  
+  <!-- Adó (Transmitter) vezérlők -->
+  <div id="txControls">
+    <label>Sub hangszóró polaritás:</label>
+    <select id="subPolarity">
+      <option value="normal">Normál</option>
+      <option value="inverted">Inverz</option>
+    </select>
+    <label>Mid hangszóró polaritás:</label>
+    <select id="midPolarity">
+      <option value="normal">Normál</option>
+      <option value="inverted">Inverz</option>
+    </select>
+    <label>High hangszóró polaritás:</label>
+    <select id="highPolarity">
+      <option value="normal">Normál</option>
+      <option value="inverted">Inverz</option>
+    </select>
+    <br>
+    <button id="txStartBtn">Adó Start</button>
+    <button id="txStopBtn">Adó Stop</button>
+  </div>
+  
+  <!-- Vevő (Receiver) vezérlők -->
+  <div id="rxControls">
+    <button id="rxStartBtn">Vevő Start</button>
+    <button id="rxStopBtn">Vevő Stop</button>
+  </div>
+  
   <p id="status">Állapot: Várakozás...</p>
   <canvas id="waveformCanvas" width="800" height="200"></canvas>
-
+  
   <script>
-    // Globális változók
-    let mode = 'transmitter';          // Alapértelmezett üzemmód
-    let txPolarity = 'normal';         // Adó oldalon a tesztjel polaritása
+    // Globális változók és UI elemek
+    let mode = "transmitter"; // alapértelmezett mód
     let audioContext = null;
-    let txIntervalId = null;
     
-    // Vevő oldalhoz: ring buffer a rögzített hangnak (legutóbbi 2 s)
-    let ringBuffer = [];
-    let receiverStream = null;
-    let processor = null;
-    let lastDetectionTime = 0;
-    const detectionCooldown = 2000; // 2 s védőidő a vevő oldalon
-
     const modeSelect = document.getElementById("modeSelect");
-    const polaritySelect = document.getElementById("polaritySelect");
     const txControls = document.getElementById("txControls");
+    const rxControls = document.getElementById("rxControls");
     const statusElem = document.getElementById("status");
     const canvas = document.getElementById("waveformCanvas");
     const ctx = canvas.getContext("2d");
-
-    // Paraméterek a tesztjelhez
-    const toneFrequency = 1000;       // Hz (mindkét burstnál)
-    const refDuration = 0.2;          // referencia burst időtartama (s)
-    const silenceDuration = 0.1;      // csend időtartama (s)
-    const testDuration = 0.2;         // teszt burst időtartama (s)
-    const totalSequenceDuration = refDuration + silenceDuration + testDuration; // kb. 0.5 s
-    const txInterval = 3000;          // 3 s időközönként ismétlődés az adónál
-
-    // Üzemmód váltása: ha változik, leállítjuk a másik oldalt és elindítjuk az újat.
-    modeSelect.addEventListener("change", function() {
-      mode = modeSelect.value;
-      if (mode === "transmitter") {
-        txControls.style.display = "inline";
-        stopReceiver();
-        startTransmitter();
-      } else if (mode === "receiver") {
-        txControls.style.display = "none";
-        stopTransmitter();
-        startReceiver();
-      }
-    });
-
-    // Adó oldalon a polaritás választása
-    polaritySelect.addEventListener("change", function() {
-      txPolarity = polaritySelect.value;
-    });
-
-    // Az oldal betöltésekor az alapértelmezett mód elindul
-    window.addEventListener("load", function() {
-      mode = modeSelect.value;
-      if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (mode === "transmitter") {
-        txControls.style.display = "inline";
-        startTransmitter();
-      } else if (mode === "receiver") {
-        txControls.style.display = "none";
-        startReceiver();
-      }
-    });
-
-    // Kattintás a képernyőn feloldja (resume) az AudioContext-et, ha szükséges.
-    document.body.addEventListener("click", function() {
-      if (audioContext && audioContext.state === 'suspended') {
-        audioContext.resume();
-      }
-    });
-
-    /* ========== ADÓ OLDAL (TRANSMITTER) ========== */
-    function startTransmitter() {
-      statusElem.textContent = "Adó: Tesztjel lejátszása folyamatban...";
-      if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (txIntervalId) clearInterval(txIntervalId);
-      // Ismétlődő lejátszás 3 s időközönként
-      txIntervalId = setInterval(playTestSequence, txInterval);
-      // Azonnali indítás
-      playTestSequence();
-    }
-
-    function stopTransmitter() {
-      if (txIntervalId) {
-        clearInterval(txIntervalId);
-        txIntervalId = null;
-      }
-    }
-
-    // Generál egy sima sine wave burst-ot adott időtartammal és alkalmazott amplitude envelope-mel (Hann ablak)
-    function generateToneBurst(duration, frequency, polarityMultiplier = 1) {
+    
+    // Adó vezérlők
+    const txStartBtn = document.getElementById("txStartBtn");
+    const txStopBtn = document.getElementById("txStopBtn");
+    const subPolaritySelect = document.getElementById("subPolarity");
+    const midPolaritySelect = document.getElementById("midPolarity");
+    const highPolaritySelect = document.getElementById("highPolarity");
+    
+    // Vevő vezérlők
+    const rxStartBtn = document.getElementById("rxStartBtn");
+    const rxStopBtn = document.getElementById("rxStopBtn");
+    
+    // Paraméterek a jelgeneráláshoz (Adó)
+    const burstDuration = 0.3;         // impulzusok időtartama (másodperc)
+    const silenceBetweenBursts = 0.1;    // referencia és teszt impulzus közti csend
+    const gapBetweenChannels = 0.3;      // csatornák közti csend
+    const pauseAfterSequence = 0.5;      // a teljes összeállított jel utáni pihenőidő
+    // Frekvenciák:
+    const subFreq = 80;      // Sub (mély) – 80 Hz
+    const midFreq = 1000;    // Közép – 1000 Hz
+    const highFreq = 8000;   // Magas – 8000 Hz
+    
+    // Számoljuk ki a csatorna-sekvenica időtartamát és az összetett jel teljes hosszát
+    const channelSequenceDuration = 2 * burstDuration + silenceBetweenBursts; // pl. 0.3+0.1+0.3 = 0.7 s
+    const compositeDuration = channelSequenceDuration * 3 + gapBetweenChannels * 2 + pauseAfterSequence; // kb. 3.2 s
+    
+    let txIntervalId = null;
+    
+    // --- ADÓ OLDAL (Transmitter) FUNKCIÓK ---
+    function generateToneBurst(duration, frequency, polarityMultiplier) {
       const sampleRate = audioContext.sampleRate;
-      const length = Math.floor(sampleRate * duration);
-      const buffer = new Float32Array(length);
-      // Hann ablak: 0.5 * (1 - cos(2πn/(N-1)))
+      const length = Math.floor(duration * sampleRate);
+      let buffer = new Float32Array(length);
       for (let i = 0; i < length; i++) {
-        const t = i / sampleRate;
-        const envelope = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (length - 1)));
+        let t = i / sampleRate;
+        // Hann ablak a simább átmenetért
+        let envelope = 0.5 * (1 - Math.cos(2 * Math.PI * i / (length - 1)));
         buffer[i] = envelope * Math.sin(2 * Math.PI * frequency * t) * polarityMultiplier;
       }
       return buffer;
     }
-
-    // Összeállítja a teljes tesztjelet: referencia burst, csend, majd teszt burst
-    function generateTestSequence() {
-      const refBurst = generateToneBurst(refDuration, toneFrequency, 1); // mindig normál
-      const silenceLength = Math.floor(audioContext.sampleRate * silenceDuration);
-      const silence = new Float32Array(silenceLength); // alapértelmezetten 0
-      // Teszt burst: a felhasználó által választott polaritás
-      const testBurst = generateToneBurst(testDuration, toneFrequency, txPolarity === 'normal' ? 1 : -1);
-      // Összefűzés: referencia, csend, teszt
-      const sequence = new Float32Array(refBurst.length + silence.length + testBurst.length);
+    
+    function generateSilence(duration) {
+      const sampleRate = audioContext.sampleRate;
+      const length = Math.floor(duration * sampleRate);
+      return new Float32Array(length); // minden elem 0
+    }
+    
+    // Egy csatorna (pl. Sub, Mid, High) jelének előállítása:
+    // Először egy referencia impulzus (mindig normál), majd csend, majd teszt impulzus (felhasználói polaritás)
+    function generateChannelSequence(frequency, testPolarity) {
+      let refBurst = generateToneBurst(burstDuration, frequency, 1); // referencia mindig 1-es szorzó
+      let silence = generateSilence(silenceBetweenBursts);
+      let multiplier = (testPolarity === "normal") ? 1 : -1;
+      let testBurst = generateToneBurst(burstDuration, frequency, multiplier);
+      // Összefűzzük a három részt
+      let sequence = new Float32Array(refBurst.length + silence.length + testBurst.length);
       sequence.set(refBurst, 0);
       sequence.set(silence, refBurst.length);
       sequence.set(testBurst, refBurst.length + silence.length);
       return sequence;
     }
-
-    // Lejátsza a generált tesztjelet, kirajzolja a hullámformát a canvas-ra
-    function playTestSequence() {
+    
+    // Az összetett jel generálása: Sub, gap, Mid, gap, High, majd pause
+    function generateCompositeSequence() {
+      const subSeq = generateChannelSequence(subFreq, subPolaritySelect.value);
+      const midSeq = generateChannelSequence(midFreq, midPolaritySelect.value);
+      const highSeq = generateChannelSequence(highFreq, highPolaritySelect.value);
+      const gap = generateSilence(gapBetweenChannels);
+      const pause = generateSilence(pauseAfterSequence);
+      const totalLength = subSeq.length + gap.length + midSeq.length + gap.length + highSeq.length + pause.length;
+      let composite = new Float32Array(totalLength);
+      let offset = 0;
+      composite.set(subSeq, offset); offset += subSeq.length;
+      composite.set(gap, offset); offset += gap.length;
+      composite.set(midSeq, offset); offset += midSeq.length;
+      composite.set(gap, offset); offset += gap.length;
+      composite.set(highSeq, offset); offset += highSeq.length;
+      composite.set(pause, offset);
+      return composite;
+    }
+    
+    // A generált összetett jel lejátszása
+    function playCompositeSequence() {
       if (!audioContext) return;
-      const sequenceData = generateTestSequence();
-      drawWaveform(sequenceData);
-      const buffer = audioContext.createBuffer(1, sequenceData.length, audioContext.sampleRate);
-      buffer.copyToChannel(sequenceData, 0);
-      const source = audioContext.createBufferSource();
+      const compositeData = generateCompositeSequence();
+      drawWaveform(compositeData); // a canvasra rajzoljuk a jel hullámformáját
+      let buffer = audioContext.createBuffer(1, compositeData.length, audioContext.sampleRate);
+      buffer.copyToChannel(compositeData, 0);
+      let source = audioContext.createBufferSource();
       source.buffer = buffer;
       source.connect(audioContext.destination);
       source.start();
       statusElem.textContent = "Adó: Tesztjel lejátszva (" + new Date().toLocaleTimeString() + ")";
     }
-
-    /* ========== VEVŐ OLDAL (RECEIVER) ========== */
-    function startReceiver() {
-      statusElem.textContent = "Vevő: Mikrofon elérése...";
+    
+    function startTransmitter() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
       }
-      navigator.mediaDevices.getUserMedia({ audio: true })
+      // Azonnali lejátszás, majd ismétlődően a teljes összetett jel
+      playCompositeSequence();
+      txIntervalId = setInterval(playCompositeSequence, compositeDuration * 1000);
+      statusElem.textContent = "Adó mód aktív. Tesztjel folyamatos lejátszása...";
+    }
+    
+    function stopTransmitter() {
+      if (txIntervalId) {
+        clearInterval(txIntervalId);
+        txIntervalId = null;
+        statusElem.textContent = "Adó: Leállítva.";
+      }
+    }
+    
+    // --- VEVŐ OLDAL (Receiver) FUNKCIÓK ---
+    let rxStream = null;
+    let rxProcessor = null;
+    let ringBuffer = [];  // ide kerülnek a mikrofonból érkező minták
+    let rxIntervalId = null;
+    
+    function startReceiver() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      navigator.mediaDevices.getUserMedia({audio: true})
       .then(stream => {
-        receiverStream = stream;
-        statusElem.textContent = "Vevő: Mikrofon aktív, várom a tesztjelet...";
+        rxStream = stream;
         const source = audioContext.createMediaStreamSource(stream);
-        // ScriptProcessorNode: 2048 minta buffer méret
-        processor = audioContext.createScriptProcessor(2048, 1, 1);
-        source.connect(processor);
-        // Bizonyos böngészőkben szükséges a destination-höz csatlakoztatni
-        processor.connect(audioContext.destination);
-        processor.onaudioprocess = function(e) {
+        rxProcessor = audioContext.createScriptProcessor(2048, 1, 1);
+        source.connect(rxProcessor);
+        rxProcessor.connect(audioContext.destination);
+        rxProcessor.onaudioprocess = function(e) {
           const inputData = e.inputBuffer.getChannelData(0);
-          // Másoljuk az aktuális puffert a ringBuffer-be
-          pushToRingBuffer(Array.from(inputData));
-          // Próbáljuk detektálni a tesztjelet
-          detectTestSequence();
+          ringBuffer = ringBuffer.concat(Array.from(inputData));
+          // Korlátozzuk a ringBuffer méretét – pl. az utolsó 5 másodperc adatát tartjuk meg
+          const maxLength = Math.floor(audioContext.sampleRate * 5);
+          if (ringBuffer.length > maxLength) {
+            ringBuffer = ringBuffer.slice(ringBuffer.length - maxLength);
+          }
         };
+        rxIntervalId = setInterval(analyzeRingBuffer, 200);
+        statusElem.textContent = "Vevő mód aktív. Mikrofon figyelése...";
       })
       .catch(err => {
-        statusElem.textContent = "Hiba: Mikrofonhoz való hozzáférés nem engedélyezett!";
+        statusElem.textContent = "Hiba: Mikrofon hozzáférés nem engedélyezett!";
         console.error(err);
       });
     }
-
+    
     function stopReceiver() {
-      if (processor) {
-        processor.disconnect();
-        processor = null;
+      if (rxProcessor) {
+        rxProcessor.disconnect();
+        rxProcessor = null;
       }
-      if (receiverStream) {
-        receiverStream.getTracks().forEach(track => track.stop());
-        receiverStream = null;
+      if (rxStream) {
+        rxStream.getTracks().forEach(track => track.stop());
+        rxStream = null;
+      }
+      if (rxIntervalId) {
+        clearInterval(rxIntervalId);
+        rxIntervalId = null;
       }
       ringBuffer = [];
+      statusElem.textContent = "Vevő: Leállítva.";
     }
-
-    // Ring buffer kezelése: tároljuk a legutóbbi 2 s audio adatot
-    function pushToRingBuffer(chunk) {
-      ringBuffer = ringBuffer.concat(chunk);
-      const maxLength = Math.floor(audioContext.sampleRate * 2);
-      if (ringBuffer.length > maxLength) {
-        ringBuffer = ringBuffer.slice(ringBuffer.length - maxLength);
-      }
-    }
-
-    // Detektálás: keressük a két burstot a ringBuffer-ben
-    function detectTestSequence() {
-      const now = Date.now();
-      if (now - lastDetectionTime < detectionCooldown) return; // védőidő
-
+    
+    // A ringBuffer elemzése: megkeressük a várt 6 impulzusos (3 csatornás) mintázatot
+    function analyzeRingBuffer() {
+      if (!audioContext) return;
       const sampleRate = audioContext.sampleRate;
-      // Várható hosszak (mintaszámokban)
-      const refExpected = refDuration * sampleRate;
-      const silenceExpected = silenceDuration * sampleRate;
-      const testExpected = testDuration * sampleRate;
-      // Tolerancia: ±20%
-      const tol = 0.2;
-      const threshold = 0.3; // envelope küszöb (állítható)
-
-      // Számoljuk az envelope-t
-      const envelope = ringBuffer.map(x => Math.abs(x));
-
-      // Egyszerű burst detektálás: gyűjtjük az összefüggő szegmenseket, ahol az envelope > threshold
+      if (ringBuffer.length < sampleRate * 2) return; // legalább 2 s adat szükséges
+      
+      // Számoljuk ki az envelope-t (abszolút értékek)
+      let envelope = ringBuffer.map(x => Math.abs(x));
+      const threshold = 0.2; // kísérleti küszöbérték
+      
+      // Detektáljuk a folytonos szegmenseket, ahol az envelope > threshold
       let bursts = [];
       let inBurst = false;
       let burstStart = 0;
@@ -274,77 +289,128 @@
           burstStart = i;
         } else if (inBurst && envelope[i] <= threshold) {
           inBurst = false;
-          const burstEnd = i;
-          bursts.push({ start: burstStart, end: burstEnd, length: burstEnd - burstStart });
+          let burstEnd = i;
+          bursts.push({start: burstStart, end: burstEnd, length: burstEnd - burstStart});
         }
       }
-      // Ha éppen végén is folyik a burst, akkor azt is mentjük
       if (inBurst) {
-        bursts.push({ start: burstStart, end: envelope.length, length: envelope.length - burstStart });
+        bursts.push({start: burstStart, end: envelope.length, length: envelope.length - burstStart});
       }
-
-      // Próbáljunk két egymást követő burstot találni, melyek kb. megfelelnek a várt hosszúságnak
-      for (let i = 0; i < bursts.length - 1; i++) {
-        const burst1 = bursts[i];
-        const burst2 = bursts[i + 1];
-        // Burst 1: referencia burst (kb. refDuration)
-        if (burst1.length < refExpected * (1 - tol) || burst1.length > refExpected * (1 + tol)) continue;
-        // A két burst közötti csend hossza
-        const gap = burst2.start - burst1.end;
-        if (gap < silenceExpected * (1 - tol) || gap > silenceExpected * (1 + tol)) continue;
-        // Burst 2: teszt burst (kb. testDuration)
-        if (burst2.length < testExpected * (1 - tol) || burst2.length > testExpected * (1 + tol)) continue;
-
-        // Ha találtuk a két burstot, vegyük ki mindkettő közepének egy 50 ms-es ablakát (robusztusabb)
-        const windowSize = Math.floor(sampleRate * 0.05);
-        function getBurstAverage(burst) {
-          const mid = Math.floor((burst.start + burst.end) / 2);
-          let sum = 0;
-          let count = 0;
-          for (let j = Math.max(burst.start, mid - Math.floor(windowSize/2)); j < Math.min(burst.end, mid + Math.floor(windowSize/2)); j++) {
-            sum += ringBuffer[j];
+      
+      // Elvárt burst időtartam (mintában)
+      const expectedBurstSamples = burstDuration * sampleRate;
+      const expectedSilenceSamples = silenceBetweenBursts * sampleRate;
+      const expectedGapSamples = gapBetweenChannels * sampleRate;
+      // Tolerancia (egyszerűsített)
+      const burstTol = 0.5;   // ±50%
+      const silenceTol = 0.5;
+      const gapTol = 0.5;
+      
+      // Várhatóan 6 burst (3 csatorna: minden csatornához referencia és teszt impulzus)
+      for (let i = 0; i <= bursts.length - 6; i++) {
+        let group = bursts.slice(i, i + 6);
+        let valid = true;
+        // Ellenőrizzük, hogy mindegyik burst kb. a várt hosszúságú-e
+        for (let j = 0; j < 6; j++) {
+          if (group[j].length < expectedBurstSamples * (1 - burstTol) ||
+              group[j].length > expectedBurstSamples * (1 + burstTol)) {
+            valid = false;
+            break;
+          }
+        }
+        if (!valid) continue;
+        // Ellenőrizzük a burstok közötti csend időtartamát:
+        let gap0 = bursts[i+1].start - bursts[i].end;
+        if (gap0 < expectedSilenceSamples * (1 - silenceTol) || gap0 > expectedSilenceSamples * (1 + silenceTol)) continue;
+        let gap1 = bursts[i+2].start - bursts[i+1].end;
+        if (gap1 < expectedGapSamples * (1 - gapTol) || gap1 > expectedGapSamples * (1 + gapTol)) continue;
+        let gap2 = bursts[i+3].start - bursts[i+2].end;
+        if (gap2 < expectedSilenceSamples * (1 - silenceTol) || gap2 > expectedSilenceSamples * (1 + silenceTol)) continue;
+        let gap3 = bursts[i+4].start - bursts[i+3].end;
+        if (gap3 < expectedGapSamples * (1 - gapTol) || gap3 > expectedGapSamples * (1 + gapTol)) continue;
+        // Ha eljutottunk ide, akkor feltételezzük, hogy a 6 burst a várt összetett jel része.
+        // Minden csatornához kiszámoljuk a burst közepének egy kb. 50 ms-es ablakát (átlag)
+        function burstAverage(burst) {
+          let mid = Math.floor((burst.start + burst.end) / 2);
+          let windowSize = Math.floor(0.05 * sampleRate); // 50 ms
+          let start = Math.max(burst.start, mid - Math.floor(windowSize/2));
+          let end = Math.min(burst.end, mid + Math.floor(windowSize/2));
+          let sum = 0, count = 0;
+          for (let k = start; k < end; k++) {
+            sum += ringBuffer[k];
             count++;
           }
           return sum / count;
         }
-        const avgRef = getBurstAverage(burst1);
-        const avgTest = getBurstAverage(burst2);
-
-        // Polaritás összehasonlítása: ha ugyanaz az előjel, akkor a két burst polaritása megegyezik, egyébként ellentétes
-        let resultText = "";
-        if (avgRef * avgTest > 0) {
-          resultText = "Vevő: Tesztjel detektálva (" + new Date().toLocaleTimeString() + ") – Polaritás: AZONOS (normál).";
-        } else {
-          resultText = "Vevő: Tesztjel detektálva (" + new Date().toLocaleTimeString() + ") – Polaritás: ELLENTÉTES (inverz).";
-        }
-        statusElem.textContent = resultText;
-        // Kirajzoljuk a két burstot (összevágva) a canvas-ra
-        const combined = ringBuffer.slice(burst1.start, burst2.end);
-        drawWaveform(combined);
-        lastDetectionTime = now;
-        // Miután detektáltunk, ürítsük a ringBuffer egy részét, hogy ne elemezzük újra ugyanazt
-        ringBuffer = ringBuffer.slice(burst2.end);
-        break; // csak az első találatot dolgozzuk fel
+        let subRefAvg = burstAverage(group[0]);
+        let subTestAvg = burstAverage(group[1]);
+        let midRefAvg = burstAverage(group[2]);
+        let midTestAvg = burstAverage(group[3]);
+        let highRefAvg = burstAverage(group[4]);
+        let highTestAvg = burstAverage(group[5]);
+        
+        let subPolarity = (subRefAvg * subTestAvg > 0) ? "Normál" : "Inverz";
+        let midPolarity = (midRefAvg * midTestAvg > 0) ? "Normál" : "Inverz";
+        let highPolarity = (highRefAvg * highTestAvg > 0) ? "Normál" : "Inverz";
+        
+        statusElem.textContent = "Vevő (" + new Date().toLocaleTimeString() + "): Sub: " + subPolarity + ", Mid: " + midPolarity + ", High: " + highPolarity;
+        
+        // A detektált rész kirajzolása a canvasra
+        let startIdx = group[0].start;
+        let endIdx = group[5].end;
+        let segment = ringBuffer.slice(startIdx, endIdx);
+        drawWaveform(segment);
+        
+        // Annak elkerülése érdekében, hogy újra és újra ugyanazt dolgozza fel,
+        // töröljük a ringBuffer eddigi részét.
+        ringBuffer = ringBuffer.slice(endIdx);
+        break;
       }
     }
-
-    // A canvas-ra rajzolja a kapott hullámformát
+    
     function drawWaveform(data) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.beginPath();
-      const middleY = canvas.height / 2;
-      const scaleX = canvas.width / data.length;
-      const scaleY = canvas.height / 2;
+      let middleY = canvas.height / 2;
+      let scaleX = canvas.width / data.length;
+      let scaleY = canvas.height / 2;
       ctx.moveTo(0, middleY);
       for (let i = 0; i < data.length; i++) {
-        const x = i * scaleX;
-        const y = middleY - data[i] * scaleY;
+        let x = i * scaleX;
+        let y = middleY - data[i] * scaleY;
         ctx.lineTo(x, y);
       }
       ctx.strokeStyle = "#0077cc";
       ctx.lineWidth = 2;
       ctx.stroke();
     }
+    
+    // --- ÜZEMMÓD VÁLTÁS ---
+    modeSelect.addEventListener("change", function() {
+      mode = modeSelect.value;
+      if (mode === "transmitter") {
+        txControls.style.display = "block";
+        rxControls.style.display = "none";
+        stopReceiver();
+      } else if (mode === "receiver") {
+        txControls.style.display = "none";
+        rxControls.style.display = "block";
+        stopTransmitter();
+      }
+    });
+    
+    // Gomb események
+    txStartBtn.addEventListener("click", startTransmitter);
+    txStopBtn.addEventListener("click", stopTransmitter);
+    rxStartBtn.addEventListener("click", startReceiver);
+    rxStopBtn.addEventListener("click", stopReceiver);
+    
+    // Egy egyszerű kattintás a képernyőn feloldja az AudioContext-et (néhány böngészőben szükséges)
+    document.body.addEventListener("click", function() {
+      if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    });
   </script>
 </body>
 </html>
