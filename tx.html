@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Transmitter – Hangszóró Polaritás Teszt (Adó)</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; background: #f7f7f7; padding: 20px; }
+    h1 { color: #333; }
+    select, button, input[type=range] {
+      font-size: 1rem; margin: 8px; padding: 0.4rem 0.8rem; cursor: pointer;
+    }
+    #txCanvas {
+      border: 1px solid #ccc; background: #fff; margin: 15px auto; display: block;
+      width: 600px; height: 150px;
+    }
+    #status { font-size: 18px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Transmitter – Hangszóró Polaritás Teszt</h1>
+  <div>
+    <label for="polaritySelect">Polaritás:</label>
+    <select id="polaritySelect">
+      <option value="normal">Normál (+1→0)</option>
+      <option value="inverted">Inverz (–1→0)</option>
+    </select>
+    <br>
+    <label for="waveDurSlider">Hullámhossz (s): <span id="waveDurVal">1.0</span></label>
+    <input type="range" id="waveDurSlider" min="0.5" max="3.0" step="0.1" value="1.0">
+    <br>
+    <button id="startBtn">Adó Start</button>
+    <button id="stopBtn">Adó Stop</button>
+  </div>
+  
+  <p id="status">Állapot: várakozás...</p>
+  <canvas id="txCanvas"></canvas>
+  
+  <script>
+    let audioContext = null;
+    let transmitterInterval = null;
+    let waveDuration = 1.0;
+    let polarity = "normal";
+    const waveDurSlider = document.getElementById("waveDurSlider");
+    const waveDurVal = document.getElementById("waveDurVal");
+    waveDurSlider.addEventListener("input", function() {
+      waveDuration = parseFloat(this.value);
+      waveDurVal.textContent = waveDuration.toFixed(1);
+    });
+    document.getElementById("polaritySelect").addEventListener("change", function(e) {
+      polarity = e.target.value;
+    });
+    
+    function ensureAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === "suspended") audioContext.resume();
+    }
+    
+    // Generál egy hullámot: az első mintában azonnal +1 (vagy –1), majd lineárisan 0-ra megy a megadott idő alatt.
+    function generateWave(polarity, duration) {
+      const sampleRate = audioContext.sampleRate;
+      const length = Math.floor(duration * sampleRate);
+      const buffer = new Float32Array(length);
+      const sign = (polarity === "normal") ? 1 : -1;
+      buffer[0] = sign;
+      for (let i = 1; i < length; i++) {
+        let t = i / (length - 1);
+        buffer[i] = sign * (1 - t);
+      }
+      return buffer;
+    }
+    
+    function playWave() {
+      ensureAudioContext();
+      const sampleRate = audioContext.sampleRate;
+      const waveData = generateWave(polarity, waveDuration);
+      // Létrehozunk egy AudioBuffer-t
+      const buffer = audioContext.createBuffer(1, waveData.length, sampleRate);
+      buffer.copyToChannel(waveData, 0);
+      const source = audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContext.destination);
+      source.start();
+      drawWaveform(waveData, document.getElementById("txCanvas"));
+      document.getElementById("status").textContent =
+        "Adó: " + new Date().toLocaleTimeString() + " – hullám lejátszva (" + polarity + ")";
+    }
+    
+    function startTransmitter() {
+      ensureAudioContext();
+      playWave();
+      // Például 2 s periódussal (1 s hullám, 1 s csend lehet, de itt csak a hullámot játsszuk le minden ciklusban)
+      transmitterInterval = setInterval(playWave, 2000);
+    }
+    
+    function stopTransmitter() {
+      if (transmitterInterval) {
+        clearInterval(transmitterInterval);
+        transmitterInterval = null;
+      }
+      document.getElementById("status").textContent = "Adó: leállítva";
+    }
+    
+    function drawWaveform(data, canvas) {
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+      ctx.clearRect(0, 0, width, height);
+      ctx.beginPath();
+      const midY = height / 2;
+      const scaleX = width / data.length;
+      ctx.moveTo(0, midY);
+      for (let i = 0; i < data.length; i++) {
+        const x = i * scaleX;
+        const y = midY - data[i] * midY;
+        ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = "#0077cc";
+      ctx.stroke();
+    }
+    
+    document.getElementById("startBtn").addEventListener("click", startTransmitter);
+    document.getElementById("stopBtn").addEventListener("click", stopTransmitter);
+  </script>
+</body>
+</html>
