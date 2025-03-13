@@ -66,7 +66,6 @@
 ### **6. Mérési eredmények** rögzítése a jegyzőkönyvben:
   - **Jelerősség (dBμV)**
   - **Jel-zaj viszony (SNR - dB)**
-  - **Bit Error Rate (BER)**
   - **Modulation Error Ratio (MER - dB)**
   - **Csillapítás (dB)**
   - **Lock állapot:** [ ] Igen [ ] Nem
