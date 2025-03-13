@@ -5,9 +5,9 @@
 ### **Feladat leírása:**    
 > A vizsgázó feladata egy földfelszíni digitális TV vételi rendszer kiépítése a megadott eszközökkel, egy elérhető adótorony (Miskolc, Avasi adótorony) adatbázisból történő kiválasztása.
 
-> A megfelelő frekvencia beállítása, valamint a jelszint és egyéb paraméterek mérése és dokumentálása.
+> A megfelelő frekvenciák beállítása, valamint a jelszint és egyéb paraméterek mérése és dokumentálása.
 
-> A beállított jelet a villamos 3 laborba kell bevinni, ahol az már közvetlenül a set-top boxra csatlakoztatható.   
+> A beállított jelet a villamos 3 laborba kell bevinni, ahol azt egy jelosztón keresztül a set-top boxra és spektrum analizátorra csatlakoztat.   
 
 **Időkeret:** 120 perc  
 
@@ -17,11 +17,11 @@
 
 ## **1. Szükséges eszközök**
 - **Antenna:** Beltéri vagy kültéri antenna (a vizsgázó választása alapján)
-- **Set-top box:** Viper 4K vagy Nytro Box
+- **Set-top box:** Amiko HD8265+ vagy Nytro Box
 - **Mérőműszer:** METEK HDD digitális TV jelmérő
 - **Koaxiális kábelek és csatlakozók (már előkészítve egy másik vizsgafeladat során)**
 - **Jelosztó:** jelosztó a mérési pontok kialakításához
-- **Szerelési eszközök:** csavarhúzó, villáskulcs, kábelvágó, iránytű, dőlésszögmérő
+- **Szerelési eszközök:** iránytű, maps.google.com
 
 ---
 
@@ -38,30 +38,28 @@
 - **Kültéri antenna esetén:** rögzítse stabil módon a tripod-ra.
 - **Beltéri antenna esetén:** helyezze el optimálisan a v3 labor egyik jó vételi pontján, akadálymentesen.
 - **Az antenna pontos beállítása:**
-  - Használja az **iránytűt és dőlésszögmérőt** az adótorony felé történő pontos irányba állításhoz.
+  - Használja az **iránytűt** és a google maps-t az adótorony felé történő pontos irányba állításhoz.
   - METEK HDD mérőműszer segítségével végezze el a **finomhangolást**.
 
 ### **3. Kábelezés, mérési pontok kialakítása és eszközök csatlakoztatása (20 perc)**
 - **Antenna és set-top box összekötése:** Csatlakoztassa a megfelelő koaxiális kábelt.
 - **Set-top box és TV / monitor csatlakoztatása:** Használja a megfelelő HDMI vagy AV kábelt.
 - **Jelosztó beépítése:** Helyezzen be egy jelosztót a mérési pont kialakításához.
-- **A jelet a villamos 3 laborba kell bevinni, hogy az közvetlenül a set-top boxra csatlakoztatható legyen.**
+- **Külső antenna esetén a jelet a villamos 3 laborba kell bevinni, hogy az csatlakoztatható legyen.**
 
 ### **4. Set-top box beállítása és csatornakeresés (15 perc)**
-- **A DVB-T multiplexek kiválasztása a miskolci Avasi adótorony adatbázisából.**
+- **Az ingyenes DVB-T multiplexek kiválasztása a miskolci Avasi adótorony adatbázisából.**
 - **A multiplexhez tartozó paraméterek beállítása:**
   - Frekvencia (MHz)
-  - Polarizáció (H/V)
-  - Szimbólumráta és egyéb jellemzők
+  - Moduláció típusa és egyéb jellemzők
 - **Automatikus vagy kézi csatornakeresés indítása**
 - Ellenőrizze az elérhető DVB-T **FTA csatorna** megfelelő működését.
 
 ### **5. Jelszintmérés és dokumentáció (15 perc)**
+- Táblázat kitöltése a DVB-t vétel minőségi paramétereinek dokumentálásához: [TÁBLÁZAT](https://docs.google.com/spreadsheets/d/1NkTK1tls5gR6LeJ_V9S_o9S0uxuxc8ZEIHaER2DFV2k/edit?gid=0#gid=0)
 - **Mérések és dokumentáció az antennánál:**
   - Spektrum analizátor képe
   - Jelszintek és jelminőség
-  - Antenna pozíciók és szögek.
-  - Polarizáció
   - Multiplex adatok (frekvencia, szimbólumráta, FEC)
   - Időjárási körülmények (hőmérséklet, szélsebesség, egyéb megjegyzések)
 
