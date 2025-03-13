@@ -86,7 +86,7 @@
 - **Hogyan kezelné az időjárási viszontagságokat (pl. erős szél, jég, hó) az antenna rögzítése és védelme szempontjából?**  
 - **Ha hosszú koaxiális kábeleket kellene használnia a beltéri egységhez, milyen módon csökkentené a jelveszteséget?**  
 
-📌 **A jegyzőkönyvbe írja le részletesen a választását, és indokolja meg a döntéseit a műholdas vétel minősége és a hosszú távú megbízhatóság szempontjából!**
+📌 **A jegyzőkönyvbe írja le részletesen a választását, és indokolja meg a döntéseit a vétel minősége és a hosszú távú megbízhatóság szempontjából!**
 
 ---
 
