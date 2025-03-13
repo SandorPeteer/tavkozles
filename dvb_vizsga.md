@@ -94,14 +94,14 @@
 
 | Feladat | Pontszám |
 |---------|----------|
-| Eszközök előkészítése | 5 pont |
-| Antenna kiválasztása és telepítése | 10 pont |
+| Eszközök beüzemelése | 5 pont |
+| Antenna finomhangolása | 10 pont |
 | Multiplexek kiválasztása internetes adatbázisból | 10 pont |
-| Antenna pontos beállítása és jelszintmérés METEK HDD-vel | 25 pont |
 | Kábelezés, jelosztó használata és csatlakoztatás | 5 pont |
+| Vételi paramétertek vizsgálata a METEK HDD-vel | 25 pont |
 | Set-top box megfelelő beállítása | 5 pont |
 | FTA csatorna megtalálása és beállítása | 10 pont |
-| Részletes jelszintmérés és dokumentálás  | 20 pont |
+| Részletes dokumentálás  | 20 pont |
 | Szituációs feladat  | 10 pont |
 | **Összesen:** | **100 pont** |
 
