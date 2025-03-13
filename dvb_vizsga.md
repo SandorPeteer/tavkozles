@@ -56,7 +56,7 @@
 - Ellenőrizze az elérhető DVB-T **FTA csatorna** megfelelő működését.
 
 ### **5. Jelszintmérés és dokumentáció (15 perc)**
-- Táblázat kitöltése a DVB-t vétel minőségi paramétereinek dokumentálásához: [TÁBLÁZAT](https://docs.google.com/spreadsheets/d/1NkTK1tls5gR6LeJ_V9S_o9S0uxuxc8ZEIHaER2DFV2k/edit?gid=0#gid=0)
+- Másoljon magának mentés máskénttel ebből a táblázatból, majd töltse ki a DVB-t vétel minőségi paramétereinek dokumentálásához: [TÁBLÁZAT](https://docs.google.com/spreadsheets/d/1NkTK1tls5gR6LeJ_V9S_o9S0uxuxc8ZEIHaER2DFV2k/edit?gid=0#gid=0)
 - **Mérések és dokumentáció az antennánál:**
   - Spektrum analizátor képe
   - Jelszintek és jelminőség
