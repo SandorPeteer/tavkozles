@@ -3,7 +3,7 @@
 ## **B tétel:** Földfelszíni digitális TV vételi rendszer telepítése, konfigurálása és mérése
 
 ### **Feladat leírása:**    
-> A vizsgázó feladata egy földfelszíni digitális TV vételi rendszer kiépítése a megadott eszközökkel, egy elérhető adótorony (Miskolc, Avasi adótorony) adatbázisból történő kiválasztása.
+> A vizsgázó feladata egy földfelszíni digitális TV vételi rendszer kiépítése a megadott eszközökkel, az összes elérhető multiplex (Miskolc, Avasi adótorony) adatbázisból történő kiválasztása.
 
 > A megfelelő frekvenciák beállítása, valamint a jelszint és egyéb paraméterek mérése és dokumentálása.
 
@@ -30,7 +30,7 @@
 ### **1. Előkészületek (10 perc)**
 - Ellenőrizze az összes szükséges eszközt.
 - Biztosítsa a megfelelő munkakörnyezetet.
-- **Internetes adatbázisból keressen egy elérhető multiplexet a Miskolc, Avasi adótoronyból.** (Frekvencia, teljesítmény, polarizáció, adás típusa)
+- **Internetes adatbázisból keresse ki az elérhető multiplexeket a Miskolc, Avasi adótoronyból.** (Frekvencia, teljesítmény, polarizáció, adás típusa)
 - Az adótorony adatbázisa elérhető itt: [fmdx.hu](https://www.fmdx.hu/transmitters-hng-avas.htm)
 
 ### **2. Antenna felszerelése és beállítása (30 perc)**
