@@ -72,122 +72,10 @@
   - Hálózati késleltetés és csomagvesztés vizsgálata
   - Stream adatok rögzítése
   - az eredmények dokumentálása
-
-- DVB-T/T2 Mérési eredmények rögzítése a jegyzőkönyvben:
-  - **Jelerősség (dBμV)**
-  - **Jel-zaj viszony (SNR - dB)**
-  - **Modulation Error Ratio (MER - dB)**
-  - **Csillapítás (dB) az osztó után / előtte**
-  - **Hőmérséklet és időjárási körülmények**
-  - **Multiplex adatok és frekvenciák**
     
 - **A teljes jegyzőkönyv elkészítése és aláírása.**
 
 ---
-
-# **Winget csomagkezelő használata IPTV vizsgálati eszközök telepítésére**
-
-Ez a dokumentum segít a szükséges IPTV vizsgálati eszközök **Windows rendszerre való telepítésében** a **winget** csomagkezelő segítségével.
-
----
-
-## **1. VLC és WireShark telepítése**
-
-📌 **VLC telepítése**  
-```sh
-winget install -e --id VideoLAN.VLC
-```
-- **`-e`** → Exact match (pontos egyezés az alkalmazás ID-jával)  
-- **`--id VideoLAN.VLC`** → A VLC hivatalos ID-je wingetben
-
-
-:: VLC hozzáadása a PATH környezeti változóhoz CMD-ben   
-:: CMD-t futtasd rendszergazdaként!   
-:: Majd a VLC bináris útvonal hozzáadása a rendszer PATH változóhoz
-```sh
-setx /M PATH "%PATH%;C:\Program Files\VideoLAN\VLC"
-```
-:: Ellenőrzés, hogy sikerült-e hozzáadni
-```sh
-echo %PATH%
-```
-:: Az új PATH változó frissítéséhez indíts újra minden CMD ablakot
-
-📌 **Wireshark telepítése**  
-```sh
-winget install -e --id WiresharkFoundation.Wireshark
-```
-- A telepítés után a `Wireshark` a programok között feltelepítve megtalálható.
-
----
-
-## **2. FFmpeg telepítése IPTV stream elemzéshez**
-
-📌 **FFmpeg telepítése**  
-```sh
-winget install -e --id Gyan.FFmpeg
-```
-- Ez a **legfrissebb FFmpeg verziót** telepíti.
-- A telepítések után a parancssort újra kell nyitni! 
-
-📌 **Ellenőrzés, hogy az FFmpeg elérhető-e**  
-```sh
-ffmpeg -version
-```
-Ha az FFmpeg verziószáma megjelenik, akkor sikeresen települt.
-
----
-
-## **3. Multicast forgalom és hálózati késleltetés vizsgálata**
-
-📌 **Wireshark UDP stream vizsgálatához**
-  - Az NCAP telepítése még szükséges
-  - A programban az `UDP stream` opció mutatja az összes IPTV forgalmat.
-
----
-
-## **4. IPTV stream elemzése**
-
-📌 **FFmpeg segítségével IPTV stream elemzése**  
-```sh
-ffmpeg -i "udp://@239.1.1.1:1234" -f null -
-```
-- Kiírja a stream formátumát, bitrátáját, késleltetést és csomagvesztést.
-
-📌 **FFmpeg segítségével IPTV stream csomagvesztés vizsgálata**  
-```sh
-ffmpeg -i "udp://@239.1.1.1:1234" -loglevel debug -f null -
-```
-- Részletes hibajelentést ír ki a hálózati problémákról, csomagvesztésről.
-
----
-
-## **5. Ellenőrzés, hogy az összes szükséges IPTV műsor elérhető**  
-
-📌 **FFplay segítségével az IPTV egyik csatornájának vizsgálata**  
-```sh
-ffplay -i udp://@239.1.1.1:1234 -sn
-```
-
-📌 **VLC segítségével is nézhető az IPTV stream és az adatfolyam vizsgálható**  
-```sh
-vlc udp://@239.1.1.1:1234
-```
-
----
-
-## **Összegzés**
-
-| Telepítendő eszköz | Winget ID | Felhasználási cél |
-|----------------|----------------------------|---------------------------------|
-| **VLC** | `VideoLAN.VLC` | IPTV stream lejátszása és tesztelése |
-| **Wireshark (TShark)** | `WiresharkFoundation.Wireshark` | Multicast csomagok figyelése |
-| **FFmpeg** | `Gyan.FFmpeg` | IPTV stream elemzése és rögzítése |
-
-🚀 **Ezekkel a parancsokkal a vizsgázók minden szükséges IPTV mérést és hibakeresést el tudnak végezni.**
-
-
----   
 
 ## **3. Értékelési szempontok**
 
@@ -196,7 +84,7 @@ vlc udp://@239.1.1.1:1234
 | Eszközök előkészítése | 5 pont |
 | Antenna kiválasztása és telepítése | 10 pont |
 | Multiplexek kiválasztása internetes adatbázisból | 10 pont |
-| Antenna pontos beállítása és jelszintmérés METEK HDD-vel | 20 pont |
+| Antenna pontos beállítása és jelszintmérés a LEMCO-val | 20 pont |
 | Fejállomás konfigurálása, jelosztás beállítása | 15 pont |
 | IPTV multicast konfigurálása és stream beállítása | 15 pont |
 | Részletes jelszintmérés és dokumentálás | 25 pont |
