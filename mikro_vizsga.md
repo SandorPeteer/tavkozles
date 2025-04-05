@@ -1,6 +1,6 @@
 # Távközlési Technikus Vizsgafeladat
 
-## C tétel: Komplex Távközlési Hálózat Tervezése, Telepítése és Mérése
+## C1 tétel: Komplex Távközlési Hálózat Tervezése, Telepítése és Mérése
 **Időtartam:** 120 perc
 
 **Eszközök:**  
