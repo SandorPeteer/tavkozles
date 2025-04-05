@@ -30,8 +30,6 @@
 ### **1. Előkészületek (10 perc)**
 - Ellenőrizze az összes szükséges eszközt.
 - Biztosítsa a megfelelő munkakörnyezetet.
-- **Internetes adatbázisból keresse ki az elérhető multiplexeket a Miskolc, Avasi adótoronyból.** (Csatorna száma, frekvencia, teljesítmény, moduláció típusa)
-- Az adótorony adatbázisa elérhető itt: [fmdx.hu](https://www.fmdx.hu/transmitters-hng-avas.htm)
 
 ### **2. Antenna felszerelése és beállítása (30 perc)**
 - **Válassza ki a megfelelő antennát** (beltéri vagy kültéri), figyelembe véve az adótorony távolságát és a vételi környezetet.
