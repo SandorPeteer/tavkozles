@@ -1,6 +1,6 @@
 # Távközlési technikus vizsgafeladat
 
-## C2 tétel: DVB-T antenna jelének szétosztása majd a fejállomásba küldése és IPTV rendszeren való továbbítása
+## D tétel: DVB-T antenna jelének szétosztása majd a fejállomásba küldése és IPTV rendszeren való továbbítása
 
 ### **Feladat leírása:**    
 > A vizsgázó feladata egy földfelszíni digitális TV vételi rendszer kiépítése, a szabadon fogható csatornák kiválasztása (Miskolc, Avasi adótorony), a jel elosztásának elvégzése, valamint az IPTV rendszer konfigurálása.  
