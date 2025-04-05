@@ -1,7 +1,17 @@
 # Távközlési Technikus Vizsgafeladat
 
 ## C1 tétel: Komplex Távközlési Hálózat Tervezése, Telepítése és Mérése
-**Időtartam:** 120 perc
+
+### **Feladat leírása:**    
+> A vizsgázó feladata egy nagytávolságú mikrohullámú vezeték nélküli rendszer kiépítése.  
+
+> A internetre csatlakozáshoz nagy nyereségű mobilantenna használata.  
+
+> A hálózati eszközök forgalomirányítása SOHO router segítségével.  
+
+**Időkeret:** 120 perc  
+
+---   
 
 **Eszközök:**  
 
