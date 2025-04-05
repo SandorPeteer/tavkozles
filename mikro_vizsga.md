@@ -1,6 +1,6 @@
 # Távközlési Technikus Vizsgafeladat
 
-## C1 tétel: Komplex Távközlési Hálózat Tervezése, Telepítése és Mérése
+## C tétel: Komplex Távközlési Hálózat Tervezése, Telepítése és Mérése
 
 ### **Feladat leírása:**    
 > A vizsgázó feladata egy nagytávolságú mikrohullámú vezeték nélküli rendszer kiépítése.  
