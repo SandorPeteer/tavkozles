@@ -21,8 +21,8 @@ Indulás: **19:00** – Palóczy László utca 3 (iskola)
 
 ## DALOK:
 
-Ilyenek voltunk…
-Húzd cigány…
-Visszajövök - Bagossy
-Küzdj az álmodért - Hooligans
-Egyszer véget ér - Máté Péter
+[Ilyenek voltunk…](https://youtu.be/WdKeQCTAWtY)    
+Húzd cigány…   
+Visszajövök - Bagossy  
+Küzdj az álmodért - Hooligans  
+Egyszer véget ér - Máté Péter  
