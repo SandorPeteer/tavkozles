@@ -18,3 +18,11 @@ Indulás: **19:00** – Palóczy László utca 3 (iskola)
 
 
 <img width="1735" alt="Szerenád útvonal terv_2025" src="https://github.com/user-attachments/assets/66b4d55b-7724-42a5-9c56-c606a8e58dc2" />
+
+## DALOK:
+
+Ilyenek voltunk…
+Húzd cigány…
+Visszajövök - Bagossy
+Küzdj az álmodért - Hooligans
+Egyszer véget ér - Máté Péter
