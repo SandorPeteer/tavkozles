@@ -55,6 +55,7 @@
 
 - **IPTV Set-top-box (MAG 522 IPTV) csatlakoztatása és konfigurálása:**
   - Hálózati kapcsolat létrehozása az eszközök között.
+  - Állítsa be manuálisan a set-top-box IP címét úgy, hogy a fejállomás címeivel ne ütközzön.
   - Multicast IP címek hozzáadása a csatornalistához a fejállomással generált M3U lejátszási lista segítségével.
   - Csatornák mentése, indítás és ellenőrzés.
 
