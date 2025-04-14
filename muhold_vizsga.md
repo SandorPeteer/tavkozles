@@ -20,7 +20,7 @@
 # **1. Szükséges eszközök**
 - **Parabolaantenna:** D80 Mesh hálós acél parabola antenna (tripodra szerelve)
 - **Műholdvevő fej (LNB):** **A vizsgázó maga választja ki az elérhető LNB-k közül**
-- **Set-top box:** Amiko HD 8265+
+- **Set-top box:** Amiko Viper 4k
 - **Mérőműszer:** METEK HDD műholdas jelmérő
 - **Koaxiális kábelek és csatlakozók (már előkészítve egy másik vizsgafeladat során)**
 - **Jelosztó:** 2-es műholdas jelosztó a mérési pontok kialakításához
