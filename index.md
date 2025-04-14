@@ -2,6 +2,10 @@ Az oldal elérhetősége: sandorpeteer.github.io/tavkozles
 
 ---   
 
+[Jó kis erősítő](https://www.aliexpress.com/item/1005004895645420.html?spm=a2g0o.productlist.main.37.68330aOh0aOhCO&algo_pvid=edf72a8b-dd92-47a5-ad85-755d030e5a6c&algo_exp_id=edf72a8b-dd92-47a5-ad85-755d030e5a6c-18&pdp_ext_f=%7B%22order%22%3A%22858%22%2C%22eval%22%3A%221%22%7D&pdp_npi=4%40dis%21HUF%2117448.23%2114946.11%21%21%2147.14%2140.38%21%402103890117446251391497582ec5a1%2112000030929865199%21sea%21HU%210%21ABX&curPageLogUid=H5qP6f7IcgIS&utparam-url=scene%3Asearch%7Cquery_from%3A)
+
+---
+
 ## PORTFÓLIÓ segédlet:  
 > [Portfólió 2025](https://drive.google.com/file/d/1KgEOoGC8da8Do3LfUpB7KLwipYN8X3ax/view?usp=sharing)
 
