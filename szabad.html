@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kandó Széf Küldetés</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
+      color: white;
+    }
+    .panel { display: none; animation: fadein 1s ease; }
+    .active { display: block; }
+    button {
+      padding: 12px 24px;
+      margin: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .option-button {
+      display: block;
+      margin: 10px auto;
+      background-color: #1e88e5;
+    }
+    canvas {
+      background: white;
+      display: block;
+      margin: 20px auto;
+      border: 3px solid #00e676;
+    }
+    #retryBtn {
+      display: none;
+      background-color: #ff5722;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Kandó Széf Küldetés</h1>
+
+  <div id="intro" class="panel active">
+    <p>Üdvözlünk a Kandó Kálmán Informatikai Technikumban! Egy titkos küldetés vár rád...</p>
+    <button onclick="showPanel('info')">Kezdés</button>
+  </div>
+
+  <div id="info" class="panel">
+    <p>
+      Az MSZC Kandó Kálmán Informatikai Technikum Miskolc egyik legismertebb szakképző intézménye. <br>
+      Itt a tanulók többek között informatikát, távközlést, villamosságot és automatizálást tanulnak. <br>
+      Az iskola 1963-ban alakult, a Villamos 3-as labor a 2. emeleten található. <br>
+      A diákok a KRÉTA rendszerben követik tanulmányi előmenetelüket.
+    </p>
+    <button onclick="showPanel('q1')">Tovább a kérdésekhez</button>
+  </div>
+
+  <div id="q1" class="panel">
+    <h2>1. kérdés</h2>
+    <p>Mikor alakult az iskola?</p>
+    <button class="option-button" onclick="checkAnswer('q1', '1963', 'q2')">1963</button>
+    <button class="option-button" onclick="checkAnswer('q1', '1980', 'q2')">1980</button>
+    <button class="option-button" onclick="checkAnswer('q1', '2001', 'q2')">2001</button>
+  </div>
+
+  <div id="q2" class="panel">
+    <h2>2. kérdés</h2>
+    <p>Hol található a Villamos 3 labor?</p>
+    <button class="option-button" onclick="checkAnswer('q2', '2. emeleten', 'q3')">2. emeleten</button>
+    <button class="option-button" onclick="checkAnswer('q2', 'földszinten', 'q3')">földszinten</button>
+    <button class="option-button" onclick="checkAnswer('q2', 'pincében', 'q3')">pincében</button>
+  </div>
+
+  <div id="q3" class="panel">
+    <h2>3. kérdés</h2>
+    <p>Milyen rendszert használnak a tanulmányi előmenetel követésére?</p>
+    <button class="option-button" onclick="checkAnswer('q3', 'KRÉTA', 'dinoGame')">KRÉTA</button>
+    <button class="option-button" onclick="checkAnswer('q3', 'NEPTUN', 'dinoGame')">NEPTUN</button>
+    <button class="option-button" onclick="checkAnswer('q3', 'E-KRÉTA', 'dinoGame')">E-KRÉTA</button>
+  </div>
+
+  <div id="dinoGame" class="panel">
+    <h2>Ugrálós játék – Geometry Dash módra</h2>
+    <p>Ugorj át az akadályokon és szerezz 20 pontot a kódért!</p>
+    <canvas id="dinoCanvas" width="600" height="200"></canvas>
+    <p id="dinoScore">Pont: 0</p>
+    <button id="retryBtn" onclick="restartDinoGame()">Újrapróbálkozás</button>
+  </div>
+
+  <div id="result" class="panel">
+    <h2 style="font-size: 24px; color: #00e676; animation: fadein 1s ease;">SZÉF KÓD:</h2>
+    <h1 style="font-family: monospace; font-size: 48px; animation: fadein 2s ease;">10111000</h1>
+    <p style="font-size: 20px;">Gratulálunk! Kinyitottad a Kandó széfet! 🎉</p>
+    <p style="font-size: 16px; color: #ccc;">(Ha újra akarod játszani, frissítsd az oldalt vagy nyomd meg az újrapróbálkozás gombot.)</p>
+  </div>
+
+  <script>
+    let dino, gravity, jumpStrength, isJumping, score, gameRunning, dinoCtx, currentObstacle, speed;
+
+    function showPanel(id) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      if (id === 'dinoGame') {
+        initDinoGame();
+        startDinoGame();
+      }
+    }
+
+    function checkAnswer(panelId, correctAnswer, nextPanelId) {
+      const buttons = document.querySelectorAll(`#${panelId} .option-button`);
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.innerText === correctAnswer) {
+          btn.style.backgroundColor = 'green';
+        } else {
+          btn.style.backgroundColor = 'red';
+        }
+      });
+      setTimeout(() => {
+        showPanel(nextPanelId);
+      }, 1000);
+    }
+
+    function initDinoGame() {
+      const canvas = document.getElementById('dinoCanvas');
+      dinoCtx = canvas.getContext('2d');
+      document.getElementById('retryBtn').style.display = 'none';
+      dino = { x: 50, y: 160, vy: 0, width: 30, height: 40 };
+      gravity = 1.5;
+      jumpStrength = -20;
+      isJumping = false;
+      score = 0;
+      speed = 4;
+      gameRunning = true;
+      currentObstacle = generateObstacle();
+      document.getElementById('dinoScore').innerText = 'Pont: 0';
+    }
+
+    function generateObstacle() {
+      const sizeIncrease = Math.min(score * 2, 40);
+      const types = [
+        { width: 20 + sizeIncrease, height: 40 + sizeIncrease, color: 'green' },
+        { width: 30 + sizeIncrease, height: 30 + sizeIncrease, color: 'red' },
+        { width: 15 + sizeIncrease, height: 60 + sizeIncrease, color: 'blue' }
+      ];
+      const t = types[Math.floor(Math.random() * types.length)];
+      return {
+        x: 600 + Math.random() * 100,
+        width: t.width,
+        height: t.height,
+        color: t.color
+      };
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if ((e.key === ' ' || e.code === 'ArrowUp') && !isJumping && gameRunning) {
+        dino.vy = jumpStrength;
+        isJumping = true;
+      }
+    });
+
+    function startDinoGame() {
+      function updateDino() {
+        if (!gameRunning) return;
+        dinoCtx.clearRect(0, 0, 600, 200);
+
+        dino.y += dino.vy;
+        dino.vy += gravity;
+        if (dino.y >= 160) {
+          dino.y = 160;
+          dino.vy = 0;
+          isJumping = false;
+        }
+
+        currentObstacle.x -= speed;
+        if (currentObstacle.x + currentObstacle.width < 0) {
+          score++;
+          speed = 4 + score * 0.2;
+          currentObstacle = generateObstacle();
+          document.getElementById('dinoScore').innerText = 'Pont: ' + score;
+          if (score >= 20) {
+            showPanel('result');
+            return;
+          }
+        }
+
+        if (
+          dino.x < currentObstacle.x + currentObstacle.width &&
+          dino.x + dino.width > currentObstacle.x &&
+          dino.y + dino.height > 200 - currentObstacle.height
+        ) {
+          gameRunning = false;
+          document.getElementById('retryBtn').style.display = 'inline-block';
+          return;
+        }
+
+        dinoCtx.fillStyle = 'black';
+        dinoCtx.fillRect(dino.x, dino.y, dino.width, dino.height);
+
+        dinoCtx.fillStyle = currentObstacle.color;
+        dinoCtx.fillRect(
+          currentObstacle.x,
+          200 - currentObstacle.height,
+          currentObstacle.width,
+          currentObstacle.height
+        );
+
+        requestAnimationFrame(updateDino);
+      }
+      updateDino();
+    }
+
+    function restartDinoGame() {
+      initDinoGame();
+      startDinoGame();
+    }
+  </script>
+</body>
+</html>
