@@ -356,7 +356,7 @@
     function checkAnswer(btn) {
       const parent = btn.closest('.panel');
       [...parent.querySelectorAll('.option-button')].forEach(b => { b.disabled = true; b.classList.add(b.dataset.correct === 'true' ? 'correct' : 'wrong') });
-      setTimeout(() => showPanel(parent.nextElementSibling.id), 1000);
+      setTimeout(() => showPanel(parent.nextElementSibling.id), 3000);
     }
     // Memory
     const items = [{ id: 1, type: 'img', val: 'bell.jpg' }, { id: 2, type: 'img', val: 'marconi.jpg' }, { id: 3, type: 'img', val: 'tesla.jpg' }, { id: 4, type: 'img', val: 'telefon.jpg' }, { id: 5, type: 'img', val: 'taviro.jpg' }, { id: 6, type: 'img', val: 'tekercs.jpg' }];
