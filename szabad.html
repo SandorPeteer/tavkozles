@@ -243,6 +243,32 @@
         transform: translateY(0);
       }
     }
+
+    .rf-wave {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 120%;
+      height: 120%;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at center, rgba(0, 229, 255, 0.2) 10%, transparent 10%),
+        radial-gradient(circle at center, rgba(0, 229, 255, 0.1) 20%, transparent 20%);
+      background-size: 20% 20%, 40% 40%;
+      animation: waveAnim 2s linear infinite;
+    }
+
+    @keyframes waveAnim {
+      from {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 1;
+      }
+
+      to {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 
@@ -311,8 +337,10 @@
     <!-- Tesla Shooter -->
     <section id="teslaGame" class="panel">
       <h2>Tesla-tekercs Lövölde</h2>
-      <p>Szerezz 10 találatot az antennáknál (Space):</p>
-      <div class="game-container"><canvas id="teslaCanvas"></canvas>
+      <p>← → mozgat, Space lő (1 lövés/gombnyomás)</p>
+      <div class="game-container">
+        <canvas id="teslaCanvas"></canvas>
+        <div class="rf-wave"></div>
         <div class="scoreboard">Találatok: <span id="teslaScore">0</span>/10</div>
       </div>
       <button id="retryTesla" class="btn-secondary">Újrajátszás</button>
@@ -378,18 +406,120 @@
     }
     function flipCard(card, data) { if (lock || card.classList.contains('flipped') || card.classList.contains('matched')) return; card.classList.add('flipped'); if (!first) first = { card, data }; else { second = { card, data }; lock = true; setTimeout(checkMemory, 800); } }
     function checkMemory() { if (first.data.id === second.data.id) { first.card.classList.add('matched'); second.card.classList.add('matched'); matches++; if (matches === items.length) setTimeout(() => showPanel('teslaGame'), 600); } else { first.card.classList.remove('flipped'); second.card.classList.remove('flipped'); } first = second = null; lock = false; }
-    // Tesla Shooter
+
+    // initTesla() funkció
     function initTesla() {
-      const canvas = document.getElementById('teslaCanvas'), ctx = canvas.getContext('2d');
-      let W, H, bolts = [], targets = [], score = 0, running = true; const COUNT = 3, R = 20, REQ = 10;
-      function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; } window.addEventListener('resize', resize); resize();
-      function spawn() { return { x: R + Math.random() * (W - 2 * R), y: R + Math.random() * ((H / 3) - 2 * R) + R, dx: (Math.random() < .5 ? 1 : -1), dy: (Math.random() < .5 ? 1 : -1) }; }
-      function start() { bolts = []; targets = Array.from({ length: COUNT }, spawn); score = 0; running = true; document.getElementById('teslaScore').textContent = 0; document.getElementById('retryTesla').style.display = 'none'; loop(); }
+      const canvas = document.getElementById('teslaCanvas'),
+        ctx = canvas.getContext('2d');
+      let W, H, coilX,
+        bolts = [],
+        targets = [],
+        score = 0,
+        running = true;
+      const COUNT = 3, R = 20, REQ = 10;
+
+      function resize() {
+        W = canvas.width = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+        coilX = W / 2 - 20;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      function spawn() {
+        return {
+          x: R + Math.random() * (W - 2 * R),
+          y: R + Math.random() * ((H / 3) - 2 * R) + R,
+          dx: Math.random() < 0.5 ? 1 : -1,
+          dy: Math.random() < 0.5 ? 1 : -1
+        };
+      }
+
+      function start() {
+        bolts = [];
+        targets = Array.from({ length: COUNT }, spawn);
+        score = 0;
+        running = true;
+        document.getElementById('teslaScore').textContent = 0;
+        document.getElementById('retryTesla').style.display = 'none';
+        loop();
+      }
       document.getElementById('retryTesla').onclick = start;
-      window.addEventListener('keydown', e => { if (running && e.code === 'Space') bolts.push({ x: W / 2, y: H - 30, vy: -8 }); });
-      function loop() { if (!running) return; ctx.clearRect(0, 0, W, H); drawCoil(); bolts = bolts.filter(b => { b.y += b.vy; ctx.fillStyle = '#00ff99'; ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, 2 * Math.PI); ctx.fill(); return b.y > 0; }); targets.forEach((t, i) => { t.x += t.dx * 2; t.y += t.dy * 1.5; if (t.x < R || t.x > W - R) t.dx *= -1; if (t.y < R || t.y > H / 2) t.dy *= -1; bolts.forEach((b, j) => { const dx = b.x - t.x, dy = b.y - t.y; if (dx * dx + dy * dy < (R + 5) ** 2) { bolts.splice(j, 1); score++; document.getElementById('teslaScore').textContent = score; targets[i] = spawn(); if (score >= REQ) end(); } }); ctx.fillStyle = '#ff1744'; ctx.beginPath(); ctx.arc(t.x, t.y, R, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = '#ff1744'; ctx.beginPath(); ctx.moveTo(t.x, t.y - R - 5); ctx.lineTo(t.x, t.y - R - 20); ctx.stroke(); }); requestAnimationFrame(loop); }
-      function drawCoil() { const coilX = W / 2 - 20, coilY = H - 30; ctx.fillStyle = '#00e5ff'; ctx.fillRect(coilX, coilY, 40, 20); ctx.strokeStyle = '#00e5ff'; ctx.beginPath(); for (let i = 0; i < 6; i++) ctx.arc(coilX + 20, coilY, 20 - i * 3, 1.2 * Math.PI, 1.8 * Math.PI); ctx.stroke(); }
-      function end() { running = false; document.getElementById('retryTesla').style.display = 'inline-block'; setTimeout(() => showPanel('dinoGame'), 500); }
+
+      let canShoot = true;
+      window.addEventListener('keydown', e => {
+        if (!running) return;
+        if (e.code === 'ArrowLeft') coilX = Math.max(0, coilX - 10);
+        if (e.code === 'ArrowRight') coilX = Math.min(W - 40, coilX + 10);
+        if (e.code === 'Space' && canShoot) {
+          bolts.push({ x: coilX + 20, y: H - 30, vy: -8 });
+          canShoot = false;
+        }
+      });
+      window.addEventListener('keyup', e => {
+        if (e.code === 'Space') canShoot = true;
+      });
+
+      function loop() {
+        if (!running) return;
+        ctx.clearRect(0, 0, W, H);
+
+        // Tekercs
+        ctx.fillStyle = '#00e5ff';
+        ctx.fillRect(coilX, H - 30, 40, 20);
+        ctx.strokeStyle = '#00e5ff';
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++)
+          ctx.arc(coilX + 20, H - 30, 20 - i * 3, 1.2 * Math.PI, 1.8 * Math.PI);
+        ctx.stroke();
+
+        // Lövedékek
+        bolts = bolts.filter(b => {
+          b.y += b.vy;
+          ctx.fillStyle = '#00ff99';
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, 5, 0, 2 * Math.PI);
+          ctx.fill();
+          return b.y > 0;
+        });
+
+        // Célpontok
+        targets.forEach((t, i) => {
+          t.x += t.dx * 2; t.y += t.dy * 1.5;
+          if (t.x < R || t.x > W - R) t.dx *= -1;
+          if (t.y < R || t.y > H / 2) t.dy *= -1;
+
+          ctx.fillStyle = '#ff1744';
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, R, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.strokeStyle = '#ff1744';
+          ctx.beginPath();
+          ctx.moveTo(t.x, t.y - R - 5);
+          ctx.lineTo(t.x, t.y - R - 20);
+          ctx.stroke();
+
+          bolts.forEach((b, j) => {
+            const dx = b.x - t.x, dy = b.y - t.y;
+            if (dx * dx + dy * dy < (R + 5) ** 2) {
+              bolts.splice(j, 1);
+              score++;
+              document.getElementById('teslaScore').textContent = score;
+              targets[i] = spawn();
+              if (score >= REQ) finish();
+            }
+          });
+        });
+
+        requestAnimationFrame(loop);
+      }
+
+      function finish() {
+        running = false;
+        document.getElementById('retryTesla').style.display = 'inline-block';
+        setTimeout(() => showPanel('dinoGame'), 500);
+      }
+
       start();
     }
     // Dino Runner
