@@ -1,231 +1,417 @@
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kandó Széf Küldetés</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kandó Szabadulós Szoba</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-dark: #121421;
+      --bg-light: #f5f5f5;
+      --primary: #00e5ff;
+      --secondary: #ff1744;
+      --accent: #00ff99;
+      --text-dark: #1a1a2e;
+      --text-light: #ececec;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      padding: 20px;
-      background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
-      color: white;
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-    .panel { display: none; animation: fadein 1s ease; }
-    .active { display: block; }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .panel {
+      display: none;
+      padding: 30px;
+      animation: fadeIn .5s ease-out;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin-bottom: 16px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
     button {
-      padding: 12px 24px;
-      margin: 10px;
-      font-size: 18px;
+      background: var(--primary);
+      color: #fff;
       border: none;
-      border-radius: 8px;
-      background-color: #4CAF50;
-      color: white;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 1rem;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform .1s;
     }
+
     button:hover {
       transform: scale(1.05);
     }
+
+    .btn-secondary {
+      background: var(--secondary);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+    }
+
+    /* Timeline */
+    .timeline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .timeline-item {
+      text-align: center;
+      width: 120px;
+    }
+
+    .timeline-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: border .3s;
+    }
+
+    .timeline-item.visited img {
+      border-color: var(--accent);
+    }
+
+    .timeline-item small {
+      display: block;
+      margin-top: 8px;
+    }
+
+    /* Quiz */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
     .option-button {
-      display: block;
-      margin: 10px auto;
-      background-color: #1e88e5;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
     }
-    canvas {
-      background: white;
-      display: block;
-      margin: 20px auto;
-      border: 3px solid #00e676;
+
+    .option-button.correct {
+      background: #4caf50;
     }
-    #retryBtn {
-      display: none;
-      background-color: #ff5722;
+
+    .option-button.wrong {
+      background: #f44336;
     }
-    @keyframes fadein {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+
+    /* Memory */
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .card {
+      width: 100%;
+      padding-top: 100%;
+      position: relative;
+      perspective: 600px;
+      cursor: pointer;
+    }
+
+    .card-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transform-style: preserve-3d;
+      transition: transform .5s;
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      backface-visibility: hidden;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      border-radius: 8px;
+    }
+
+    .face-front {
+      background: var(--primary);
+    }
+
+    .face-back {
+      background: var(--accent);
+      transform: rotateY(180deg);
+      overflow: hidden;
+    }
+
+    .face-back img {
+      max-width: 70%;
+      max-height: 70%;
+    }
+
+    /* Games */
+    .game-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      margin: 20px 0;
+    }
+
+    .game-container canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      border-radius: 8px;
+    }
+
+    .scoreboard {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
+
 <body>
-  <h1>Kandó Széf Küldetés</h1>
-
-  <div id="intro" class="panel active">
-    <p>Üdvözlünk a Kandó Kálmán Informatikai Technikumban! Egy titkos küldetés vár rád...</p>
-    <button onclick="showPanel('info')">Kezdés</button>
+  <div class="container">
+    <!-- Intro -->
+    <section id="intro" class="panel active">
+      <h1>Üdv a Kandó Szabadulós Szobában!</h1>
+      <p>Ismerd meg a távközlés nagyjait, válaszolj kérdésekre, és játssz mini-játékokkal a széf kódjáért.</p>
+      <button onclick="showPanel('timeline')">Kezdés</button>
+    </section>
+    <!-- Timeline -->
+    <section id="timeline" class="panel">
+      <h2>Távközlés Nagyjai</h2>
+      <p>Kattints mindhárom portréra!</p>
+      <div class="timeline">
+        <div class="timeline-item" id="item-bell"><img src="images/bell.jpg" alt="Bell"
+            onclick="visit('bell')"><small>Bell</small></div>
+        <div class="timeline-item" id="item-marconi"><img src="images/marconi.jpg" alt="Marconi"
+            onclick="visit('marconi')"><small>Marconi</small></div>
+        <div class="timeline-item" id="item-tesla"><img src="images/tesla.jpg" alt="Tesla"
+            onclick="visit('tesla')"><small>Tesla</small></div>
+      </div>
+      <div id="bio"></div>
+      <button id="btn-timeline-next" class="btn-accent" onclick="showPanel('q1')" disabled>Tovább</button>
+    </section>
+    <!-- Quiz -->
+    <section id="q1" class="panel">
+      <h2>1. kérdés: Mikor alapították a Miskolci Kandó intézményt?</h2>
+      <div class="options">
+        <button class="option-button" data-correct="false" onclick="checkAnswer(this)">1980</button>
+        <button class="option-button" data-correct="true" onclick="checkAnswer(this)">1963</button>
+        <button class="option-button" data-correct="false" onclick="checkAnswer(this)">2001</button>
+      </div>
+    </section>
+    <section id="q2" class="panel">
+      <h2>2. kérdés: Melyik évben történt Marconi első rádióüzenete?</h2>
+      <div class="options">
+        <button class="option-button" data-correct="true" onclick="checkAnswer(this)">1895</button>
+        <button class="option-button" data-correct="false" onclick="checkAnswer(this)">1876</button>
+        <button class="option-button" data-correct="false" onclick="checkAnswer(this)">1901</button>
+      </div>
+    </section>
+    <section id="q3" class="panel">
+      <h2>3. kérdés: Milyen elven működik a Tesla-tekercs?</h2>
+      <div class="options">
+        <button class="option-button" data-correct="true" onclick="checkAnswer(this)">Indukció elvén</button>
+        <button class="option-button" data-correct="false" onclick="checkAnswer(this)">Piezo elektromosság</button>
+        <button class="option-button" data-correct="false" onclick="checkAnswer(this)">Elektrosztatika</button>
+      </div>
+    </section>
+    <section id="q4" class="panel">
+      <h2>4. kérdés: Mi a rádióhullámok mértékegysége?</h2>
+      <div class="options">
+        <button class="option-button" data-correct="true" onclick="checkAnswer(this)">Hertz (Hz)</button>
+        <button class="option-button" data-correct="false" onclick="checkAnswer(this)">Watt (W)</button>
+        <button class="option-button" data-correct="false" onclick="checkAnswer(this)">Volt (V)</button>
+      </div>
+    </section>
+    <!-- Memory Game -->
+    <section id="matchGame" class="panel">
+      <h2>Párosító Játék</h2>
+      <p>Találd meg a feltalítókat és eszközeiket!</p>
+      <div class="memory-grid" id="memoryGrid"></div>
+    </section>
+    <!-- Tesla Shooter -->
+    <section id="teslaGame" class="panel">
+      <h2>Tesla-tekercs Lövölde</h2>
+      <p>Szerezz 10 találatot az antennáknál (Space):</p>
+      <div class="game-container"><canvas id="teslaCanvas"></canvas>
+        <div class="scoreboard">Találatok: <span id="teslaScore">0</span>/10</div>
+      </div>
+      <button id="retryTesla" class="btn-secondary">Újrajátszás</button>
+    </section>
+    <!-- Dino Runner -->
+    <section id="dinoGame" class="panel">
+      <h2>Dino-futós Játék</h2>
+      <p>Kerüld az antennákat, hullámokat és szörnyetegeket! (Space ugrás)</p>
+      <div class="game-container"><canvas id="dinoCanvas"></canvas>
+        <div class="scoreboard">Pont: <span id="dinoScore">0</span>/20</div>
+      </div>
+      <button id="retryDino" class="btn-secondary">Újrajátszás</button>
+    </section>
+    <!-- Result -->
+    <section id="result" class="panel">
+      <h2>A SZÉF KÓDJA</h2>
+      <h1 style="font-size:3rem;">10111000</h1>
+      <p>Gratulálunk, sikeresen teljesítetted a küldetést!</p>
+    </section>
   </div>
-
-  <div id="info" class="panel">
-    <p>
-      Az MSZC Kandó Kálmán Informatikai Technikum Miskolc egyik legismertebb szakképző intézménye. <br>
-      Itt a tanulók többek között informatikát, távközlést, villamosságot és automatizálást tanulnak. <br>
-      Az iskola 1963-ban alakult, a Villamos 3-as labor a 2. emeleten található. <br>
-      A diákok a KRÉTA rendszerben követik tanulmányi előmenetelüket.
-    </p>
-    <button onclick="showPanel('q1')">Tovább a kérdésekhez</button>
-  </div>
-
-  <div id="q1" class="panel">
-    <h2>1. kérdés</h2>
-    <p>Mikor alakult az iskola?</p>
-    <button class="option-button" onclick="checkAnswer('q1', '1963', 'q2')">1963</button>
-    <button class="option-button" onclick="checkAnswer('q1', '1980', 'q2')">1980</button>
-    <button class="option-button" onclick="checkAnswer('q1', '2001', 'q2')">2001</button>
-  </div>
-
-  <div id="q2" class="panel">
-    <h2>2. kérdés</h2>
-    <p>Hol található a Villamos 3 labor?</p>
-    <button class="option-button" onclick="checkAnswer('q2', '2. emeleten', 'q3')">2. emeleten</button>
-    <button class="option-button" onclick="checkAnswer('q2', 'földszinten', 'q3')">földszinten</button>
-    <button class="option-button" onclick="checkAnswer('q2', 'pincében', 'q3')">pincében</button>
-  </div>
-
-  <div id="q3" class="panel">
-    <h2>3. kérdés</h2>
-    <p>Milyen rendszert használnak a tanulmányi előmenetel követésére?</p>
-    <button class="option-button" onclick="checkAnswer('q3', 'KRÉTA', 'dinoGame')">KRÉTA</button>
-    <button class="option-button" onclick="checkAnswer('q3', 'NEPTUN', 'dinoGame')">NEPTUN</button>
-    <button class="option-button" onclick="checkAnswer('q3', 'E-KRÉTA', 'dinoGame')">E-KRÉTA</button>
-  </div>
-
-  <div id="dinoGame" class="panel">
-    <h2>Ugrálós játék – Geometry Dash módra</h2>
-    <p>Ugorj át az akadályokon és szerezz 20 pontot a kódért!</p>
-    <canvas id="dinoCanvas" width="600" height="200"></canvas>
-    <p id="dinoScore">Pont: 0</p>
-    <button id="retryBtn" onclick="restartDinoGame()">Újrapróbálkozás</button>
-  </div>
-
-  <div id="result" class="panel">
-    <h2 style="font-size: 24px; color: #00e676; animation: fadein 1s ease;">SZÉF KÓD:</h2>
-    <h1 style="font-family: monospace; font-size: 48px; animation: fadein 2s ease;">10111000</h1>
-    <p style="font-size: 20px;">Gratulálunk! Kinyitottad a Kandó széfet! 🎉</p>
-    <p style="font-size: 16px; color: #ccc;">(Ha újra akarod játszani, frissítsd az oldalt vagy nyomd meg az újrapróbálkozás gombot.)</p>
-  </div>
-
   <script>
-    let dino, gravity, jumpStrength, isJumping, score, gameRunning, dinoCtx, currentObstacle, speed;
-
+    const panels = document.querySelectorAll('.panel');
     function showPanel(id) {
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
       document.getElementById(id).classList.add('active');
-      if (id === 'dinoGame') {
-        initDinoGame();
-        startDinoGame();
-      }
+      if (id === 'matchGame') initMemory();
+      if (id === 'teslaGame') initTesla();
+      if (id === 'dinoGame') initDino();
     }
-
-    function checkAnswer(panelId, correctAnswer, nextPanelId) {
-      const buttons = document.querySelectorAll(`#${panelId} .option-button`);
-      buttons.forEach(btn => {
-        btn.disabled = true;
-        if (btn.innerText === correctAnswer) {
-          btn.style.backgroundColor = 'green';
-        } else {
-          btn.style.backgroundColor = 'red';
-        }
+    // Timeline
+    let visited = 0;
+    function visit(who) {
+      const el = document.getElementById(`item-${who}`);
+      if (el.classList.contains('visited')) return;
+      const bios = { bell: 'Bell: 1876-ban szabadalmaztatta a telefont.', marconi: 'Marconi: 1895-ben továbbította az első rádiójelet.', tesla: 'Tesla: 1891-ben építette az első Tesla-tekercsét.' };
+      document.getElementById('bio').innerHTML = `<p>${bios[who]}</p>`;
+      el.classList.add('visited'); visited++;
+      if (visited === 3) document.getElementById('btn-timeline-next').disabled = false;
+    }
+    // Quiz
+    function checkAnswer(btn) {
+      const parent = btn.closest('.panel');
+      [...parent.querySelectorAll('.option-button')].forEach(b => { b.disabled = true; b.classList.add(b.dataset.correct === 'true' ? 'correct' : 'wrong') });
+      setTimeout(() => showPanel(parent.nextElementSibling.id), 1000);
+    }
+    // Memory
+    const items = [{ id: 1, type: 'img', val: 'bell.jpg' }, { id: 2, type: 'img', val: 'marconi.jpg' }, { id: 3, type: 'img', val: 'tesla.jpg' }, { id: 4, type: 'img', val: 'telefon.jpg' }, { id: 5, type: 'img', val: 'taviro.jpg' }, { id: 6, type: 'img', val: 'tekercs.jpg' }];
+    let first, second, lock, matches;
+    function initMemory() {
+      const grid = document.getElementById('memoryGrid'); grid.innerHTML = '';
+      const deck = [...items, ...items].sort(() => Math.random() - 0.5);
+      first = second = null; lock = false; matches = 0;
+      deck.forEach(data => {
+        const card = document.createElement('div'); card.className = 'card';
+        const inner = document.createElement('div'); inner.className = 'card-inner';
+        const front = document.createElement('div'); front.className = 'card-face face-front';
+        const back = document.createElement('div'); back.className = 'card-face face-back';
+        if (data.type === 'img') back.innerHTML = `<img src="images/${data.val}" alt="${data.val}">`;
+        else back.textContent = data.val;
+        inner.append(front, back); card.append(inner);
+        card.addEventListener('click', () => flipCard(card, data)); grid.append(card);
       });
-      setTimeout(() => {
-        showPanel(nextPanelId);
-      }, 1000);
     }
-
-    function initDinoGame() {
-      const canvas = document.getElementById('dinoCanvas');
-      dinoCtx = canvas.getContext('2d');
-      document.getElementById('retryBtn').style.display = 'none';
-      dino = { x: 50, y: 160, vy: 0, width: 30, height: 40 };
-      gravity = 1.5;
-      jumpStrength = -20;
-      isJumping = false;
-      score = 0;
-      speed = 4;
-      gameRunning = true;
-      currentObstacle = generateObstacle();
-      document.getElementById('dinoScore').innerText = 'Pont: 0';
+    function flipCard(card, data) { if (lock || card.classList.contains('flipped') || card.classList.contains('matched')) return; card.classList.add('flipped'); if (!first) first = { card, data }; else { second = { card, data }; lock = true; setTimeout(checkMemory, 800); } }
+    function checkMemory() { if (first.data.id === second.data.id) { first.card.classList.add('matched'); second.card.classList.add('matched'); matches++; if (matches === items.length) setTimeout(() => showPanel('teslaGame'), 600); } else { first.card.classList.remove('flipped'); second.card.classList.remove('flipped'); } first = second = null; lock = false; }
+    // Tesla Shooter
+    function initTesla() {
+      const canvas = document.getElementById('teslaCanvas'), ctx = canvas.getContext('2d');
+      let W, H, bolts = [], targets = [], score = 0, running = true; const COUNT = 3, R = 20, REQ = 10;
+      function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; } window.addEventListener('resize', resize); resize();
+      function spawn() { return { x: R + Math.random() * (W - 2 * R), y: R + Math.random() * ((H / 3) - 2 * R) + R, dx: (Math.random() < .5 ? 1 : -1), dy: (Math.random() < .5 ? 1 : -1) }; }
+      function start() { bolts = []; targets = Array.from({ length: COUNT }, spawn); score = 0; running = true; document.getElementById('teslaScore').textContent = 0; document.getElementById('retryTesla').style.display = 'none'; loop(); }
+      document.getElementById('retryTesla').onclick = start;
+      window.addEventListener('keydown', e => { if (running && e.code === 'Space') bolts.push({ x: W / 2, y: H - 30, vy: -8 }); });
+      function loop() { if (!running) return; ctx.clearRect(0, 0, W, H); drawCoil(); bolts = bolts.filter(b => { b.y += b.vy; ctx.fillStyle = '#00ff99'; ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, 2 * Math.PI); ctx.fill(); return b.y > 0; }); targets.forEach((t, i) => { t.x += t.dx * 2; t.y += t.dy * 1.5; if (t.x < R || t.x > W - R) t.dx *= -1; if (t.y < R || t.y > H / 2) t.dy *= -1; bolts.forEach((b, j) => { const dx = b.x - t.x, dy = b.y - t.y; if (dx * dx + dy * dy < (R + 5) ** 2) { bolts.splice(j, 1); score++; document.getElementById('teslaScore').textContent = score; targets[i] = spawn(); if (score >= REQ) end(); } }); ctx.fillStyle = '#ff1744'; ctx.beginPath(); ctx.arc(t.x, t.y, R, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = '#ff1744'; ctx.beginPath(); ctx.moveTo(t.x, t.y - R - 5); ctx.lineTo(t.x, t.y - R - 20); ctx.stroke(); }); requestAnimationFrame(loop); }
+      function drawCoil() { const coilX = W / 2 - 20, coilY = H - 30; ctx.fillStyle = '#00e5ff'; ctx.fillRect(coilX, coilY, 40, 20); ctx.strokeStyle = '#00e5ff'; ctx.beginPath(); for (let i = 0; i < 6; i++) ctx.arc(coilX + 20, coilY, 20 - i * 3, 1.2 * Math.PI, 1.8 * Math.PI); ctx.stroke(); }
+      function end() { running = false; document.getElementById('retryTesla').style.display = 'inline-block'; setTimeout(() => showPanel('dinoGame'), 500); }
+      start();
     }
-
-    function generateObstacle() {
-      const sizeIncrease = Math.min(score * 2, 40);
-      const types = [
-        { width: 20 + sizeIncrease, height: 40 + sizeIncrease, color: 'green' },
-        { width: 30 + sizeIncrease, height: 30 + sizeIncrease, color: 'red' },
-        { width: 15 + sizeIncrease, height: 60 + sizeIncrease, color: 'blue' }
-      ];
-      const t = types[Math.floor(Math.random() * types.length)];
-      return {
-        x: 600 + Math.random() * 100,
-        width: t.width,
-        height: t.height,
-        color: t.color
-      };
+    // Dino Runner
+    function initDino() {
+      const canvas = document.getElementById('dinoCanvas'), ctx = canvas.getContext('2d');
+      let W, H; const dinoSize = { w: 30, h: 40 }, ground = 20;
+      let dino = { x: 50, y: 0, vy: 0, jumping: false }, obstacles = [], score = 0, speed = 4, running = true;
+      function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; dino.y = H - ground - dinoSize.h; } window.addEventListener('resize', resize); resize();
+      function spawn() { const types = ['antenna', 'wave', 'creature']; const type = types[Math.floor(Math.random() * types.length)]; const size = 30 + Math.random() * 30; return { x: W + 50, type, w: size, h: size, phase: 0 }; }
+      function start() { obstacles = []; score = 0; speed = 4; running = true; document.getElementById('dinoScore').textContent = 0; document.getElementById('retryDino').style.display = 'none'; dino = { x: 50, y: H - ground - dinoSize.h, vy: 0, jumping: false }; loop(); }
+      document.getElementById('retryDino').onclick = start;
+      window.addEventListener('keydown', e => { if (!running) return; if ((e.code === 'Space' || e.code === 'ArrowUp') && !dino.jumping) { dino.vy = -14; dino.jumping = true; } });
+      function drawGround() { ctx.fillStyle = '#654321'; ctx.fillRect(0, H - ground, W, ground); }
+      function drawDino() { ctx.fillStyle = '#333'; ctx.fillRect(dino.x, dino.y, dinoSize.w, dinoSize.h); }
+      function drawObs(o) { if (o.type === 'antenna') { ctx.fillStyle = '#00e5ff'; ctx.fillRect(o.x, H - o.h - ground, o.w, o.h); } else if (o.type === 'wave') { ctx.strokeStyle = '#ff1744'; ctx.lineWidth = 3; const ybase = H - o.h - ground; ctx.beginPath(); for (let i = 0; i < o.w; i += 10) { const amp = 5 * Math.sin((i / o.w) * Math.PI * 2 + o.phase); ctx.lineTo(o.x + i, ybase + amp); } ctx.stroke(); } else { ctx.fillStyle = '#00ff99'; const cx = o.x + o.w / 2, cy = H - o.h / 2 - ground; ctx.beginPath(); ctx.moveTo(cx, cy - o.h / 2); ctx.lineTo(cx - o.w / 2, cy + o.h / 2); ctx.lineTo(cx + o.w / 2, cy + o.h / 2); ctx.closePath(); ctx.fill(); } }
+      function loop() { if (!running) return; ctx.clearRect(0, 0, W, H); drawGround(); dino.y += dino.vy; dino.vy += 0.8; if (dino.y > H - ground - dinoSize.h) { dino.y = H - ground - dinoSize.h; dino.vy = 0; dino.jumping = false; } drawDino(); if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < W - 300) obstacles.push(spawn()); obstacles.forEach((o, i) => { o.x -= speed; o.phase += 0.1; drawObs(o); if (dino.x < o.x + o.w && dino.x + dinoSize.w > o.x && dino.y + dinoSize.h > H - ground - o.h) end(); if (o.x + o.w < 0) { obstacles.splice(i, 1); score++; document.getElementById('dinoScore').textContent = score; speed = 4 + score * 0.3; if (score >= 20) end(); } }); requestAnimationFrame(loop); }
+      function end() { running = false; document.getElementById('retryDino').style.display = 'inline-block'; if (score >= 20) setTimeout(() => showPanel('result'), 500); } start();
     }
-
-    document.addEventListener('keydown', function(e) {
-      if ((e.key === ' ' || e.code === 'ArrowUp') && !isJumping && gameRunning) {
-        dino.vy = jumpStrength;
-        isJumping = true;
-      }
-    });
-
-    function startDinoGame() {
-      function updateDino() {
-        if (!gameRunning) return;
-        dinoCtx.clearRect(0, 0, 600, 200);
-
-        dino.y += dino.vy;
-        dino.vy += gravity;
-        if (dino.y >= 160) {
-          dino.y = 160;
-          dino.vy = 0;
-          isJumping = false;
-        }
-
-        currentObstacle.x -= speed;
-        if (currentObstacle.x + currentObstacle.width < 0) {
-          score++;
-          speed = 4 + score * 0.2;
-          currentObstacle = generateObstacle();
-          document.getElementById('dinoScore').innerText = 'Pont: ' + score;
-          if (score >= 20) {
-            showPanel('result');
-            return;
-          }
-        }
-
-        if (
-          dino.x < currentObstacle.x + currentObstacle.width &&
-          dino.x + dino.width > currentObstacle.x &&
-          dino.y + dino.height > 200 - currentObstacle.height
-        ) {
-          gameRunning = false;
-          document.getElementById('retryBtn').style.display = 'inline-block';
-          return;
-        }
-
-        dinoCtx.fillStyle = 'black';
-        dinoCtx.fillRect(dino.x, dino.y, dino.width, dino.height);
-
-        dinoCtx.fillStyle = currentObstacle.color;
-        dinoCtx.fillRect(
-          currentObstacle.x,
-          200 - currentObstacle.height,
-          currentObstacle.width,
-          currentObstacle.height
-        );
-
-        requestAnimationFrame(updateDino);
-      }
-      updateDino();
-    }
-
-    function restartDinoGame() {
-      initDinoGame();
-      startDinoGame();
-    }
+    // Init
+    function showPanel(id) { document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); if (id === 'matchGame') initMemory(); if (id === 'teslaGame') initTesla(); if (id === 'dinoGame') initDino(); }
+    showPanel('intro');
   </script>
 </body>
+
 </html>
