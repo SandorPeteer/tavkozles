@@ -21,6 +21,10 @@ LowKey, Hell Yeah!
 - [ ] Update the website
 - [ ] Contact the media
 
+> kacsacsőrírás
+
+`ez meg a kódokhoz jó, ping Youtube.com`
+
 # KÉP:
 
 <img width="551" height="361" alt="Google ping" src="https://github.com/user-attachments/assets/2d697b98-bc60-4264-8adf-31395d177290" />
