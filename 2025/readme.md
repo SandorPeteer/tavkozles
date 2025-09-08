@@ -1,5 +1,31 @@
 # Bemutatkozás
 
+## Rólam
+Üdvözöllek! A nevem **Peti**, mérnökként dolgozom, és szenvedélyem a technológia, a hangtechnika és az oktatás.  
+Fontos számomra a precizitás, a szakmai fejlődés, valamint az, hogy tudásomat átadhassam másoknak.
+
+## Foglalkozás
+- Mérnöki háttérrel rendelkezem
+- Hangtechnikai és rendezvényes projektekben aktívan részt veszek
+- Oktatóként dolgozom, ahol a diákjaimnak nemcsak műszaki, hanem projektmenedzsment szemléletet is átadok
+
+## Érdeklődési körök
+- **Hangtechnika**: hangrendszerek tervezése és üzemeltetése
+- **Informatika és távközlés**: hálózatok, API-fejlesztés, szoftverfejlesztés
+- **Oktatás**: diákok támogatása projektmunkában és szakmai fejlődésben
+- **Hobbi**: DJ-zés, fotózás, videózás, streamelés
+
+## Értékek, amiket képviselek
+- Pontosság és megbízhatóság  
+- Rendszerszemlélet és hatékony problémamegoldás  
+- Tudásmegosztás és utánpótlás-nevelés  
+
+## Elérhetőség
+- 📧 Email: info@sprendezveny.hu  
+- 📍 Lakhely: Miskolc környéke, Magyarország  
+
+--- 
+
 Most kiemelem az **SP** -t. Látod? Ez nagyon Crazy! 
 LowKey, Hell Yeah! 
 That is so funny! :joy:
