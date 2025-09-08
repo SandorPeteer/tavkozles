@@ -2,6 +2,7 @@
 
 Most kiemelem az **SP** -t. Látod? Ez nagyon Crazy! 
 LowKey, Hell Yeah! 
+That is so funny! :joy:
 
 --- 
 
