@@ -18,3 +18,8 @@ $f = 100 Hz $
 *Számítás:*  
 $U = R * I = 100 Ω * 0.5 A = 50 V$  
 $Up = U * \sqrt{2} = 50 * 1.4142 = 70.7V $  
+
+---  
+
+Kapcsolás:  
+<img width="684" height="420" alt="image" src="https://github.com/user-attachments/assets/0161767b-b173-48a7-82b9-1db43ab27701" />
