@@ -8,3 +8,12 @@ Rajzoljuk fel az áram és a feszültség vektoriális képet,az áram a cos fü
 
 ---
 
+*Adatok:*  
+$$I = 0.5 A $$  
+$$R = 100 Ω $$  
+$$f = 100 Hz $$  
+
+---
+
+*Számítás:*  
+$$U = R * I = 100 Ω * 0.5 A = 50 V$$
