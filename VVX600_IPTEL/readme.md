@@ -1,4 +1,5 @@
-Telefon konfig
+# Telefon konfig   
+
 <img width="854" height="933" alt="Screenshot 2025-09-25 at 16 12 15" src="https://github.com/user-attachments/assets/2d6ad0c2-2a1f-4335-b7e9-5e1938a82994" />
 <img width="853" height="941" alt="Screenshot 2025-09-25 at 16 13 58" src="https://github.com/user-attachments/assets/58417fc1-d103-4918-9bb2-3aa220101352" />
 <img width="858" height="934" alt="Screenshot 2025-09-25 at 16 11 32" src="https://github.com/user-attachments/assets/a5b01226-1e56-43b2-87fb-f778b5a74abe" />
