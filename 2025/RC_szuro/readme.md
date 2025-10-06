@@ -5,12 +5,21 @@ Szül.: 2006.10.02.
 Aluláteresztő RC szűrő kapcs. 
 
 *Adatok:*  
-$R = 10 Ohm$   
-$C = 2 uF$   
+
+$R = 10 Ohm $   
+$C = 2 uF $   
 
 ---   
 
 <img width="1255" height="628" alt="image" src="https://github.com/user-attachments/assets/109b3b8b-fd94-43fa-9f5a-25eae68e713a" />   
+
+---   
+
+*Határfrekvencia:*   
+   
+$fh= {1 \over (2 * Pi * R * C)} $   
+$fh= {1 \over (2 * Pi * 10R * 2uF)} $   
+$fh= 7957.7472 Hz $
 
 ---   
 
