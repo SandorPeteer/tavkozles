@@ -1,14 +1,30 @@
 # Wireless Kommunikáció - Kérdések és Témakörök
 
 ## I. Wireless alapok, elektromágneses hullámok
-- **Mi az elektromágneses hullám, és hogyan terjed?**
-- **Hogyan jellemezhető az elektromágneses hullám hullámhossza és frekvenciája?**
-- **Mit jelent a vezeték nélküli kommunikáció?**
-- **Hogyan fedezték fel az elektromágneses hullámokat?**
-- **Milyen frekvenciák haladnak át a földi atmoszférán?**
-- **Mik a különbségek a különböző frekvenciájú hullámok viselkedésében?**
-- **Mitől függ, hogy egy hullám visszaverődik vagy áthalad egy tárgyon?**
-- **Hogyan terjednek a rádióhullámok a Föld atmoszféráján belül és kívül?**
+    "Mi az elektromágneses sugárzás, és hogyan terjed?",
+    "Mi a kapcsolat a hullámhossz és frekvencia között?",
+    "Mit jelent a vezeték nélküli kommunikáció?",
+    "Hogyan fedezték fel az elektromágneses hullámokat?",
+    "Mely frekvenciák haladnak át a földi atmoszférán?",
+    "Mik a különbségek a különböző frekvenciájú hullámok viselkedésében?",
+    "Mitől függ, hogy egy hullám visszaverődik vagy áthalad egy tárgyon?",
+    "Hogyan terjednek a rádióhullámok a Föld atmoszféráján belül és kívül?",
+    "Az elektromágneses spektrum mely hullámhossz tartományába esik a látható fény?",
+    "Melyik fénytartományt nem látjuk a szemünkkel, nevezd meg mind a kettőt?",
+    "Milyen lehetőségek állnak rendelkezésre a vezeték nélküli kommunikációhoz? (mit használhatunk az elektromágneses hullám tartományaiból?)",
+    "Milyen technológiával tudunk távolba küldeni információt?",
+    "Milyen analóg modulációkat ismersz?",
+    "Milyen digitális modulációkat ismersz?",
+    "Mi az az antenna?",
+    "Mi az izotróp antenna?",
+    "Mi a sugárázási karakterisztika",
+    "Mi az antenna nyeresége",
+    "Mi az impedancia",
+    "Számold ki egy 300MHz-en működő antenna negyed hullámhosszúságú fizikai méretét.",
+    "Az 1 méter hosszú antenna milyen frekvencián üzemel?",
+    "Milyen frekvenciasávot használ az FM műsorszórás?",
+    "A monopól antenna milyen irányba sugároz?",
+    "Sorolj fel néhány népszerű irányított antennát!",
 
 ## II. Adatátvitelre is alkalmas elektromágneses hullámok
 - **Milyen hullámok alkalmasak adatátvitelre?**
