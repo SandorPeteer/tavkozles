@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AstroLink — CanSat 2025/2026</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root{
+      --accent:#0d6efd;
+      --accent-2:#6f42c1;
+      --muted:#6c757d;
+      --glass-bg: rgba(255,255,255,0.04);
+    }
+    /* Global */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(180deg,#030412 0%, #0f1724 100%);
+      color:#fff; /* fehér betű */
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Hero */
+    .hero{padding:5rem 0;background:radial-gradient(ellipse at top left, rgba(13,110,253,0.08), transparent 25%), transparent;}
+
+    /* Logo */
+    .logo-circle{
+      width:96px;height:96px;border-radius:50%;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      display:flex;align-items:center;justify-content:center;font-weight:700;
+      color:#fff;box-shadow:0 8px 30px rgba(13,110,253,0.12);
+      transition:transform .28s cubic-bezier(.2,.9,.3,1), box-shadow .28s ease;
+    }
+    .logo-circle:hover{transform:translateY(-6px) rotate(-4deg);box-shadow:0 18px 40px rgba(13,110,253,0.28)}
+
+    /* Glass cards */
+    .card-glass{
+      background: var(--glass-bg);
+      border:1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(6px);
+      transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+    }
+    .card-glass:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,0.45);border-color:rgba(13,110,253,0.18)}
+
+    /* Buttons and links */
+    .btn{transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease}
+    .btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(13,110,253,0.18)}
+    .nav-link{color:rgba(255,255,255,0.9);transition:color .18s ease, transform .18s ease}
+    .nav-link:hover{color:var(--accent);transform:translateY(-2px)}
+    a{color:var(--accent);}
+    a:hover{text-decoration:underline}
+
+    /* Cards inside team */
+    .member-photo{width:72px;height:72px;object-fit:cover}
+
+    /* Timeline */
+    .timeline-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);display:inline-block;box-shadow:0 6px 18px rgba(13,110,253,0.18)}
+
+    /* Footer */
+    .footer{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border-top:1px solid rgba(255,255,255,0.03)}
+
+    /* Small screens */
+    @media (max-width:576px){
+      .hero{padding:3rem 0}
+      .logo-circle{width:72px;height:72px}
+    }
+
+    /* Form inputs - subtle focus */
+    .form-control:focus{box-shadow:0 0 0 0.2rem rgba(13,110,253,0.12);border-color:var(--accent)}
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-transparent py-3">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+        <div class="logo-circle">AL</div>
+        <div>
+          <div class="fw-bold">AstroLink</div>
+          <small class="text-white-50 d-block">CanSat Hungary 2025/2026</small>
+        </div>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="#about">Rólunk</a></li>
+          <li class="nav-item"><a class="nav-link" href="#team">Csapat</a></li>
+          <li class="nav-item"><a class="nav-link" href="#timeline">Ütemterv</a></li>
+          <li class="nav-item"><a class="nav-link" href="#media">Média</a></li>
+          <li class="nav-item"><a class="btn btn-outline-light ms-2" href="#contact">Kapcsolat</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-7 text-lg-start text-center">
+          <h1 class="display-5 fw-bold">AstroLink — Ifjúsági CanSat küldetés</h1>
+          <p class="lead text-white-50">Egyetemi és középiskolai diákokból álló csapatunk célja, hogy egy működő CanSatet tervezzünk, építsünk és sikerrel repítsük a CanSat Hungary 2025/2026 versenyén.</p>
+          <div class="d-flex gap-2 justify-content-lg-start justify-content-center mt-3">
+            <a class="btn btn-primary btn-lg" href="#about"><i class="bi bi-rocket-fill me-2"></i>Tudj meg többet</a>
+            <a class="btn btn-outline-light btn-lg" href="#contact"><i class="bi bi-envelope-fill me-2"></i>Kapcsolat</a>
+          </div>
+          <ul class="list-inline text-white-50 small mt-4">
+            <li class="list-inline-item me-4"><strong>Fő cél:</strong> Stabil adatgyűjtés &amp; sikeres visszatérés</li>
+            <li class="list-inline-item"><strong>Verseny:</strong> CanSat Hungary 2025/2026</li>
+          </ul>
+        </div>
+        <div class="col-lg-5 mt-4 mt-lg-0 text-center">
+          <div class="card card-glass p-4 shadow-sm">
+            <img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=800&q=60" alt="satellite mockup" class="img-fluid rounded mb-3">
+            <div class="small text-white-50">Koncepció illusztráció — a végleges CanSat tervünk más lehet.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="py-5">
+    <div class="container">
+      <!-- About -->
+      <section id="about" class="mb-5">
+        <div class="row g-4 align-items-center">
+          <div class="col-md-6">
+            <h2>Rólunk</h2>
+            <p class="text-white-50">Az AstroLink egy multidiszciplináris diákcsapat, mely mérnöki, programozási és tudományos háttérrel rendelkezik. Küldetésünk, hogy egy költséghatékony, megbízható CanSat rendszert hozzunk létre, amely adatokat gyűjt a légkör fizikai paramétereiről és biztonságosan visszatér a célterületre.</p>
+            <ul class="list-unstyled text-white-50">
+              <li class="mb-2"><i class="bi bi-check2-circle me-2 text-info"></i><strong>Szoftver:</strong> beágyazott rendszerek, adatrögzítés</li>
+              <li class="mb-2"><i class="bi bi-check2-circle me-2 text-info"></i><strong>Hardver:</strong> szenzorok, telemetria, repülésmechanika</li>
+              <li class="mb-2"><i class="bi bi-check2-circle me-2 text-info"></i><strong>Küldetéstervezés:</strong> leszállás, adatbiztonság, tesztelés</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <div class="card card-glass p-4">
+              <h5>Technikai alapok</h5>
+              <div class="row text-white-50">
+                <div class="col-6">
+                  <strong>Szenzorok</strong>
+                  <p class="mb-0">Hőmérséklet, nyomás, gyorsulás, GPS</p>
+                </div>
+                <div class="col-6">
+                  <strong>Kommunikáció</strong>
+                  <p class="mb-0">RF Telemetria, SD kártya mentés</p>
+                </div>
+              </div>
+              <hr class="my-3">
+              <p class="small text-white-50 mb-0">A tervek nyitottak: ha szívesen csatlakoznál vagy támogatnád a munkát, keress minket!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Team -->
+      <section id="team" class="mb-5">
+        <h3>Csapat</h3>
+        <p class="text-white-50">Ismerd meg a kulcsszereplőket — keverednek a lelkes középiskolások és egyetemi hallgatók.</p>
+        <div class="row gy-4">
+          <div class="col-sm-6 col-md-4">
+            <div class="card card-glass h-100 p-3">
+              <div class="d-flex align-items-center gap-3">
+                <img src="." alt="." class="rounded-circle member-photo">
+                <div>
+                  <h5 class="mb-0">.</h5>
+                  <small class="text-white-50">Projektvezető — Műszaki tervezés</small>
+                </div>
+              </div>
+              <p class="mt-3 text-white-50 small">.</p>
+            </div>
+          </div>
+
+          <div class="col-sm-6 col-md-4">
+            <div class="card card-glass h-100 p-3">
+              <div class="d-flex align-items-center gap-3">
+                <img src="" alt="" class="rounded-circle member-photo">
+                <div>
+                  <h5 class="mb-0">.</h5>
+                  <small class="text-white-50">Hardverfejlesztő</small>
+                </div>
+              </div>
+              <p class="mt-3 text-white-50 small">.</p>
+            </div>
+          </div>
+
+          <div class="col-sm-6 col-md-4">
+            <div class="card card-glass h-100 p-3">
+              <div class="d-flex align-items-center gap-3">
+                <img src="." alt="." class="rounded-circle member-photo">
+                <div>
+                  <h5 class="mb-0">.</h5>
+                  <small class="text-white-50">Szoftver &amp; Analitika</small>
+                </div>
+              </div>
+              <p class="mt-3 text-white-50 small">.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Timeline -->
+      <section id="timeline" class="mb-5">
+        <h3>Ütemterv</h3>
+        <p class="text-white-50">Fő mérföldkövek a verseny felkészülés alatt.</p>
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <div class="card card-glass p-3 text-center">
+              <h6 class="mb-1">2025. Június</h6>
+              <small class="text-white-50">Csapat megalakulása &amp; koncepció</small>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="card card-glass p-3 text-center">
+              <h6 class="mb-1">2025. Október</h6>
+              <small class="text-white-50">Prototípus &amp; földi tesztek</small>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="card card-glass p-3 text-center">
+              <h6 class="mb-1">2026. Március</h6>
+              <small class="text-white-50">Repülési tesztek &amp; finomhangolás</small>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3">
+            <div class="card card-glass p-3 text-center">
+              <h6 class="mb-1">2026. Június</h6>
+              <small class="text-white-50">Verseny — CanSat Hungary döntő</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Media / Gallery -->
+      <section id="media" class="mb-5">
+        <h3>Média</h3>
+        <p class="text-white-50">Képek és rövid videók a tesztekről.</p>
+        <div class="row g-3">
+          <div class="col-6 col-md-3">
+            <img src="https://images.unsplash.com/photo-1508610048659-a06b669e3321?auto=format&fit=crop&w=600&q=60" class="img-fluid rounded card-glass p-1" alt="test1">
+          </div>
+          <div class="col-6 col-md-3">
+            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=60" class="img-fluid rounded card-glass p-1" alt="test2">
+          </div>
+          <div class="col-6 col-md-3">
+            <img src="https://images.unsplash.com/photo-1517976487492-7d8f4d6d8c6f?auto=format&fit=crop&w=600&q=60" class="img-fluid rounded card-glass p-1" alt="test3">
+          </div>
+          <div class="col-6 col-md-3">
+            <img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=600&q=60" class="img-fluid rounded card-glass p-1" alt="test4">
+          </div>
+        </div>
+      </section>
+
+      <!-- Call to action / Sponsors -->
+      <section class="mb-5">
+        <div class="card card-glass p-4 text-center">
+          <h4>Támogasd az AstroLinket</h4>
+          <p class="text-white-50">Keress minket, ha cégként vagy magánszemélyként támogatnál eszközökkel, mentorálással vagy anyagi támogatással.</p>
+          <a class="btn btn-outline-light" href="#contact"><i class="bi bi-hand-thumbs-up me-2"></i>Támogasd a csapatot</a>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact" class="mb-5">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <h3>Kapcsolat</h3>
+            <p class="text-white-50">Írj nekünk — szívesen fogadjuk az érdeklődést, önkénteseket és szponzorokat.</p>
+            <ul class="list-unstyled text-white-50">
+              <li class="mb-2"><i class="bi bi-envelope-fill me-2"></i><strong>E-mail:</strong> <a href="mailto:astrolink@example.com">astrolink@example.com</a></li>
+              <li class="mb-2"><i class="bi bi-geo-alt-fill me-2"></i><strong>Hely:</strong> Budapest, Magyarország</li>
+              <li class="mb-2"><i class="bi bi-phone-fill me-2"></i><strong>Telefon:</strong> +36 30 123 4567</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <div class="card card-glass p-3">
+              <form>
+                <div class="mb-3">
+                  <label class="form-label">Név</label>
+                  <input class="form-control" placeholder="Név">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">E-mail</label>
+                  <input class="form-control" type="email" placeholder="valaki@pelda.hu">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Üzenet</label>
+                  <textarea class="form-control" rows="4" placeholder="Rövid üzenet"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Küldés</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer py-4 mt-4 text-white">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div>
+        <strong>AstroLink</strong> — CanSat Hungary 2025/2026
+        <div class="small text-white-50">© 2025 AstroLink. Minden jog fenntartva.</div>
+      </div>
+      <div class="text-end">
+        <a class="me-3 small text-white-50" href="#">Adatvédelem</a>
+        <a class="small text-white-50" href="#">Impresszum</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
