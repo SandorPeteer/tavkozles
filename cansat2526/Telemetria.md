@@ -10,7 +10,7 @@ Minden mérési eredményből egy tömörített mintapack készül (5–8 byte).
 A mintavételezés a teljes küldetés alatt azonos marad, a CanSat fedélzeti kódjában fixen 2 Hz-re állítva. A 2 Hz-es mintavétel minden szenzorra érvényes, de nem minden szenzorértéket küldünk le minden mintánál, csak amit a protokoll fontosnak ítél.
 
 A szenzorok, amelyek adatai bekerülhetnek a telemetriába:
-- Nyomás / magasság (BMP/BMP585)
+- Nyomás / magasság (BME280/BMP585)
 - Hőmérséklet, relatív páratartalom (BME/BMP + kiegészítő szenzorok)
 - Levegőminőség – PM2.5 (SPS30)
 - CO₂ (SCD40)
@@ -53,17 +53,17 @@ A 10 Hz → 2 Hz előfeldolgozás tehát nem vesz el információt – éppen el
 ### Fedélzeti MCU – adatfolyam szemléltető ábra (ASCII)
 
 ```
-   ┌──────────────┐        10 Hz nyers minták        ┌─────────────────────┐
+   ┌──────────────┐        10 Hz nyers minták         ┌─────────────────────┐
    │  Szenzorok   │ ─────────────────────────────────▶│  Nyers adat buffer  │
    │ T / RH / P   │                                   └─────────────────────┘
-   │ PM2.5 / UV    │
-   │ CO₂ / BNO085  │
+   │ PM2.5 / UV   │
+   │ CO₂ / BNO085 │
    └──────────────┘
 
                ┌─────────────────────────────── Mozgóátlag (MA 5–10 minta) ────────────────────────────────┐
                ▼                                                                                           │
        ┌───────────────────┐                                                                               │
-       │ Szélsőérték-szűrés │◀───────────────────── hibás tüskék eldobása ──────────────────────────────────┘
+       │ Szélsőérték-szűrés │◀───────────────────── hibás tüskék eldobása ─────────────────────────────────┘
        └───────────────────┘
                ▼
        ┌────────────────────────────┐
