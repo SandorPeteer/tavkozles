@@ -18,7 +18,76 @@ A szenzorok, amelyek adatai bekerülhetnek a telemetriába:
 - Irány, dőlés, forgás (BNO085 – yaw/pitch/roll)
 - GPS pozíció, magasság, irány (BE-880Q)
 
+
 A telemetria protokoll úgy van kialakítva, hogy a mostani alap (T/RH/P) mellett fokozatosan bővíthető legyen ezekkel az adatokkal, anélkül hogy a LoRa link stabilitása romlana.
+
+
+## 1.1. Fedélzeti MCU feladatai – nagyfrekvenciás mintavételezés és előfeldolgozás
+
+A CanSat fedélzeti mikrokontrollere nem csak a 2 Hz-es telemetriai mintákat készíti elő, hanem **nagyobb frekvencián (akár 10 Hz-en)** folyamatosan méri a szenzorokat, és az adatokból **előfeldolgozott, zajszűrt** értékeket állít elő.
+
+A fedélzeti MCU főbb feladatai:
+
+- **10 Hz-es nyers mintavételezés** minden releváns szenzorról (T/RH/P, PM2.5, UV, CO₂ stb.)
+- **mozgóátlagolás (moving average)** 5–10 minta alapján  
+  – kiszűri a rövid, szenzorhibából vagy turbulenciából eredő tüskéket  
+- **szélsőértékek eldobása** (min/max clipping)  
+  – megakadályozza, hogy egy hibás minta befolyásolja a telemetriát
+- **2 Hz-es „telemetriai minták” előállítása** a 10 Hz-es nyers adatokból
+- **változásdetektálás előkészítése**: a tömörített pack-ekhez jelzi, hogy mely paraméterek változtak
+- **batch gyűjtés** 8–12 mintáig (attól függően, hogy mikor érjük el a 48 byte-os payload méretet)
+- **LoRa csomag összeállítása** base_MET + bitmask + pack-ek
+
+Ennek eredményeként a telemetria:
+
+- **sokkal stabilabb**, mint a nyers adatok,
+- **több tájékoztató értékkel** rendelkezik (nincs szenzorzaj),
+- **kevesebb bitet** igényel a változásdetektálás miatt,
+- és a földi állomás grafikonyai **tiszta, sima légköri profilt** mutatnak.
+
+
+A 10 Hz → 2 Hz előfeldolgozás tehát nem vesz el információt – éppen ellenkezőleg:  
+**minden fontos trendet megtart, miközben eltünteti a zajt és csökkenti az adatforgalmat.**
+
+
+### Fedélzeti MCU – adatfolyam szemléltető ábra (ASCII)
+
+```
+   ┌──────────────┐        10 Hz nyers minták        ┌─────────────────────┐
+   │  Szenzorok   │ ─────────────────────────────────▶│  Nyers adat buffer  │
+   │ T / RH / P   │                                   └─────────────────────┘
+   │ PM2.5 / UV    │
+   │ CO₂ / BNO085  │
+   └──────────────┘
+
+               ┌─────────────────────────────── Mozgóátlag (MA 5–10 minta) ────────────────────────────────┐
+               ▼                                                                                           │
+       ┌───────────────────┐                                                                               │
+       │ Szélsőérték-szűrés │◀───────────────────── hibás tüskék eldobása ──────────────────────────────────┘
+       └───────────────────┘
+               ▼
+       ┌────────────────────────────┐
+       │ 2 Hz telemetriai minták    │  (stabilizált, zajmentes érték)
+       └────────────────────────────┘
+               ▼
+       ┌────────────────────────────┐
+       │  Változásdetektálás (flag) │
+       │       bitmask előkészítés  │
+       └────────────────────────────┘
+               ▼
+       ┌────────────────────────────┐
+       │   Pack-ek gyártása (6–8 B) │
+       └────────────────────────────┘
+               ▼
+       ┌────────────────────────────┐
+       │ Batch gyűjtés (8–12 pack)  │
+       │ + base_MET meghatározása   │
+       └────────────────────────────┘
+               ▼
+       ┌────────────────────────────┐
+       │   LoRa SF12 csomag (≤48 B) │
+       └────────────────────────────┘
+```
 
 ## 2. Időbélyegzés – MET
 - Csomagonként több minta megy le.
@@ -53,10 +122,29 @@ Idx | base_MET | MET (valódi idő) | Temp | RH | P   | PM2.5 | UV
 A földi állomás ezekből az adatokból a teljes idősort hibamentesen visszaállítja, akkor is, ha a rádión érkezett csomagok esetleg késnek vagy kimaradnak.
 
 
+
 ### Miért nem 0 a base_MET? – Lényeges magyarázat
 
 A base_MET **nem a küldetés indulásának idejét jelzi**, hanem azt, hogy **a csomagban található első mintát mikor vettük**, 0,5 másodperces tickekben mérve.  
 Ezért a base_MET értéke szinte soha nem lesz 0, csak a legelső csomagnál.
+
+**Mikor indul a MET számláló?**
+
+A MET a küldetés elején **0-ról indul**, ez jellemzően:
+- vagy a rakéta leválásának pillanata,
+- vagy a CanSat saját bekapcsolt állapotban lévő időzítőjének „T0” pontja.
+
+A számláló ezután minden **0,5 másodperc** elteltével eggyel nő:
+
+```
+000 → 0,0 s  
+001 → 0,5 s  
+002 → 1,0 s  
+003 → 1,5 s  
+...  
+```
+
+Ez folytatódik egészen addig, amíg a CanSat mér — a földi állomás pedig a MET alapján pontos, fél másodperces időskálán tudja visszarajzolni a légköri adatokat.
 
 **Miért 120 a fenti példában?**  
 - 1 tick = 0,5 s  
