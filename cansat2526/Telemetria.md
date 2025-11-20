@@ -43,14 +43,14 @@ Ennek eredményeként a telemetria:
 - **sokkal stabilabb**, mint a nyers adatok,
 - **több tájékoztató értékkel** rendelkezik (nincs szenzorzaj),
 - **kevesebb bitet** igényel a változásdetektálás miatt,
-- és a földi állomás grafikonyai **tiszta, sima légköri profilt** mutatnak.
+- és a földi állomás grafikonjai **tiszta, sima légköri profilt** mutatnak.
 
 
 A 10 Hz → 2 Hz előfeldolgozás tehát nem vesz el információt – éppen ellenkezőleg:  
 **minden fontos trendet megtart, miközben eltünteti a zajt és csökkenti az adatforgalmat.**
 
 
-### Fedélzeti MCU – adatfolyam szemléltető ábra (ASCII)
+### Fedélzeti MCU – adatfolyam szemléltető ábra
 
 ```
    ┌──────────────┐        10 Hz nyers minták         ┌─────────────────────┐
@@ -123,10 +123,9 @@ A földi állomás ezekből az adatokból a teljes idősort hibamentesen vissza�
 
 
 
-### Miért nem 0 a base_MET? – Lényeges magyarázat
+### Miért nem 0 a base_MET?
 
-A base_MET **nem a küldetés indulásának idejét jelzi**, hanem azt, hogy **a csomagban található első mintát mikor vettük**, 0,5 másodperces tickekben mérve.  
-Ezért a base_MET értéke szinte soha nem lesz 0, csak a legelső csomagnál.
+A base_MET **nem a küldetés indulásának idejét jelzi**, hanem azt, hogy **a csomagban található első mintát mikor vettük**, 0,5 másodperces tickekben mérve. Ezért a base_MET értéke szinte soha nem lesz 0, csak a legelső csomagnál.
 
 **Mikor indul a MET számláló?**
 
@@ -240,7 +239,12 @@ UV index                  | 8 bit                | egész érték, 0–255 köz�
 - 0 = nem változott → ismétlés a földi oldalon  
 - Bitmask mérete: 1–2 byte (N mintaszámtól függ)
 
-A bitmask bitjei az adott csomagban szereplő mintákhoz tartoznak, például az LSB (legalsó bit) a 0. indexű mintához, a következő bit az 1. indexűhöz stb. Így egyetlen byte akár 8 minta állapotát is leírja. Ha a projekt során úgy döntünk, hogy ritkábban küldünk nagyobb csomagokat (például 10–12 mintával), akkor a bitmask mérete automatikusan 2 byte-ra nő.
+A bitmask bitjei az adott csomagban szereplő mintákhoz tartoznak, például az LSB (legalsó bit) a 0. indexű mintához, a következő bit az 1. indexűhöz stb. Így egyetlen byte akár 8 minta állapotát is leírja. Ha a projekt során úgy döntünk, hogy ritkábban küldünk nagyobb csomagokat (például 10–12 mintával), akkor a bitmask mérete automatikusan 2 byte-ra nő.   
+
+### Hogyan számolja ki a vevő a bitmask hosszát?   
+
+A vevő oldalon a bitmask méretét az N határozza meg. És mi N-t explicit elküldjük minden csomagban.   
+
 
 ## 5. LoRa csomag felépítése
 ```
@@ -260,7 +264,7 @@ N        = 0x06          (6 minta)
 bitmask  = 0b00101101    (LSB a 0. minta)
 ```
 
-A ténylegesen továbbított pack-ok:
+A ténylegesen továbbított pack-ok (lásd az adattáblázat sorait fent, a példában):
 
 ```
 pack0 → T/RH/P/PM25/UV
@@ -281,6 +285,8 @@ A rádiópayload így épül fel:
 [..]        pack5
 ```
 
+*Little-endian* = a szám alsó bájtja megy elől
+
 A földi állomás a bitmask alapján pontosan visszaállítja a 6 mintát, időrendben, 0,5 másodperces lépéssel.
 
 Tipikus csomagfelépítés például 6 minta esetén:
@@ -292,7 +298,7 @@ Tipikus csomagfelépítés például 6 minta esetén:
 
 ## 6. LoRa rádiós beállítások
 ```
-Frekvencia:        433000000 Hz
+Frekvencia:        433000000 Hz (vagy ami szabad a helyszín adottságaihoz állítva)
 Moduláció:         LoRa, explicit header, CRC ON
 BW:                125 kHz
 Spreading Factor:  SF12
