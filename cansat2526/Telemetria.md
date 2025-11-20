@@ -1,5 +1,6 @@
 # CANSAT – TÖMÖRÍTETT TELEMETRIA + LORA RENDSZER
 
+![20251103_205602](https://github.com/user-attachments/assets/e4f1db8e-7112-439d-a1b5-88024985e3a4)
 
 **Fontos:** az oldal alján részletes *Fogalomtár* található. A dokumentum megértéséhez elengedhetetlen végigolvasni, ezért mindenki nyugodjon le a picsába, és ha valami nem világos, először ott nézze meg a jelentését. :)
 
