@@ -219,17 +219,16 @@ A 822…1077 hPa tartomány lefedi a várható repülési magasságokat: kb. 1 k
 
 Az egyes főbb paraméterekhez tartozó bitméret és indoklás:
 
-```
-Paraméter                 | Mennyit küldünk?     | Miért?
----------------------------------------------------------------
-Nyomás (hPa)              | 12 bit               | kell a finom magassági profilhoz
-Hőmérséklet (°C)          | 11 bit               | 0,1 °C felbontás elég, nem kell több
-Páratartalom (%)          | 7 bit                | egész érték, tizedes nem szükséges
-PM2.5                     | 14 bit               | 0,5 µg/m³ felbontás bőven elég
-CO₂ (ppm)                 | 8–16 bit             | a küldetés igényei szerint választható
-Irány (yaw/pitch/roll)    | 16 bit/csatorna      | egész fok pontosság elegendő
-UV index                  | 8 bit                | egész érték, 0–255 között bőven elég
-```
+| Paraméter               | Mennyit küldünk?      | Miért?                                  |
+|-------------------------|-----------------------|-----------------------------------------|
+| Nyomás (hPa)            | 12 bit                | kell a finom magassági profilhoz        |
+| Hőmérséklet (°C)        | 11 bit                | 0,1 °C felbontás elég, nem kell több    |
+| Páratartalom (%)        | 7 bit                 | egész érték, tizedes nem szükséges      |
+| PM2.5                   | 14 bit                | 0,5 µg/m³ felbontás bőven elég          |
+| CO₂ (ppm)               | 8–16 bit              | a küldetés igényei szerint választható  |
+| Irány (yaw/pitch/roll)  | 16 bit / csatorna     | egész fok pontosság elegendő            |
+| UV index                | 8 bit                 | egész érték, 0–255 között bőven elég    |   
+
 
 ### Teljes mintapack
 5 byte (T/RH/P) + opcionális mezők → 6–8 byte.
