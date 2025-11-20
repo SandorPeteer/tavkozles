@@ -393,12 +393,12 @@ Bitmask:
 ```
 
 A fenti példában a bitmask 101101 (binárisan), vagyis:
-- 0. minta: 1 → pack bekerül
-- 1. minta: 0 → ismétlés az előzőből
-- 2. minta: 1 → új pack
-- 3. minta: 1 → új pack
-- 4. minta: 0 → ismétlés
-- 5. minta: 1 → új pack
+0. minta: 1 → pack bekerül
+1. minta: 0 → ismétlés az előzőből
+2. minta: 1 → új pack
+3. minta: 1 → új pack
+4. minta: 0 → ismétlés
+5. minta: 1 → új pack
 
 A földi oldalon a base_MET, az N, a bitmask és a pack-ek alapján a teljes idősor összeáll: minden 0,5 másodperces lépéshez megkapjuk a T/RH/P (és később más) értékeket.
 
