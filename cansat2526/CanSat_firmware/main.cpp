@@ -44,11 +44,18 @@ static void i2c_unstick(int sclPin, int sdaPin)
 #define LORA_MISO  19
 #define LORA_MOSI  23
 #define LORA_SS    5
-#define LORA_RST   17
-#define LORA_DIO0  16
+#define LORA_RST   26
+#define LORA_DIO0  25    // !!! kritikus, ez az interrupt láb !!!
 #define LORA_DIO1  36
+#define LORA_DIO2  33
 
 #define CAM_LED_PIN 4
+
+// ---------------------------------------------------------------------------
+//  LoRa frekvencia beállítások (globális)
+// ---------------------------------------------------------------------------
+static uint32_t LORA_FREQ_HZ   = 433300000;   // alap vivőfrekvencia (Hz)
+static int32_t  LORA_OFFSET_HZ = 3500;           // kézi offset (Hz)
 
 // -----------------------------------------------------------------------------
 //  BME280 REGISZTEREK / ÁLLANDÓK
@@ -583,6 +590,12 @@ static void lora_write_fifo(const uint8_t *data, uint8_t len) {
   digitalWrite(LORA_SS, HIGH);
 }
 
+
+static void lora_set_lora_opmode(uint8_t mode) {
+  uint8_t op = LONG_RANGE_MODE | (mode & 0x07);
+  lora_write_reg(REG_OP_MODE, op);
+}
+
 static void lora_set_opmode(uint8_t mode) {
   uint8_t op = lora_read_reg(REG_OP_MODE);
   op = (op & 0xF8) | (mode & 0x07);
@@ -619,7 +632,7 @@ static bool lora_begin() {
   // LoRa mód, sleep → standby
   lora_write_reg(REG_OP_MODE, LONG_RANGE_MODE | MODE_SLEEP);
   delay(10);
-  lora_set_opmode(MODE_STDBY);
+  lora_set_lora_opmode(MODE_STDBY);
   delay(10);
 
   // Verzió ellenőrzés
@@ -628,12 +641,15 @@ static bool lora_begin() {
     return false; // nincs modul / hibás
   }
 
-  // Frekvencia: 433 MHz
+  // Frekvencia: beállítás LORA_FREQ_HZ és LORA_OFFSET_HZ alapján
   // FRF = Freq / Fstep, Fstep = 32MHz / 2^19 ≈ 61.035 Hz
-  // 433 MHz → kb. 0x6C8000
-  lora_write_reg(REG_FRF_MSB, 0x6C);
-  lora_write_reg(REG_FRF_MID, 0x80);
-  lora_write_reg(REG_FRF_LSB, 0x00);
+  uint64_t targetFreq = (uint64_t)LORA_FREQ_HZ + (int64_t)LORA_OFFSET_HZ;
+  double fstep = 32000000.0 / 524288.0; // datasheet: Fxtal/2^19
+  uint32_t frf = (uint32_t)(targetFreq / fstep);
+
+  lora_write_reg(REG_FRF_MSB, (uint8_t)((frf >> 16) & 0xFF));
+  lora_write_reg(REG_FRF_MID, (uint8_t)((frf >> 8)  & 0xFF));
+  lora_write_reg(REG_FRF_LSB, (uint8_t)( frf        & 0xFF));
 
   // PA konfiguráció: PA_BOOST, ~+20 dBm
   // 17–20 dBm környéke: PaConfig ≈ 0x8F, PaDac ≈ 0x87 (20 dBm mód)
@@ -674,7 +690,7 @@ static bool lora_begin() {
   lora_write_reg(REG_DIO_MAPPING1, 0x40);
 
   // Standby
-  lora_set_opmode(MODE_STDBY);
+  lora_set_lora_opmode(MODE_STDBY);
   return true;
 }
 
@@ -707,7 +723,7 @@ static void lora_send_packet(const uint8_t *data, uint8_t len) {
   lora_write_reg(REG_IRQ_FLAGS, 0xFF);
 
   // TX mód
-  lora_set_opmode(MODE_TX);
+  lora_set_lora_opmode(MODE_TX);
   g_tx_in_progress = true;
 }
 
@@ -920,7 +936,7 @@ void loop() {
     if (g_tx_done_irq) {
       g_tx_done_irq = false;
       lora_write_reg(REG_IRQ_FLAGS, 0xFF);
-      lora_set_opmode(MODE_STDBY);
+      lora_set_lora_opmode(MODE_STDBY);
       g_tx_in_progress = false;
     }
   }
