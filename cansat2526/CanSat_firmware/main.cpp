@@ -54,7 +54,7 @@ static void i2c_unstick(int sclPin, int sdaPin)
 // ---------------------------------------------------------------------------
 //  LoRa frekvencia beállítások (globális)
 // ---------------------------------------------------------------------------
-static uint32_t LORA_FREQ_HZ   = 433300000;   // alap vivőfrekvencia (Hz)
+static uint32_t LORA_FREQ_HZ   = 433200000;   // alap vivőfrekvencia (Hz)
 static int32_t  LORA_OFFSET_HZ = 3500;           // kézi offset (Hz)
 
 // -----------------------------------------------------------------------------
@@ -707,6 +707,16 @@ void IRAM_ATTR onTxDone() {
 }
 
 static void lora_send_packet(const uint8_t *data, uint8_t len) {
+  // --- DEBUG: Soros monitorra kiírjuk a TX tartalmát ---
+  Serial.print("[LoRa TX] len=");
+  Serial.print(len);
+  Serial.print(" bytes | HEX: ");
+  for (uint8_t i = 0; i < len; ++i) {
+    if (data[i] < 16) Serial.print('0');
+    Serial.print(data[i], HEX);
+    Serial.print(' ');
+  }
+  Serial.println();
   // Fail-safe payload clamp
   if (len > LORA_MAX_PAYLOAD) len = LORA_MAX_PAYLOAD;
   // Rövid villanás jelzés – nem blokkoló
@@ -758,6 +768,42 @@ static void telemetry_add_sample(const TeleSample &ts) {
   for (int i = 0; i < 5; ++i) {
     g_prev_pack_global[i] = curr_pack[i];
   }
+
+  // ===================== DEBUG PACK PRINT =====================
+  {
+      uint64_t acc = 0;
+      for (int i = 0; i < 5; i++) {
+          acc |= (uint64_t)curr_pack[i] << (8 * i);
+      }
+
+      uint32_t T_code      =  acc        & 0x7FFu;
+      uint32_t RH_code     = (acc >> 11) & 0x7Fu;
+      uint32_t P_int_code  = (acc >> 18) & 0xFFu;
+      uint32_t P_frac_code = (acc >> 26) & 0x0Fu;
+
+      float T_real  = (float)T_code / 10.0f - 40.0f;
+      float RH_real = (float)RH_code;
+      float P_real  = 822.0f + (float)P_int_code + (float)P_frac_code * 0.1f;
+
+      Serial.print("[PACK DEBUG] MET=");
+      Serial.print(g_MET);
+      Serial.print(" | T=");
+      Serial.print(T_real, 1);
+      Serial.print("°C (code=");
+      Serial.print(T_code);
+      Serial.print(") | RH=");
+      Serial.print(RH_real, 0);
+      Serial.print("% (code=");
+      Serial.print(RH_code);
+      Serial.print(") | P=");
+      Serial.print(P_real, 1);
+      Serial.print(" hPa (int=");
+      Serial.print(P_int_code);
+      Serial.print(", frac=");
+      Serial.print(P_frac_code);
+      Serial.println(")");
+  }
+  // ============================================================
 
   g_have_prev_sample = true;
 
@@ -927,8 +973,8 @@ void loop() {
 
   // --- Nem blokkoló TX kezelés ---
   if (g_tx_in_progress) {
-    // LED OFF 50us után
-    if (digitalRead(CAM_LED_PIN) == HIGH && (micros() - g_tx_start_us) > 50) {
+    // LED OFF 5000us után
+    if (digitalRead(CAM_LED_PIN) == HIGH && (micros() - g_tx_start_us) > 5000) {
       digitalWrite(CAM_LED_PIN, LOW);
     }
 
