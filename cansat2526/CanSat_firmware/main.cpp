@@ -166,6 +166,7 @@ static const uint8_t RAW_BUF_SIZE = 16;
 static RawSample g_raw_buf[RAW_BUF_SIZE];
 static uint8_t   g_raw_head = 0;
 static uint8_t   g_raw_count = 0;
+static uint8_t g_bme_warmup = 0;
 
 // Mozgóátlag ablakméret (5–10 közé tehető, itt 5)
 static const uint8_t MA_WINDOW = 5;
@@ -449,10 +450,15 @@ static void bme_poll() {
     rs.rh        = H;
     rs.press_hPa = P;
 
-    g_raw_buf[g_raw_head] = rs;
-    g_raw_head = (g_raw_head + 1) % RAW_BUF_SIZE;
-    if (g_raw_count < RAW_BUF_SIZE) {
-      g_raw_count++;
+    // Warmup: skip the first 20 BME readings
+    if (g_bme_warmup < 20) {
+      g_bme_warmup++;
+    } else {
+      g_raw_buf[g_raw_head] = rs;
+      g_raw_head = (g_raw_head + 1) % RAW_BUF_SIZE;
+      if (g_raw_count < RAW_BUF_SIZE) {
+        g_raw_count++;
+      }
     }
 
     // Vissza IDLE állapotba (következő loop-ban újra indítjuk)
@@ -500,62 +506,70 @@ static bool compute_moving_average(TeleSample &out) {
 // RH: 7 bit (0–100 %)
 // P: 12 bit (822…1077 hPa, 0,1 hPa)
 
-static void encode_TRH_P(const TeleSample &s, uint8_t out[5]) {
-  // ---- Hőmérséklet kódolása ----
-  float T_c = s.tempC;
-  if (T_c < -40.0f) T_c = -40.0f;
-  if (T_c > 87.9f)  T_c = 87.9f;
-  int32_t T_code = (int32_t)lroundf((T_c + 40.0f) * 10.0f); // 0..1279 (11 bit)
+static uint8_t encode_dynamic_pack(const TeleSample &s, uint8_t *out)
+{
+    // 1) Sensor field bit-widths (expandable later)
+    struct Field { uint32_t val; uint8_t bits; };
+    Field fields[4];
 
-  // ---- Páratartalom kódolása ----
-  float H = s.rh;
-  if (H < 0.0f)   H = 0.0f;
-  if (H > 100.0f) H = 100.0f;
-  int32_t RH_code = (int32_t)lroundf(H); // 0..100 (7 bit)
+    // ---- Temperature → 11 bit ----
+    float T_c = s.tempC;
+    if (T_c < -40.0f) T_c = -40.0f;
+    if (T_c > 87.9f)  T_c = 87.9f;
+    uint32_t T_code = (uint32_t)lroundf((T_c + 40.0f)*10.0f);
+    fields[0] = { T_code, 11 };
 
-  // ---- Nyomás kódolása ----
-  float P = s.press_hPa;
-  // Tartományon kívül: clamp 822..1077
-  if (P < 822.0f) P = 822.0f;
-  if (P > 1077.0f) P = 1077.0f;
+    // ---- Humidity → 7 bit ----
+    float H = s.rh;
+    if (H < 0.0f)   H = 0.0f;
+    if (H > 100.0f) H = 100.0f;
+    uint32_t RH_code = (uint32_t)lroundf(H);
+    fields[1] = { RH_code, 7 };
 
-  int32_t P_int  = (int32_t)floorf(P + 0.5f); // kerekített egész hPa
-  int32_t P_int_code = P_int - 822;          // 0..255
-  if (P_int_code < 0)   P_int_code = 0;
-  if (P_int_code > 255) P_int_code = 255;
+    // ---- Pressure int → 8 bit ----
+    float P = s.press_hPa;
+    if (P < 822.0f) P = 822.0f;
+    if (P > 1077.0f) P = 1077.0f;
+    int32_t P_int = (int32_t)floorf(P + 0.5f);
+    uint32_t P_int_code = (uint32_t)(P_int - 822);
+    if (P_int_code > 255) P_int_code = 255;
+    fields[2] = { P_int_code, 8 };
 
-  float P_frac_f = (P - (float)P_int) * 10.0f;
-  int32_t P_frac_code = (int32_t)lroundf(P_frac_f); // 0..9
-  if (P_frac_code < 0)  P_frac_code = 0;
-  if (P_frac_code > 15) P_frac_code = 15; // 4 bit tár
+    // ---- Pressure frac → 4 bit ----
+    float P_frac_f = (P - (float)P_int) * 10.0f;
+    uint32_t P_frac_code = (uint32_t)lroundf(P_frac_f);
+    if (P_frac_code > 15) P_frac_code = 15;
+    fields[3] = { P_frac_code, 4 };
 
-  // ---- Bitre pontos csomagolás 40 bitre (5 byte) ----
-  // Bit-sorrend (LSB-first):
-  // 0..10: T_code (11 bit)
-  // 11..17: RH_code (7 bit)
-  // 18..25: P_int_code (8 bit)
-  // 26..29: P_frac_code (4 bit)
-  // 30..39: 0 (fenntartva)
+    // 2) Total bit count
+    uint16_t total_bits = 0;
+    for (int i=0;i<4;i++) total_bits += fields[i].bits;
 
-  uint64_t acc = 0;
+    uint8_t total_bytes = (total_bits + 7) / 8;
 
-  acc |= ((uint64_t)T_code      & 0x7FFu)        << 0;   // 11 bit
-  acc |= ((uint64_t)RH_code     & 0x7Fu)         << 11;  // 7 bit
-  acc |= ((uint64_t)P_int_code  & 0xFFu)         << 18;  // 8 bit
-  acc |= ((uint64_t)P_frac_code & 0x0Fu)         << 26;  // 4 bit
-  // 30..39 bit: 0
+    // 3) Bit packing LSB‑first
+    uint64_t acc = 0;
+    uint16_t bitpos = 0;
+    for (int i=0;i<4;i++) {
+        uint64_t v = fields[i].val & ((1ULL << fields[i].bits)-1);
+        acc |= (v << bitpos);
+        bitpos += fields[i].bits;
+    }
 
-  for (int i = 0; i < 5; ++i) {
-    out[i] = (uint8_t)((acc >> (8 * i)) & 0xFFu);
-  }
+    // 4) Output → minimal number of bytes
+    for (uint8_t i=0;i<total_bytes;i++) {
+        out[i] = (acc >> (8*i)) & 0xFF;
+    }
+
+    return total_bytes;
 }
 
 // -----------------------------------------------------------------------------
 //  VÁLTOZÁSDETEKTÁLÁS – PACK SZINTEN
 // -----------------------------------------------------------------------------
 
-static bool packs_equal(const uint8_t a[5], const uint8_t b[5]) {
-  for (int i = 0; i < 5; ++i) {
+static bool packs_equal(const uint8_t *a, const uint8_t *b, uint8_t len) {
+  for (uint8_t i = 0; i < len; ++i) {
     if (a[i] != b[i]) return false;
   }
   return true;
@@ -707,16 +721,8 @@ void IRAM_ATTR onTxDone() {
 }
 
 static void lora_send_packet(const uint8_t *data, uint8_t len) {
-  // --- DEBUG: Soros monitorra kiírjuk a TX tartalmát ---
-  Serial.print("[LoRa TX] len=");
-  Serial.print(len);
-  Serial.print(" bytes | HEX: ");
-  for (uint8_t i = 0; i < len; ++i) {
-    if (data[i] < 16) Serial.print('0');
-    Serial.print(data[i], HEX);
-    Serial.print(' ');
-  }
-  Serial.println();
+  // Nyers payload bájtok kiküldése a soros portra (ugyanaz, mint ami a LoRa FIFO-ba kerül)
+  Serial.write(data, len);
   // Fail-safe payload clamp
   if (len > LORA_MAX_PAYLOAD) len = LORA_MAX_PAYLOAD;
   // Rövid villanás jelzés – nem blokkoló
@@ -748,66 +754,27 @@ static void telemetry_add_sample(const TeleSample &ts) {
     telemetry_flush_packet();
   }
 
-  // A cél index: ha a buffer valamiért tele maradt (pl. TX beragadt),
-  // akkor a legutolsó elemet írjuk felül, nem lépünk túl a tömb határán.
   uint8_t idx = (g_tele_count < MAX_SAMPLES_PER_PACKET)
                   ? g_tele_count
                   : (MAX_SAMPLES_PER_PACKET - 1);
 
-  // Encode-eljük a jelenlegi mintát pack formára, hogy össze tudjuk hasonlítani
-  uint8_t curr_pack[5];
-  encode_TRH_P(ts, curr_pack);
+  uint8_t curr_pack[8]; // Max possible size
+  uint8_t curr_pack_len = encode_dynamic_pack(ts, curr_pack);
 
   bool changed = true;
-
   if (g_have_prev_sample) {
-    changed = !packs_equal(curr_pack, g_prev_pack_global);
+    changed = !packs_equal(curr_pack, g_prev_pack_global, curr_pack_len);
   }
-
-  // Mentjük a pack-ot "előzőnek"
-  for (int i = 0; i < 5; ++i) {
+  // Save previous pack
+  for (uint8_t i = 0; i < curr_pack_len; ++i) {
     g_prev_pack_global[i] = curr_pack[i];
   }
-
-  // ===================== DEBUG PACK PRINT =====================
-  {
-      uint64_t acc = 0;
-      for (int i = 0; i < 5; i++) {
-          acc |= (uint64_t)curr_pack[i] << (8 * i);
-      }
-
-      uint32_t T_code      =  acc        & 0x7FFu;
-      uint32_t RH_code     = (acc >> 11) & 0x7Fu;
-      uint32_t P_int_code  = (acc >> 18) & 0xFFu;
-      uint32_t P_frac_code = (acc >> 26) & 0x0Fu;
-
-      float T_real  = (float)T_code / 10.0f - 40.0f;
-      float RH_real = (float)RH_code;
-      float P_real  = 822.0f + (float)P_int_code + (float)P_frac_code * 0.1f;
-
-      Serial.print("[PACK DEBUG] MET=");
-      Serial.print(g_MET);
-      Serial.print(" | T=");
-      Serial.print(T_real, 1);
-      Serial.print("°C (code=");
-      Serial.print(T_code);
-      Serial.print(") | RH=");
-      Serial.print(RH_real, 0);
-      Serial.print("% (code=");
-      Serial.print(RH_code);
-      Serial.print(") | P=");
-      Serial.print(P_real, 1);
-      Serial.print(" hPa (int=");
-      Serial.print(P_int_code);
-      Serial.print(", frac=");
-      Serial.print(P_frac_code);
-      Serial.println(")");
+  // If previous was longer, clear any trailing bytes
+  for (uint8_t i = curr_pack_len; i < sizeof(g_prev_pack_global); ++i) {
+    g_prev_pack_global[i] = 0;
   }
-  // ============================================================
 
   g_have_prev_sample = true;
-
-  // Elmentjük a telemetria bufferbe
   g_tele_buf[idx]          = ts;
   g_tele_flag_changed[idx] = changed;
 
@@ -819,30 +786,21 @@ static void telemetry_add_sample(const TeleSample &ts) {
 // LoRa csomag összeállítása és elküldése, ha van minta
 static void telemetry_flush_packet() {
   if (g_tele_count == 0) return;
-  // Ne küldjünk új TX-et, amíg az előző még tart
   if (g_tx_in_progress) return;
 
-  // Payload buffer
   uint8_t payload[LORA_MAX_PAYLOAD];
   uint8_t idx = 0;
 
-  // base_MET = az első minta MET-je → jelenlegi implementációban
-  // egyszerűen (g_MET - g_tele_count + 1)-et használhatnánk,
-  // de a MET-et minden 0,5s telemetria ticknél növeljük,
-  // így a csomag első mintájának MET-je:
   uint16_t base_MET = g_MET - g_tele_count + 1;
-  // MET clamp védelem
   if (base_MET > g_MET) base_MET = 0;
 
-  // base_MET little-endian
+  payload[idx++] = 0xA5;
   payload[idx++] = (uint8_t)(base_MET & 0xFF);
   payload[idx++] = (uint8_t)(base_MET >> 8);
 
-  // N = mintaszám
   uint8_t N = g_tele_count;
   payload[idx++] = N;
 
-  // bitmask hossza: N ≤ 8 → 1 byte
   uint8_t bitmask = 0;
   for (uint8_t i = 0; i < N; ++i) {
     if (g_tele_flag_changed[i]) {
@@ -851,22 +809,17 @@ static void telemetry_flush_packet() {
   }
   payload[idx++] = bitmask;
 
-  // pack-ek (csak azok, ahol flag=1, T/RH/P 5 byte)
+  // Packs: only those with flag, using dynamic packer
   for (uint8_t i = 0; i < N; ++i) {
     if (!g_tele_flag_changed[i]) continue;
-    uint8_t pack[5];
-    encode_TRH_P(g_tele_buf[i], pack);
-    for (int k = 0; k < 5; ++k) {
-      if (idx < LORA_MAX_PAYLOAD) {
-        payload[idx++] = pack[k];
-      }
+    uint8_t pack[8];
+    uint8_t pack_len = encode_dynamic_pack(g_tele_buf[i], pack);
+    for (int k = 0; k < pack_len; k++) {
+      if (idx < LORA_MAX_PAYLOAD) payload[idx++] = pack[k];
     }
   }
 
-  // Csomag elküldése LoRa-n
   lora_send_packet(payload, idx);
-
-  // Buffer ürítése
   g_tele_count = 0;
 }
 
@@ -943,7 +896,7 @@ void loop() {
     TeleSample ts;
     if (compute_moving_average(ts)) {
       // Első érvényes minta után tudjuk, hogy a szenzor lánc életképes
-      if (!g_sensor_ready) {
+      if (!g_sensor_ready && (g_bme_warmup >= 20) && (g_raw_count >= MA_WINDOW)) {
         g_sensor_ready = true;
       }
       telemetry_add_sample(ts);
