@@ -36,8 +36,8 @@ static void i2c_unstick(int sclPin, int sdaPin)
 // -----------------------------------------------------------------------------
 
 // I2C BME280 – ESP32-CAM-on általában:
-#define BME_SDA_PIN   14   // állítsd be a valós SDA pinre
-#define BME_SCL_PIN   15   // állítsd be a valós SCL pinre
+#define BME_SDA_PIN   21   // állítsd be a valós SDA pinre
+#define BME_SCL_PIN   22   // állítsd be a valós SCL pinre
 
 // SX1278 LoRa (példa bekötés – ezt a saját modulodhoz igazítsd)
 #define LORA_SCK   18
