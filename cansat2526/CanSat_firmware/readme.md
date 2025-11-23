@@ -1,6 +1,9 @@
-Ez a mappa tartamazza a CanSat fedélzetni MCU kódját a telemetria leírás szerint. 
+# Ez a mappa tartamazza a CanSat fedélzetni MCU kódját a telemetria leírás szerint.   
 
-MCU: ESP32 AI THINKER CAM modul
+MCU: ESP32 AI THINKER CAM modul   
 LORA: SX1278
-Szenzorok:
+
+---   
+
+Szenzorok:  
 - BME280
