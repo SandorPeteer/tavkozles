@@ -784,6 +784,29 @@ static void telemetry_add_sample(const TeleSample &ts) {
 }
 
 // LoRa csomag összeállítása és elküldése, ha van minta
+static void sample_send_debug(const TeleSample &ts, uint16_t MET)
+{
+    uint8_t dbg[32];
+    uint8_t d = 0;
+
+    dbg[d++] = 0xA6;
+    dbg[d++] = (uint8_t)(MET & 0xFF);
+    dbg[d++] = (uint8_t)(MET >> 8);
+
+    uint8_t *pt = (uint8_t*)(&ts.tempC);
+    uint8_t *ph = (uint8_t*)(&ts.rh);
+    uint8_t *pp = (uint8_t*)(&ts.press_hPa);
+
+    for(int i=0;i<4;i++) dbg[d++] = pt[i];
+    for(int i=0;i<4;i++) dbg[d++] = ph[i];
+    for(int i=0;i<4;i++) dbg[d++] = pp[i];
+
+    noInterrupts();          // prevent ISR from interrupting USB CDC frame
+    Serial.write(dbg, d);
+    Serial.flush();          // force immediate transmission
+    interrupts();            // re-enable IRQs
+}
+
 static void telemetry_flush_packet() {
   if (g_tele_count == 0) return;
   if (g_tx_in_progress) return;
@@ -821,6 +844,7 @@ static void telemetry_flush_packet() {
 
   lora_send_packet(payload, idx);
   g_tele_count = 0;
+
 }
 
 // -----------------------------------------------------------------------------
@@ -831,7 +855,7 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
 
-  Serial.println("CanSat BME280 + LoRa telemetria indul...");
+  // Serial.println("CanSat BME280 + LoRa telemetria indul...");
 
   // NVS / MET visszatoltes
   g_prefs.begin("cansat", false);
@@ -850,15 +874,15 @@ void setup() {
   esp_task_wdt_add(NULL); // jelenlegi task
 
   if (!bme_begin()) {
-    Serial.println("BME280 NEM TALALHATO!");
+   // Serial.println("BME280 NEM TALALHATO!");
   } else {
-    Serial.println("BME280 OK");
+   // Serial.println("BME280 OK");
   }
 
   if (!lora_begin()) {
-    Serial.println("LoRa modul NEM TALALHATO!");
+    // Serial.println("LoRa modul NEM TALALHATO!");
   } else {
-    Serial.println("LoRa OK");
+    // Serial.println("LoRa OK");
   }
 
   g_last_MET_ms      = millis();
@@ -878,7 +902,7 @@ void loop() {
     g_last_MET_ms       = now;
     g_last_tele_ms      = now;
     g_last_met_store_ms = now;
-    Serial.println("[SYS] MET START – szenzorok keszek, FLIGHT mod.");
+    // Serial.println("[SYS] MET START – szenzorok keszek, FLIGHT mod.");
   }
 
   // 2) MET tick – 0,5 s-onként nő, de csak FLIGHT módban
@@ -900,6 +924,7 @@ void loop() {
         g_sensor_ready = true;
       }
       telemetry_add_sample(ts);
+      sample_send_debug(ts, g_MET);
     }
 
     // Ha a pack közel telíti a payloadot, flush
