@@ -109,100 +109,107 @@ def main():
 
                 buffer.extend(data)
 
-                # SYNC-to-SYNC continuous extraction (no 48-byte limit)
+                # TEL csomagok hossz-alapú kinyerése (csak 0xA5, nincs SYNC-to-SYNC heuristika)
                 while True:
-                    if len(buffer) < 2:
+                    # Legalább a SYNC byte kell
+                    if len(buffer) < 1:
                         break
 
-                    # Ensure first byte is SYNC
-                    if buffer[0] not in (0xA5, 0xA6):
+                    # Igazítsuk a buffert a következő 0xA5 TEL SYNC-re
+                    if buffer[0] != 0xA5:
                         try:
-                            next_sync_pos = min(
-                                buffer.index(0xA5) if 0xA5 in buffer else len(buffer),
-                                buffer.index(0xA6) if 0xA6 in buffer else len(buffer)
-                            )
-                            del buffer[:next_sync_pos]
+                            next_sync = buffer.index(0xA5)
+                            del buffer[:next_sync]
                         except ValueError:
+                            # Nincs több SYNC a bufferben
                             buffer.clear()
-                        continue
-
-                    # Look for next SYNC after byte 0
-                    next_sync = None
-                    for i in range(1, len(buffer)):
-                        if buffer[i] in (0xA5, 0xA6):
-                            next_sync = i
                             break
 
-                    # If no next SYNC yet → need more data
-                    if next_sync is None:
+                    # Most buffer[0] == 0xA5, de kell a teljes fejléc: SYNC + MET_low + MET_high + N + MASK
+                    if len(buffer) < 5:
+                        # Várunk még bájtokat
                         break
 
-                    # Extract packet: SYNC → before next SYNC
-                    packet = buffer[:next_sync]
-                    del buffer[:next_sync]
+                    sync     = buffer[0]
+                    base_MET = buffer[1] | (buffer[2] << 8)
+                    N        = buffer[3]
+                    bitmask  = buffer[4]
 
-                    sync = packet[0]
-                    data = packet[1:]
+                    # Érvénytelen N esetén dobjuk ezt a SYNC-et és keresünk újat
+                    if N == 0 or N > 8:
+                        del buffer[0]
+                        continue
+
+                    # Maszkon belüli használt bitek (0..N-1)
+                    used_mask = bitmask & ((1 << N) - 1)
+
+                    # Pack-ek száma = a használt bitek száma
+                    m = used_mask
+                    num_packs = 0
+                    while m:
+                        num_packs += (m & 1)
+                        m >>= 1
+
+                    # TEL csomag teljes hossza: 1 (SYNC) + 2 (MET) + 1 (N) + 1 (MASK) + 4 * num_packs
+                    expected_len = 1 + 2 + 1 + 1 + num_packs * 4
+
+                    # Ha még nincs meg az összes bájt, várunk
+                    if len(buffer) < expected_len:
+                        break
+
+                    # Kivágjuk a teljes TEL packetet
+                    packet = buffer[:expected_len]
+                    del buffer[:expected_len]
+
+                    data = packet[1:]  # SYNC utáni rész
 
                     # TELE – teljes, bitre pontos visszafejtés 0,5 s-es mintákra
                     if sync == 0xA5:
-                        if len(data) >= 4:
-                            base_MET = data[0] | (data[1] << 8)
-                            N        = data[2]
-                            bitmask  = data[3]
+                        # base_MET, N, bitmask már kiolvasva a bufferből
+                        # A pack-ek a data[4]-től indulnak
+                        pack_idx = 4
 
-                            # A pack-ek a 4. bájttól indulnak
-                            pack_idx = 4
+                        global last_tel_T, last_tel_RH, last_tel_P
 
-                            # Végigmegyünk az összes mintán (0..N-1),
-                            # és minden 0,5 s-es mintát rekonstruálunk.
-                            global last_tel_T, last_tel_RH, last_tel_P
+                        for i in range(N):
+                            MET_i = base_MET + i
+                            mask_bit_set = (bitmask & (1 << i)) != 0
 
-                            for i in range(N):
-                                MET_i = base_MET + i
-                                mask_bit_set = (bitmask & (1 << i)) != 0
+                            if mask_bit_set:
+                                # Kell legyen legalább 4 bájt a packhez
+                                if pack_idx + 4 > len(data):
+                                    # Hibás / csonka csomag – nyers HEX kiírása és megszakítjuk a feldolgozást
+                                    print(f"[TEL] RAW {data.hex().upper()}")
+                                    break
 
-                                if mask_bit_set:
-                                    # Kell legyen legalább 4 bájt a packhez
-                                    if pack_idx + 4 > len(data):
-                                        # Hibás / csonka csomag – nyers HEX kiírása és megszakítjuk a feldolgozást
-                                        print(f"[TEL] RAW {data.hex().upper()}")
-                                        break
+                                pack_bytes = data[pack_idx:pack_idx + 4]
+                                pack_idx  += 4
 
-                                    pack_bytes = data[pack_idx:pack_idx+4]
-                                    pack_idx  += 4
+                                # 4 bájtból 30 bit: 11 (T) + 7 (RH) + 8 (P_int) + 4 (P_frac)
+                                acc = int.from_bytes(pack_bytes, byteorder='little', signed=False)
 
-                                    # 4 bájtból 30 bit: 11 (T) + 7 (RH) + 8 (P_int) + 4 (P_frac)
-                                    acc = int.from_bytes(pack_bytes, byteorder='little', signed=False)
+                                T_code      =  acc        & ((1 << 11) - 1)          # 0..2047
+                                RH_code     = (acc >> 11) & ((1 << 7)  - 1)          # 0..127
+                                P_int_code  = (acc >> 18) & 0xFF                     # 0..255
+                                P_frac_code = (acc >> 26) & 0x0F                     # 0..15
 
-                                    T_code      =  acc        & ((1 << 11) - 1)          # 0..2047
-                                    RH_code     = (acc >> 11) & ((1 << 7)  - 1)          # 0..127
-                                    P_int_code  = (acc >> 18) & 0xFF                     # 0..255
-                                    P_frac_code = (acc >> 26) & 0x0F                     # 0..15
+                                # Invertáljuk az encode_dynamic_pack logikáját
+                                T  = (T_code / 10.0) - 40.0
+                                RH = float(RH_code)
+                                P  = 822.0 + float(P_int_code) + (P_frac_code / 10.0)
 
-                                    # Invertáljuk az encode_dynamic_pack logikáját
-                                    T  = (T_code / 10.0) - 40.0
-                                    RH = float(RH_code)
-                                    P  = 822.0 + float(P_int_code) + (P_frac_code / 10.0)
+                                last_tel_T  = T
+                                last_tel_RH = RH
+                                last_tel_P  = P
 
-                                    last_tel_T  = T
-                                    last_tel_RH = RH
-                                    last_tel_P  = P
+                            else:
+                                # Nem változott: a legutóbbi TEL-ből ismert értéket használjuk.
+                                if last_tel_T is None:
+                                    continue
 
-                                else:
-                                    # Nem változott: a legutóbbi TEL-ből ismert értéket használjuk.
-                                    # Ha még soha nem volt TEL-érték, akkor nem tudunk érvényes sort írni.
-                                    if last_tel_T is None:
-                                        continue
-
-                                # Minden 0,5 s-es mintát külön sorba írunk ki
-                                print(f"{datetime.datetime.now().strftime('[%H:%M:%S]')} [TEL] MET={MET_i}  T={last_tel_T:.2f}C  RH={last_tel_RH:.1f}%  P={last_tel_P:.1f}hPa")
-
-                        else:
-                            print(f"[TEL] RAW {data.hex().upper()}")
-
-                    else:
-                        print(f"[UNK] {packet.hex().upper()}")
+                            # Minden 0,5 s-es mintát külön sorba írunk ki
+                            print(f"{datetime.datetime.now().strftime('[%H:%M:%S]')}"
+                                  f" [TEL] MET={MET_i}  T={last_tel_T:.2f}C  RH={last_tel_RH:.1f}%  P={last_tel_P:.1f}hPa")
 
             except UnicodeDecodeError as e:
                 print(f"[WARN] Dekódolási hiba: {e}")
