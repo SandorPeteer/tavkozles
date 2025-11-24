@@ -1,5 +1,12 @@
 # CanSat fedélzeti MCU kód a telemetria leírás szerint.   
 
+> Decoder GUI
+
+<img width="796" height="732" alt="ff15a48c7631299168657d710a2ae937cd25f7cb9b06c198641bb61e3680a34f" src="https://github.com/user-attachments/assets/39600e70-6954-4876-bb7f-139d91685ba4" />
+
+
+---   
+
 MCU: ESP32 AI THINKER CAM modul   
 LORA: SX1278
 
