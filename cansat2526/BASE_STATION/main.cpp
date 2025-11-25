@@ -2,7 +2,6 @@
 #include <Arduino.h>
 
 #include <SPI.h>
-#include <Preferences.h>
 #include "esp_task_wdt.h"
 #include <stdio.h>
 
@@ -37,6 +36,7 @@ static int32_t LORA_OFFSET_HZ = 0;     // kézi offset (Hz)
 
 static uint32_t led_on_until = 0;
 
+
 struct TeleSample
 {
   float tempC;
@@ -69,6 +69,14 @@ struct TeleSample
 #define REG_DIO_MAPPING1 0x40
 #define REG_VERSION 0x42
 #define REG_PA_DAC 0x4D
+
+#define REG_FEI_MSB 0x28
+#define REG_FEI_MID 0x29
+#define REG_FEI_LSB 0x2A
+#define REG_PKT_RSSI_VALUE 0x1A
+
+static const double LORA_FSTEP = 32000000.0 / 524288.0;           // 32 MHz / 2^19
+static const double LORA_FEI_COEFF = (double)(1UL << 24) / 32000000.0; // 2^24 / 32 MHz
 
 // -----------------------------------------------------------------------------
 //  SX1278 – ALAP SPI/REG KEZELÉS
@@ -208,6 +216,32 @@ static void lora_set_opmode(uint8_t mode)
   uint8_t op = lora_read_reg(REG_OP_MODE);
   op = (op & 0xF8) | (mode & 0x07);
   lora_write_reg(REG_OP_MODE, op);
+}
+
+// -----------------------------------------------------------------------------
+//  LoRa FEI (Frequency Error Indicator) – hibajel visszaszámítása Hz-be
+// -----------------------------------------------------------------------------
+static double lora_get_freq_error_hz(double bw_khz)
+{
+  // RegFeiMsb/Mid/Lsb – LoRa üzemmódban 20 bites, előjeles érték
+  uint8_t fe_msb = lora_read_reg(REG_FEI_MSB);
+  uint8_t fe_mid = lora_read_reg(REG_FEI_MID);
+  uint8_t fe_lsb = lora_read_reg(REG_FEI_LSB);
+
+  int32_t fei_raw = (int32_t)(((uint32_t)(fe_msb & 0x0F) << 16) |
+                              ((uint32_t)fe_mid << 8) |
+                              (uint32_t)fe_lsb);
+
+  // 20 bites kétkomplementes kiterjesztése 32 bitre
+  if (fei_raw & 0x80000)
+  {
+    fei_raw |= 0xFFF00000;
+  }
+
+  // Datasheet képlet (LoRa mód):
+  // F_err_Hz = LoRaFeiValue * 2^24 / 32e6 * (BW_kHz / 500)
+  double freqErrHz = (double)fei_raw * LORA_FEI_COEFF * (bw_khz / 500.0);
+  return freqErrHz;
 }
 
 // -----------------------------------------------------------------------------
@@ -380,27 +414,10 @@ static void decode_telemetry_packet(const uint8_t *buf, uint8_t len)
   uint8_t lineCount = 0;
 
   // Read RSSI before filling lines[lineCount]
-  uint8_t rssi_reg = lora_read_reg(0x1A); // REG_PKT_RSSI_VALUE
-  int rssi_dbm = (int)rssi_reg - 164;
+  uint8_t rssi_reg = lora_read_reg(REG_PKT_RSSI_VALUE);
+  int rssi_dbm = (int)rssi_reg - 157;
 
-  // --- LoRa-mode FEI (Frequency Error Indicator) according to DS_SX1276-7-8-9, section 4.1.5 ---
-  // FEI is a signed 20-bit value spread across RegFeiMsb/Mid/Lsb (0x28..0x2A) in LoRa mode.
-  uint8_t fe_msb = lora_read_reg(0x28);
-  uint8_t fe_mid = lora_read_reg(0x29);
-  uint8_t fe_lsb = lora_read_reg(0x2A);
-
-  int32_t fei_raw = (int32_t)(
-      ((uint32_t)(fe_msb & 0x0F) << 16) |
-      ((uint32_t)fe_mid << 8) |
-      (uint32_t)fe_lsb);
-
-  // Sign-extend 20-bit two's complement to 32-bit
-  if (fei_raw & 0x80000)
-  {
-    fei_raw |= 0xFFF00000;
-  }
-
-  // Determine LoRa bandwidth in kHz from RegModemConfig1[7:4]
+  // LoRa sávszélesség beolvasása RegModemConfig1[7:4]-ből
   uint8_t mc1 = lora_read_reg(REG_MODEM_CONFIG1);
   uint8_t bw_bits = (mc1 >> 4) & 0x0F;
   double bw_khz = 0.0;
@@ -417,13 +434,11 @@ static void decode_telemetry_packet(const uint8_t *buf, uint8_t len)
     case 7: bw_khz = 125.0; break;
     case 8: bw_khz = 250.0; break;
     case 9: bw_khz = 500.0; break;
-    default: bw_khz = 125.0; break; // fallback, de nálunk BW=125k
+    default: bw_khz = 125.0; break; // fallback, nálunk BW=125k
   }
 
-  // Datasheet formula (LoRa mode):
-  // F_err_Hz = LoRaFeiValue * 2^24 / (32e6) * (BW_kHz / 500)
-  const double fei_scale = (double)(1UL << 24) / 32000000.0;
-  double freqErrHz = (double)fei_raw * fei_scale * (bw_khz / 500.0);
+  // FEI érték Hz-ben (datasheet formula szerint)
+  double freqErrHz = lora_get_freq_error_hz(bw_khz);
 
   // --- Automatikus frekvencia finomhangolás (AFC) ---
   // Csak akkor korrigálunk, ha az eltérés érdemi (500 Hz < |err| < 40 kHz),
@@ -432,7 +447,7 @@ static void decode_telemetry_packet(const uint8_t *buf, uint8_t len)
   if (errAbs > 500.0 && errAbs < 40000.0)
   {
     // Egy lépésben kompenzáljuk az eltérést: a vevő középfrekvenciáját
-    // eltoljuk az ellenkező irányba.
+    // eltoljuk az ellenkező irányba (teljes FEI-korrekció).
     int32_t stepHz;
     if (freqErrHz >= 0.0)
       stepHz = (int32_t)(freqErrHz + 0.5);
@@ -441,10 +456,13 @@ static void decode_telemetry_packet(const uint8_t *buf, uint8_t len)
 
     LORA_OFFSET_HZ -= stepHz;
 
+    // Offset korlátozása ±60 kHz tartományra
+    if (LORA_OFFSET_HZ > 60000)  LORA_OFFSET_HZ = 60000;
+    if (LORA_OFFSET_HZ < -60000) LORA_OFFSET_HZ = -60000;
+
     // Új FRF beállítása: F_target = LORA_FREQ_HZ + LORA_OFFSET_HZ
     uint64_t targetFreq = (uint64_t)LORA_FREQ_HZ + (int64_t)LORA_OFFSET_HZ;
-    double fstep = 32000000.0 / 524288.0; // Fxtal / 2^19
-    uint32_t frf = (uint32_t)(targetFreq / fstep);
+    uint32_t frf = (uint32_t)(targetFreq / LORA_FSTEP);
 
     // Átmenetileg STDBY módba lépünk a PLL állításához, majd vissza RX-be
     lora_set_lora_opmode(MODE_STDBY);
@@ -496,6 +514,8 @@ static void decode_telemetry_packet(const uint8_t *buf, uint8_t len)
       if (!have_last) continue;
     }
 
+    // fifo_push(MET_i, last_tel_T, last_tel_RH, last_tel_P);
+
     if (lineCount < 6)
     {
       snprintf(lines[lineCount], sizeof(lines[0]),
@@ -531,14 +551,9 @@ static void handle_lora_rx()
     if (len > sizeof(buf))
       len = sizeof(buf);
 
-    for (uint8_t i = 0; i < len; ++i)
-    {
-      buf[i] = lora_read_reg(REG_FIFO);
-    }
-
-    decode_telemetry_packet(buf, len);
-    // Forward raw LoRa payload as binary over serial
+    lora_read_fifo(buf, len);
     Serial.write(buf, len);
+    decode_telemetry_packet(buf, len);
 
     led_on_until = millis() + 80;
     digitalWrite(HELTEC_LED_PIN, HIGH);
@@ -612,6 +627,9 @@ void loop()
     Heltec.display->clear();
     Heltec.display->drawString(0, 0, "DEEP SLEEP");
     Heltec.display->display();
+    // --- DEEP SLEEP FIX ---
+    detachInterrupt(digitalPinToInterrupt(LORA_DIO0));
+    lora_set_lora_opmode(MODE_SLEEP);
     delay(2000);
     esp_deep_sleep_start();
   }
