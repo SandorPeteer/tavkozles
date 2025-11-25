@@ -1,0 +1,1 @@
+# Suli ablakból kiejtés tesztek.
