@@ -3,8 +3,7 @@
 
 <img width="270" alt="434MHz_QFH_SP" src="https://github.com/user-attachments/assets/7cff62a1-229a-473c-84df-f088b39bd899" />
 
-Ez a szerkezet bármelyik villanyszerelési boltban kapható 2.2 mm csupasz rézből, 32 mm PVC csőre épített, 434 MHz-re optimalizált QFH antenna végleges méreteit tartalmazza.  
-A modell alapja valós mérésekkel kalibrált geometria, LoRa 433–434 MHz-es sávra optimalizálva.
+Ez a szerkezet bármelyik villanyszerelési boltban kapható 2.2 mm csupasz rézből, 32 mm PVC csőre épített, 434 MHz-re optimalizált QFH antenna végleges méreteit tartalmazza. A modell alapja valós mérésekkel kalibrált geometria, LoRa 433–434 MHz-es sávra optimalizálva.   
 
 ---
 
