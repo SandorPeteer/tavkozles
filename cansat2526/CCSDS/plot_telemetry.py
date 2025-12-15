@@ -5,6 +5,9 @@ COLOR_FULL  = "#2ecc71"   # green
 COLOR_DELTA = "#3498db"   # blue
 COLOR_NOISE = "#e74c3c"   # red
 COLOR_META  = "#aaaaaa"   # gray
+
+# Bump this when debugging so you can see you're running the right file.
+APP_VERSION = "2025-12-15a"
 # Fast telemetry plotter using pyqtgraph
 # Usage: python plot_telemetry.py raw_xxx.bin
 
@@ -24,7 +27,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import (
     QTableWidget, QTableWidgetItem, QSplitter,
-    QPlainTextEdit, QHBoxLayout, QVBoxLayout, QComboBox, QLabel, QPushButton, QTabWidget
+    QPlainTextEdit, QHBoxLayout, QVBoxLayout, QComboBox, QLabel, QPushButton, QTabWidget, QButtonGroup, QGroupBox
 )
 
 # Serial (pyserial)
@@ -247,10 +250,126 @@ def _warn(parent, title: str, text: str):
 
 def main():
     app = QtWidgets.QApplication([])
+    app.setStyle("Fusion")
+
+    # Selection should never paint a filled block. We enforce this with a custom delegate
+    # that clears the Selected state and draws only a thin outline.
+    selection_outline = QtGui.QColor(255, 107, 96)
+
+    class OutlineSelectionDelegate(QtWidgets.QStyledItemDelegate):
+        def __init__(self, color: QtGui.QColor, parent=None):
+            super().__init__(parent)
+            self._color = QtGui.QColor(color)
+
+        def setColor(self, color: QtGui.QColor):
+            self._color = QtGui.QColor(color)
+
+        def paint(self, painter, option, index):
+            opt = QtWidgets.QStyleOptionViewItem(option)
+            self.initStyleOption(opt, index)
+
+            selected = bool(opt.state & QtWidgets.QStyle.State_Selected)
+            if selected:
+                opt.state &= ~QtWidgets.QStyle.State_Selected
+
+            style = opt.widget.style() if opt.widget is not None else QtWidgets.QApplication.style()
+            style.drawControl(QtWidgets.QStyle.CE_ItemViewItem, opt, painter, opt.widget)
+
+            if selected:
+                painter.save()
+                painter.setClipRect(opt.rect)
+                pen = QtGui.QPen(self._color)
+                pen.setWidth(1)
+                painter.setPen(pen)
+                painter.setBrush(QtCore.Qt.NoBrush)
+                painter.drawRect(opt.rect.adjusted(0, 0, -1, -1))
+                painter.restore()
+
+    table_sel_delegate = None
+    list_sel_delegate = None
+
+    def apply_theme(dark: bool):
+        # Minimal, readable "mission control" theme. Keep it deterministic across platforms.
+        if dark:
+            pg.setConfigOptions(background=(12, 12, 14), foreground=(230, 230, 235))
+            try:
+                plots.setBackground((12, 12, 14))
+            except Exception:
+                pass
+            pal = QtGui.QPalette()
+            pal.setColor(QtGui.QPalette.Window, QtGui.QColor(32, 32, 34))
+            pal.setColor(QtGui.QPalette.WindowText, Qt.white)
+            pal.setColor(QtGui.QPalette.Base, QtGui.QColor(22, 22, 24))
+            pal.setColor(QtGui.QPalette.AlternateBase, QtGui.QColor(36, 36, 40))
+            pal.setColor(QtGui.QPalette.ToolTipBase, QtGui.QColor(18, 18, 20))
+            pal.setColor(QtGui.QPalette.ToolTipText, QtGui.QColor(235, 235, 240))
+            pal.setColor(QtGui.QPalette.Text, Qt.white)
+            pal.setColor(QtGui.QPalette.Button, QtGui.QColor(45, 45, 48))
+            pal.setColor(QtGui.QPalette.ButtonText, Qt.white)
+            pal.setColor(QtGui.QPalette.BrightText, Qt.red)
+            # Selection highlight should NOT paint a block; use only a red outline via stylesheet.
+            pal.setColor(QtGui.QPalette.Highlight, QtGui.QColor(0, 0, 0, 0))
+            pal.setColor(QtGui.QPalette.HighlightedText, Qt.white)
+            app.setPalette(pal)
+            app.setStyleSheet(
+                """
+                QGroupBox { border: 1px solid #4a4a4a; border-radius: 6px; margin-top: 10px; }
+                QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 6px; color: #cfcfd6; }
+                QPushButton { border: 1px solid #5a5a5a; border-radius: 6px; padding: 6px 10px; }
+                QPushButton:hover { border-color: #2c6fb8; background: rgba(44,111,184,0.18); }
+                QPushButton:pressed { border-color: #2c6fb8; background: rgba(44,111,184,0.28); }
+                QPushButton:checked { background: #2c6fb8; border-color: #2c6fb8; }
+                QComboBox { padding: 4px 8px; }
+                QToolTip { background-color: #121214; color: #ebebf0; border: 1px solid #4a4a4a; padding: 4px 6px; }
+                """
+            )
+        else:
+            pg.setConfigOptions(background=(248, 248, 250), foreground=(25, 25, 28))
+            try:
+                plots.setBackground((248, 248, 250))
+            except Exception:
+                pass
+            app.setPalette(app.style().standardPalette())
+            app.setStyleSheet(
+                """
+                QGroupBox { border: 1px solid #cfcfd6; border-radius: 6px; margin-top: 10px; }
+                QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 6px; color: #303036; }
+                QPushButton { border: 1px solid #c3c3cc; border-radius: 6px; padding: 6px 10px; }
+                QPushButton:hover { border-color: #2c6fb8; background: rgba(44,111,184,0.12); }
+                QPushButton:pressed { border-color: #2c6fb8; background: rgba(44,111,184,0.20); }
+                QPushButton:checked { background: #2c6fb8; border-color: #2c6fb8; color: white; }
+                QComboBox { padding: 4px 8px; }
+                QToolTip { background-color: #fffffb; color: #111118; border: 1px solid #cfcfd6; padding: 4px 6px; }
+                """
+            )
+
+        # Ensure existing plot axes also switch colors (pyqtgraph config is not always retroactive).
+        fg = QtGui.QColor(230, 230, 235) if dark else QtGui.QColor(25, 25, 28)
+        axis_pen = pg.mkPen(fg, width=1)
+        for plot in (p_temp, p_hum, p_pres):
+            if plot is None:
+                continue
+            for ax_name in ("left", "bottom"):
+                try:
+                    ax = plot.getAxis(ax_name)
+                    ax.setPen(axis_pen)
+                    ax.setTextPen(axis_pen)
+                    ax.setTickPen(axis_pen)
+                except Exception:
+                    pass
+
+        # Keep selection outline visible on both themes.
+        try:
+            if table_sel_delegate is not None:
+                table_sel_delegate.setColor(selection_outline)
+            if list_sel_delegate is not None:
+                list_sel_delegate.setColor(selection_outline)
+        except Exception:
+            pass
 
     # Main window
     win = QtWidgets.QWidget()
-    win.setWindowTitle("AstroLink – Telemetry Ground Station")
+    win.setWindowTitle(f"AstroLink – Telemetry Ground Station ({APP_VERSION})")
     win.resize(1200, 900)
 
     layout = QVBoxLayout(win)
@@ -276,7 +395,13 @@ def main():
 
     btn_connect = QPushButton("Connect")
     btn_disconnect = QPushButton("Disconnect")
-    btn_disconnect.setEnabled(False)
+    btn_connect.setCheckable(True)
+    btn_disconnect.setCheckable(True)
+    conn_btn_group = QButtonGroup(win)
+    conn_btn_group.setExclusive(True)
+    conn_btn_group.addButton(btn_connect)
+    conn_btn_group.addButton(btn_disconnect)
+    btn_disconnect.setChecked(True)  # default state: disconnected
     top.addWidget(btn_connect)
     top.addWidget(btn_disconnect)
 
@@ -308,6 +433,12 @@ def main():
     btn_log.setEnabled(False)
     top.addWidget(btn_log)
 
+    top.addWidget(QLabel("Theme:"))
+    theme_cb = QComboBox()
+    theme_cb.addItems(["Dark", "Light"])
+    theme_cb.setFixedWidth(110)
+    top.addWidget(theme_cb)
+
     top.addStretch(1)
 
     # -------------------------------------------------------------------------
@@ -322,95 +453,192 @@ def main():
     file_box = QtWidgets.QWidget()
     file_box_layout = QHBoxLayout(file_box)
     file_box_layout.setContentsMargins(0, 0, 0, 0)
+    file_box_layout.setSpacing(10)
 
     file_list = QListWidget()
-    file_list.setMaximumHeight(120)
+    file_list.setMaximumHeight(160)
+    file_list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    file_list.setMinimumWidth(280)
+    file_list.setMaximumWidth(520)
+    file_sel_delegate = OutlineSelectionDelegate(selection_outline, file_list)
+    file_list.setItemDelegate(file_sel_delegate)
+    # Reserve some space on the right so per-row buttons don't sit under the scrollbar.
+    try:
+        file_list.setViewportMargins(0, 0, 30, 0)
+    except Exception:
+        pass
     file_box_layout.addWidget(file_list, 1)
 
+    # Right control strip: FILES + SIM + PLAYBACK + VIEW (one row, compact)
+    right_panel = QtWidgets.QWidget()
+    rp = QHBoxLayout(right_panel)
+    rp.setContentsMargins(0, 0, 0, 0)
+    rp.setSpacing(10)
+
+    gb_files = QGroupBox("FILES")
+    gb_files.setFixedWidth(170)
+    gb_files_l = QVBoxLayout(gb_files)
+    gb_files_l.setContentsMargins(10, 12, 10, 10)
+    gb_files_l.setSpacing(8)
+
+    btn_delete = QPushButton("Delete selected…")
+    btn_delete.setToolTip("Delete selected BIN file (OFFLINE)")
+    btn_delete.setMinimumHeight(30)
+    btn_delete.setEnabled(False)
+    gb_files_l.addWidget(btn_delete, 0)
+    gb_files_l.addStretch(1)
+    rp.addWidget(gb_files, 0)
+
+    gb_sim = QGroupBox("SIM")
+    gb_sim.setFixedWidth(150)
+    gb_sim_l = QVBoxLayout(gb_sim)
+    gb_sim_l.setContentsMargins(10, 12, 10, 10)
+    gb_sim_l.setSpacing(8)
+
+    btn_sim = QPushButton("Sim Flight")
+    btn_sim.setToolTip("Generate simulated flight (OFFLINE)")
+    btn_sim.setMinimumHeight(32)
+    gb_sim_l.addWidget(btn_sim, 0)
+    gb_sim_l.addStretch(1)
+    rp.addWidget(gb_sim, 0)
+
+    gb_play = QGroupBox("PLAYBACK")
+    gb_play_l = QHBoxLayout(gb_play)
+    gb_play_l.setContentsMargins(10, 12, 10, 10)
+    gb_play_l.setSpacing(8)
+
+    btn_rw = QPushButton("⏪")
+    btn_rw.setToolTip("Visszatekerés (RW): -20 minta")
+    btn_play = QPushButton("▶")
+    btn_play.setToolTip("Play: Lejátszás indítása")
+    btn_pause = QPushButton("⏸")
+    btn_pause.setToolTip("Pause: Lejátszás szünet")
+    btn_stop = QPushButton("⏹")
+    btn_stop.setToolTip("Stop: Lejátszás leállítása")
+    btn_ff = QPushButton("⏩")
+    btn_ff.setToolTip("Előretekerés (FF): +20 minta")
+
+    # Show playback state visually
+    pb_group = QButtonGroup(win)
+    pb_group.setExclusive(True)
+    for b in (btn_play, btn_pause, btn_stop):
+        b.setCheckable(True)
+        pb_group.addButton(b)
+    btn_stop.setChecked(True)
+
+    for b in (btn_rw, btn_play, btn_pause, btn_stop, btn_ff):
+        b.setMinimumSize(36, 28)
+        gb_play_l.addWidget(b, 0)
+    rp.addWidget(gb_play, 0)
+
+    gb_view = QGroupBox("VIEW")
+    gb_view.setFixedWidth(230)
+    gb_view_l = QVBoxLayout(gb_view)
+    gb_view_l.setContentsMargins(10, 12, 10, 10)
+    gb_view_l.setSpacing(8)
+
+    view_row = QHBoxLayout()
+    view_row.setContentsMargins(0, 0, 0, 0)
+    view_row.setSpacing(6)
+
+    btn_view_t = QPushButton("T")
+    btn_view_h = QPushButton("H")
+    btn_view_p = QPushButton("P")
+    view_group = QButtonGroup(win)
+    view_group.setExclusive(True)
+    for b in (btn_view_t, btn_view_h, btn_view_p):
+        b.setCheckable(True)
+        b.setMinimumSize(34, 28)
+        view_group.addButton(b)
+        view_row.addWidget(b, 1)
+    btn_view_p.setChecked(True)  # default: Pressure
+    gb_view_l.addLayout(view_row)
+
+    layout_row = QHBoxLayout()
+    layout_row.setContentsMargins(0, 0, 0, 0)
+    layout_row.setSpacing(6)
+
+    btn_single = QPushButton("Single")
+    btn_single.setCheckable(True)
+    btn_single.setToolTip("Vertical layout: show only one plot (select T/H/P above)")
+    btn_single.setMinimumHeight(30)
+    layout_row.addWidget(btn_single, 1)
 
     plot_toggle = QPushButton("H")
     plot_toggle.setCheckable(True)
     plot_toggle.setChecked(True)  # startup: Horizontal
-    plot_toggle.setMinimumSize(32, 28)
+    plot_toggle.setMinimumSize(34, 30)
     plot_toggle.setToolTip("Grafikon elrendezés váltása\nH = Horizontal, V = Vertical")
     plot_toggle.setFont(QtGui.QFont("Menlo", 10, QtGui.QFont.Bold))
-    toggle_box = QtWidgets.QWidget()
-    toggle_layout = QVBoxLayout(toggle_box)
-    toggle_layout.setContentsMargins(0, 0, 0, 0)
-    toggle_layout.setSpacing(2)
+    layout_row.addWidget(plot_toggle, 0)
+    gb_view_l.addLayout(layout_row)
 
-    toggle_label = QLabel("Graph layout")
-    toggle_label.setAlignment(Qt.AlignCenter)
-    toggle_label.setStyleSheet("font-size: 9px; color: #888;")
+    rp.addWidget(gb_view, 0)
+    file_box_layout.addWidget(right_panel, 0)
 
-    toggle_layout.addWidget(plot_toggle, 0, Qt.AlignCenter)
-    toggle_layout.addWidget(toggle_label, 0, Qt.AlignCenter)
+    def on_sim_flight():
+        if mode_cb.currentText() != "OFFLINE":
+            return
+        _generate_simulated_flight()
+        update_from_raw()
 
-    file_box_layout.addWidget(toggle_box, 0, Qt.AlignBottom)
-
+    btn_sim.clicked.connect(on_sim_flight)
     layout.addWidget(file_box)
 
     def refresh_file_list():
         file_list.clear()
         files = [f for f in sorted(os.listdir(os.getcwd())) if f.lower().endswith(".bin")]
+        max_w = 0
+        fm = QtGui.QFontMetrics(file_list.font())
         for fname in files:
-            item = QtWidgets.QListWidgetItem()
-            item.setData(Qt.UserRole, fname)
-            item.setSizeHint(QtCore.QSize(200, 26))
-            file_list.addItem(item)
+            it = QtWidgets.QListWidgetItem(fname)
+            it.setData(Qt.UserRole, fname)
+            it.setToolTip(fname)
+            file_list.addItem(it)
+            try:
+                max_w = max(max_w, fm.horizontalAdvance(fname))
+            except Exception:
+                pass
 
-            row_widget = QtWidgets.QWidget()
-            row_layout = QHBoxLayout(row_widget)
-            row_layout.setContentsMargins(6, 0, 6, 0)
-            row_layout.setSpacing(6)
+        # Tight file list width: enough to show names, without wasting plot space.
+        if max_w > 0:
+            target = max(280, min(520, max_w + 40))
+            file_list.setFixedWidth(int(target))
 
-            lbl = QLabel(fname)
-            lbl.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+    def _selected_filename():
+        it = file_list.currentItem()
+        if it is None:
+            return None
+        return it.data(Qt.UserRole) or it.text()
 
-            btn_del = QPushButton("✕")
-            btn_del.setFixedSize(22, 22)
-            btn_del.setToolTip("Delete this BIN file")
-            btn_del.setStyleSheet(
-                "QPushButton { color: #b00020; font-weight: bold; }"
-                "QPushButton:hover { background-color: #ffdddd; }"
-            )
-            btn_del.hide()
+    def _update_file_actions():
+        offline = (mode_cb.currentText() == "OFFLINE")
+        btn_delete.setEnabled(offline and _selected_filename() is not None)
 
-            def _make_delete_cb(fn=fname):
-                def _cb():
-                    ret = QtWidgets.QMessageBox.question(
-                        win,
-                        "Delete file",
-                        f"Delete file?\n\n{fn}",
-                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                        QtWidgets.QMessageBox.No
-                    )
-                    if ret != QtWidgets.QMessageBox.Yes:
-                        return
-                    try:
-                        os.remove(os.path.join(os.getcwd(), fn))
-                    except Exception as e:
-                        _warn(win, "Delete failed", str(e))
-                        return
-                    refresh_file_list()
-                    lbl_status.setText(f"Status: deleted {fn}")
-                return _cb
+    def _delete_selected():
+        fn = _selected_filename()
+        if not fn:
+            return
+        ret = QtWidgets.QMessageBox.question(
+            win,
+            "Delete file",
+            f"Delete file?\n\n{fn}",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No
+        )
+        if ret != QtWidgets.QMessageBox.Yes:
+            return
+        try:
+            os.remove(os.path.join(os.getcwd(), fn))
+        except Exception as e:
+            _warn(win, "Delete failed", str(e))
+            return
+        refresh_file_list()
+        _update_file_actions()
+        lbl_status.setText(f"Status: deleted {fn}")
 
-            btn_del.clicked.connect(_make_delete_cb())
-
-            row_layout.addWidget(lbl, 1)
-            row_layout.addWidget(btn_del, 0, Qt.AlignRight)
-
-            file_list.setItemWidget(item, row_widget)
-
-            def _enter_event(_e, b=btn_del):
-                b.show()
-
-            def _leave_event(_e, b=btn_del):
-                b.hide()
-
-            row_widget.enterEvent = _enter_event
-            row_widget.leaveEvent = _leave_event
+    btn_delete.clicked.connect(_delete_selected)
+    file_list.currentItemChanged.connect(lambda *_: _update_file_actions())
 
     tabs = QTabWidget()
     splitter.addWidget(tabs)
@@ -420,6 +648,8 @@ def main():
     table.setColumnCount(4)
     table.setHorizontalHeaderLabels(["Index", "Temp (°C)", "Hum (%)", "Press (hPa)"])
     table.horizontalHeader().setStretchLastSection(True)
+    table_sel_delegate = OutlineSelectionDelegate(selection_outline, table)
+    table.setItemDelegate(table_sel_delegate)
     tabs.addTab(table, "Decoded samples")
 
     # Raw view tab (shows incoming/raw bytes + frame summaries)
@@ -448,12 +678,13 @@ def main():
 
     # Frame Inspector tab (QTableWidget)
     frame_table = QTableWidget()
-    frame_table.setColumnCount(6)
-    frame_table.setHorizontalHeaderLabels(["#", "Type", "SEQ", "REF", "CRC", "Status"])
+    frame_table.setColumnCount(7)
+    frame_table.setHorizontalHeaderLabels(["#", "Type", "SEQ", "REF", "CRC", "Status", "Reason"])
     frame_table.horizontalHeader().setStretchLastSection(True)
     frame_table.setSelectionBehavior(QTableWidget.SelectRows)
     frame_table.setSelectionMode(QTableWidget.SingleSelection)
     frame_table.setFocusPolicy(Qt.StrongFocus)
+    frame_table.setItemDelegate(table_sel_delegate)
 
     # Add explanation panel under frame_table
     frame_explain = QLabel("Select a frame to see explanation.")
@@ -468,6 +699,26 @@ def main():
     frame_layout.addWidget(frame_explain)
 
     tabs.addTab(frame_container, "Frame Inspector")
+    # ---------------------------------------------------------------------
+    # Mission Timeline tab (OBOE MODE v1)
+    # ---------------------------------------------------------------------
+    timeline_widget = QtWidgets.QWidget()
+    timeline_layout = QVBoxLayout(timeline_widget)
+    timeline_layout.setContentsMargins(6, 6, 6, 6)
+
+    timeline_events = QtWidgets.QListWidget()
+    timeline_events.setMinimumHeight(180)
+    timeline_events.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+    timeline_events.setToolTip("Mission events derived from telemetry stream")
+    list_sel_delegate = OutlineSelectionDelegate(selection_outline, timeline_events)
+    timeline_events.setItemDelegate(list_sel_delegate)
+    timeline_layout.addWidget(timeline_events, 2)
+
+    tabs.addTab(timeline_widget, "Mission Timeline")
+    # Reference holder for timeline updates
+    timeline_events_ref = timeline_events
+    # Reference holder for latest decoded keyframes (Timeline sync)
+    keyframes_ref = []
     # Frame diagnostic record:
     # {
     #   type: "FULL" | "DELTA",
@@ -511,6 +762,14 @@ def main():
                 continue
 
             if i + flen > n:
+                frames_diag.append({
+                    "type": ftype,
+                    "seq": None,
+                    "ref_seq": None,
+                    "crc_ok": False,
+                    "status": "DROPPED_TRUNC",
+                    "reason": "Frame header found, but buffer ended before full frame length."
+                })
                 break
 
             frame = raw[i:i + flen]
@@ -531,7 +790,8 @@ def main():
                     "seq": frame[4] if flen > 4 else None,
                     "ref_seq": frame[5] if (ftype == "DELTA" and flen > 5) else None,
                     "crc_ok": False,
-                    "status": "DROPPED_CRC"
+                    "status": "DROPPED_CRC",
+                    "reason": "CRC16 mismatch."
                 }
                 frames_diag.append(diag)
                 i += 1
@@ -557,7 +817,8 @@ def main():
                     "seq": frame[4],
                     "ref_seq": None,
                     "crc_ok": True,
-                    "status": "ACCEPTED"
+                    "status": "ACCEPTED",
+                    "reason": "FULL keyframe accepted."
                 }
                 frames_diag.append(diag)
                 i += flen
@@ -575,7 +836,8 @@ def main():
                     "seq": seq,
                     "ref_seq": ref_key_seq,
                     "crc_ok": True,
-                    "status": "DROPPED_NO_REF"
+                    "status": "DROPPED_NO_REF",
+                    "reason": "DELTA received before any keyframe."
                 }
                 frames_diag.append(diag)
                 i += flen
@@ -587,7 +849,8 @@ def main():
                     "seq": seq,
                     "ref_seq": ref_key_seq,
                     "crc_ok": True,
-                    "status": "DROPPED_REF_MISMATCH"
+                    "status": "DROPPED_REF_MISMATCH",
+                    "reason": "DELTA references a different keyframe than the last accepted FULL."
                 }
                 frames_diag.append(diag)
                 i += flen
@@ -639,12 +902,323 @@ def main():
                 "seq": seq,
                 "ref_seq": ref_key_seq,
                 "crc_ok": True,
-                "status": "ACCEPTED"
+                "status": "ACCEPTED",
+                "reason": "DELTA frame accepted and applied."
             }
             frames_diag.append(diag)
             i += flen
             frame_num += 1
         return Ts, Hs, Ps, keyframe_idx, frames_diag
+
+    # ---------------------------------------------------------------------
+    # Decode cache (single decode per buffer version)
+    # ---------------------------------------------------------------------
+    class DecodeCache:
+        def __init__(self):
+            self._sig = None
+            self._result = None
+
+        @staticmethod
+        def _signature(b: bytes):
+            tail = b[-64:] if len(b) > 64 else b
+            return (len(b), tail)
+
+        def decode(self, b: bytes):
+            sig = self._signature(b)
+            if self._sig == sig and self._result is not None:
+                return self._result
+            self._result = decode_frames_verbose(b)
+            self._sig = sig
+            return self._result
+
+        def invalidate(self):
+            self._sig = None
+            self._result = None
+
+    decode_cache = DecodeCache()
+
+    # ---------------------------------------------------------------------
+    # Mission Timeline logic (extracted)
+    # ---------------------------------------------------------------------
+    class TimelineEngine:
+        """Derive mission events and timeline items from decoded sample arrays."""
+
+        def __init__(self, sample_period_s: float = 0.5):
+            self.sample_period_s = float(sample_period_s)
+
+        @staticmethod
+        def _avg(seq):
+            return (sum(seq) / len(seq)) if seq else 0.0
+
+        @staticmethod
+        def _stable(win, tol):
+            return (max(win) - min(win)) < tol if win else False
+
+        def derive(self, Ts, Hs, Ps, keyframes):
+            """
+            Pressure-driven fázisdetektálás (liftoff→apogee→descent→landed).
+            Visszaad:
+              {
+                "mission_events": [(name, idx)],
+                "adaptive_kf": [idx],
+                "timeline_items": [(text, idx_or_None, (bg,fg)_or_None)]
+              }
+            """
+            mission_events = []
+            timeline_items = []
+
+            if not Ts or not Hs or not Ps or len(Ps) < 8:
+                return {"mission_events": mission_events, "adaptive_kf": [], "timeline_items": timeline_items}
+
+            # Paraméterek (adaptive: ground zajhoz viszonyított küszöbök)
+            WIN_STABLE = 24          # ~12 s ablak stabilitáshoz
+            WIN_SLOPE = 12           # derivált simítás (~6 s)
+            GROUND_RANGE = 3.5       # hPa belső tartomány stabilnak
+            GROUND_SLOPE = 0.4       # hPa/step maximum stabil talajon
+            # Liftoff / descent küszöbök később, ground zaj alapján (sigma alapú)
+            LIFTOFF_ABS_DROP = 8.0   # hPa abszolút esés ground szinthez képest
+            LAND_RANGE = 6.0         # hPa ground közelség landoláshoz
+            LAND_STABLE = 3.0        # hPa tartomány landoláskor
+
+            def movavg_series(seq, w):
+                if w <= 1:
+                    return list(seq)
+                out = []
+                acc = 0.0
+                for i, v in enumerate(seq):
+                    acc += v
+                    if i >= w:
+                        acc -= seq[i - w]
+                    if i + 1 >= w:
+                        out.append(acc / w)
+                    else:
+                        out.append(acc / (i + 1))
+                return out
+
+            def moving_avg(seq, w):
+                out = []
+                acc = 0.0
+                for i, v in enumerate(seq):
+                    acc += v
+                    if i >= w:
+                        acc -= seq[i - w]
+                    if i + 1 >= w:
+                        out.append(acc / w)
+                return out
+
+            # Kis simítás a zaj ellen (fázisdetektálásra, nem a plotra)
+            P_f = movavg_series(Ps, 5)
+
+            # 1) Ground szint és stabil ablak keresése:
+            # CanSat-nál a GROUND tipikusan a legmagasabb nyomású stabil szakasz.
+            ground_p = None
+            ground_idx = 0
+            ground_window = None
+            candidates = []
+            for i in range(WIN_STABLE, len(P_f)):
+                pwin = P_f[i - WIN_STABLE:i]
+                if (max(pwin) - min(pwin)) < GROUND_RANGE:
+                    slopes = [pwin[j] - pwin[j - 1] for j in range(1, len(pwin))]
+                    if max(abs(s) for s in slopes) < GROUND_SLOPE:
+                        candidates.append((self._avg(pwin), i, list(pwin)))
+
+            if candidates:
+                # CanSat esetben a log tipikusan a földön indul, ezért az első stabil, "magas nyomású"
+                # szegmenst tekintjük induló GROUND-nak. Ha a felvétel nem a földön indul (mid-flight),
+                # akkor az első stabil szegmens nyomása tipikusan jelentősen alacsonyabb lesz, ezért
+                # visszaesünk a legmagasabb átlagnyomású stabil szegmensre.
+                best_high = max(m for (m, _, _) in candidates)
+                tol = max(4.0, 8.0 * (0.2))  # lazább tolerancia (hPa), később a zajhoz igazítjuk
+                # a zajt csak később számoljuk, ezért itt fix de óvatos toleranciát használunk
+
+                candidates_sorted = sorted(candidates, key=lambda x: x[1])
+                early = None
+                for m, i, w in candidates_sorted:
+                    if m >= (best_high - tol):
+                        early = (m, i, w)
+                        break
+
+                if early is None:
+                    # fallback: legmagasabb átlagnyomású stabil ablak
+                    candidates_sorted = sorted(candidates, key=lambda x: (-x[0], x[1]))
+                    ground_p, ground_idx, ground_window = candidates_sorted[0]
+                else:
+                    ground_p, ground_idx, ground_window = early
+
+                # GROUND eseményt a stabil ablak elejére tesszük (misszió indulás jelölése)
+                ground_start_idx = max(0, int(ground_idx) - WIN_STABLE)
+                mission_events.append(("GROUND", ground_start_idx))
+
+            if ground_p is None:
+                # Nem talált stabil ground-ot: legalább keyframe lista legyen
+                timeline_items.append(("Nincs stabil GROUND detektálva (állíts küszöböket).", None, None))
+                timeline_items.append(("────────── KEYFRAMES ──────────", None, None))
+                for kf_idx in keyframes or []:
+                    met_sec = kf_idx * self.sample_period_s
+                    timeline_items.append((f"KEYFRAME  |  sample {kf_idx}  |  MET ≈ {met_sec:.1f} s", int(kf_idx), None))
+                return {"mission_events": mission_events, "adaptive_kf": [], "timeline_items": timeline_items}
+
+            # 2) Robosztus zajbecslés a ground ablakból (median abs(dP))
+            try:
+                gd = [ground_window[i] - ground_window[i - 1] for i in range(1, len(ground_window or []))]
+                abs_gd = sorted(abs(x) for x in gd) or [0.1]
+                noise = float(abs_gd[len(abs_gd) // 2])
+                noise = max(0.05, noise)
+            except Exception:
+                noise = 0.2
+
+            # 3) Liftoff/ASCENT: nem csak derivált, hanem tartós abs esés is (hysteresis)
+            drop_abs = max(LIFTOFF_ABS_DROP, 12.0 * noise)
+            consec = max(3, int(round(2.0 / max(self.sample_period_s, 0.1))))  # ~2 s
+
+            ascent_start = None
+            start_idx = max(ground_idx, WIN_STABLE)
+            for i in range(start_idx, len(P_f) - consec):
+                if (ground_p - P_f[i]) < drop_abs:
+                    continue
+                # tartósan lent marad-e?
+                ok = True
+                for j in range(i, i + consec):
+                    if (ground_p - P_f[j]) < (0.7 * drop_abs):
+                        ok = False
+                        break
+                if ok:
+                    ascent_start = i
+                    mission_events.append(("ASCENT", i))
+                    break
+
+            if ascent_start is None:
+                # Ne legyen üres: GROUND-ot már látjuk, csak a liftoff hiányzik.
+                timeline_items.append(("ASCENT nem detektálható (tartós nyomásesés nincs a GROUND-hoz képest).", None, None))
+                # Timeline összeállítás később (events + keyframes)
+                adaptive_kf = []
+                # 8) Timeline elemek
+                style_map = {
+                    "GROUND":  (QtGui.QColor(220, 220, 220), QtGui.QColor(20, 20, 20)),
+                    "ASCENT":  (QtGui.QColor(60, 120, 200),  QtGui.QColor(255, 255, 255)),
+                    "APOGEE":  (QtGui.QColor(255, 200, 60),  QtGui.QColor(20, 20, 20)),
+                    "DESCENT": (QtGui.QColor(60, 200, 200),  QtGui.QColor(20, 20, 20)),
+                    "LANDED":  (QtGui.QColor(80, 200, 120),  QtGui.QColor(20, 20, 20)),
+                }
+                for name, idx in mission_events:
+                    met_sec = idx * self.sample_period_s
+                    timeline_items.append((f"{name}  |  sample {idx}  |  MET ≈ {met_sec:.1f} s", int(idx), style_map.get(name)))
+                timeline_items.append(("────────── KEYFRAMES ──────────", None, None))
+                for kf_idx in keyframes or []:
+                    met_sec = kf_idx * self.sample_period_s
+                    timeline_items.append((f"KEYFRAME  |  sample {kf_idx}  |  MET ≈ {met_sec:.1f} s", int(kf_idx), None))
+                return {"mission_events": mission_events, "adaptive_kf": adaptive_kf, "timeline_items": timeline_items}
+
+            # 4) Apogee: minimum nyomás + (gyakran) plató/szaturáció detektálás
+            min_p = min(P_f[ascent_start:])
+            eps = max(1.0, 4.0 * noise)
+            plateau_min_len = max(8, int(round(4.0 / max(self.sample_period_s, 0.1))))  # ~4 s
+
+            plateau_start = None
+            plateau_end = None
+            run = 0
+            run_start = None
+            for i in range(ascent_start, len(P_f)):
+                if P_f[i] <= (min_p + eps):
+                    if run == 0:
+                        run_start = i
+                    run += 1
+                else:
+                    if run >= plateau_min_len:
+                        plateau_start = run_start
+                        plateau_end = i - 1
+                        break
+                    run = 0
+                    run_start = None
+            if plateau_start is None and run >= plateau_min_len:
+                plateau_start = run_start
+                plateau_end = len(P_f) - 1
+
+            if plateau_start is not None:
+                apogee_idx = int((plateau_start + plateau_end) // 2)
+            else:
+                apogee_idx = ascent_start + P_f[ascent_start:].index(min_p)
+            mission_events.append(("APOGEE", apogee_idx))
+
+            # 5) DESCENT: nyomás tartós emelkedése a minimum/plató után
+            rise_abs = max(8.0, 12.0 * noise)
+            descent_idx = None
+            scan_from = (plateau_end + 1) if plateau_end is not None else (apogee_idx + 1)
+            scan_from = max(scan_from, apogee_idx + 1)
+            for i in range(scan_from, len(P_f) - consec):
+                if (P_f[i] - min_p) < rise_abs:
+                    continue
+                ok = True
+                for j in range(i, i + consec):
+                    if (P_f[j] - min_p) < (0.7 * rise_abs):
+                        ok = False
+                        break
+                if ok:
+                    descent_idx = i
+                    mission_events.append(("DESCENT", i))
+                    break
+
+            # 6) LANDED: vissza ground közelébe és stabil
+            land_idx = None
+            if descent_idx is not None:
+                for i in range(descent_idx + WIN_STABLE, len(P_f)):
+                    pwin = P_f[i - WIN_STABLE:i]
+                    if abs(self._avg(pwin) - ground_p) < LAND_RANGE and (max(pwin) - min(pwin)) < LAND_STABLE:
+                        land_idx = i
+                        mission_events.append(("LANDED", i))
+                        break
+
+            # 7) Adaptive keyframe javaslat (ritka események)
+            adaptive_kf = []
+            cooldown = 10
+            last_kf = -cooldown
+            for i in range(3, len(Ps)):
+                dP1 = Ps[i] - Ps[i - 1]
+                dP2 = Ps[i - 1] - Ps[i - 2]
+                d2P = dP1 - dP2
+                if abs(d2P) > 3.0:
+                    if i - last_kf >= cooldown:
+                        adaptive_kf.append(i)
+                        last_kf = i
+            adaptive_kf = sorted(set(adaptive_kf))
+
+            # 8) Timeline elemek
+            style_map = {
+                "GROUND":  (QtGui.QColor(220, 220, 220), QtGui.QColor(20, 20, 20)),
+                "ASCENT":  (QtGui.QColor(60, 120, 200),  QtGui.QColor(255, 255, 255)),
+                "APOGEE":  (QtGui.QColor(255, 200, 60),  QtGui.QColor(20, 20, 20)),
+                "DESCENT": (QtGui.QColor(60, 200, 200),  QtGui.QColor(20, 20, 20)),
+                "LANDED":  (QtGui.QColor(80, 200, 120),  QtGui.QColor(20, 20, 20)),
+            }
+
+            if mission_events:
+                for name, idx in mission_events:
+                    met_sec = idx * self.sample_period_s
+                    timeline_items.append((f"{name}  |  sample {idx}  |  MET ≈ {met_sec:.1f} s", int(idx), style_map.get(name)))
+            else:
+                timeline_items.append(("Nincs mission esemény detektálva.", None, None))
+
+            timeline_items.append(("────────── KEYFRAMES ──────────", None, None))
+
+            for kf_idx in keyframes or []:
+                met_sec = kf_idx * self.sample_period_s
+                timeline_items.append((
+                    f"KEYFRAME  |  sample {kf_idx}  |  MET ≈ {met_sec:.1f} s",
+                    int(kf_idx),
+                    None
+                ))
+
+            for akf in adaptive_kf:
+                met_sec = akf * self.sample_period_s
+                timeline_items.append((
+                    f"ADAPTIVE KF  |  sample {akf}  |  MET ≈ {met_sec:.1f} s",
+                    int(akf),
+                    None
+                ))
+
+            return {"mission_events": mission_events, "adaptive_kf": adaptive_kf, "timeline_items": timeline_items}
+
+    timeline_engine = TimelineEngine(sample_period_s=0.5)
 
     # Plot area container with toggle for orientation
     plot_container = QtWidgets.QWidget()
@@ -670,18 +1244,150 @@ def main():
     h_kf = None
     p_kf = None
 
+    # PlotItem refs (needed for Mission Timeline markers)
+    p_temp = None
+    p_hum = None
+    p_pres = None
+
+    # Mission event markers (InfiniteLine/TextItem) – updated from telemetry
+    mission_events_ref = []     # list of (name:str, sample_idx:int)
+    # NOTE: Do NOT reuse a single GraphicsItem across plots. Keep per-plot items.
+    event_lines = []            # list of (ln_temp, ln_hum, ln_pres)
+    event_labels = []           # list of pg.TextItem (kept empty when only dots)
+    # State bands (background colored time ranges)
+    state_regions = []          # list of (reg_temp, reg_hum, reg_pres)
+    # Mission scatter markers per plot
+    event_scatters = []         # list of (scat_t, scat_h, scat_p)
+
     marker_pen = pg.mkPen(color=(255, 255, 0), width=2)
     kf_scatter_pen = pg.mkPen(None)
     kf_scatter_brush = pg.mkBrush(255, 255, 0, 120)
+
+    # Single-plot mode (only in Vertical layout)
+    single_mode = False
+    single_channel = "P"  # "T" | "H" | "P"
+
+    # --- Playback FSM ---
+    PLAY_STOPPED = 0
+    PLAY_RUNNING = 1
+    PLAY_PAUSED  = 2
+
+    play_state = PLAY_STOPPED
+    play_idx = None
+
+    playback_timer = QtCore.QTimer()
+    playback_timer.setInterval(120)
+
+    def on_playback_tick():
+        nonlocal play_idx, play_state
+
+        if play_state != PLAY_RUNNING:
+            playback_timer.stop()
+            return
+
+        Ts, _, _, _, _ = decode_cache._result or ([], [], [], [], [])
+
+        if play_idx is None:
+            play_idx = 0
+        else:
+            play_idx += 1
+
+        if play_idx >= len(Ts):
+            play_idx = len(Ts)
+            play_state = PLAY_STOPPED
+            playback_timer.stop()
+            btn_stop.setChecked(True)
+
+        update_from_raw()
+    def on_play():
+        nonlocal play_idx, play_state
+        if decode_cache._result is None:
+            update_from_raw()
+        play_state = PLAY_RUNNING
+        btn_play.setChecked(True)
+        if play_idx is None:
+            play_idx = 0
+        playback_timer.start()
+
+    def on_pause():
+        nonlocal play_state
+        play_state = PLAY_PAUSED
+        btn_pause.setChecked(True)
+        playback_timer.stop()
+
+    def on_stop():
+        nonlocal play_idx, play_state
+        play_state = PLAY_STOPPED
+        btn_stop.setChecked(True)
+        play_idx = None
+        playback_timer.stop()
+        update_from_raw()
+
+    def on_ff():
+        nonlocal play_idx
+        Ts, _, _, _, _ = decode_cache._result or ([], [], [], [], [])
+        if play_idx is not None:
+            play_idx = min(play_idx + 20, len(Ts))
+            update_from_raw()
+
+    def on_rw():
+        nonlocal play_idx
+        if play_idx is not None:
+            play_idx = max(0, play_idx - 20)
+            update_from_raw()
+
+    playback_timer.timeout.connect(on_playback_tick)
+    btn_play.clicked.connect(on_play)
+    btn_pause.clicked.connect(on_pause)
+    btn_stop.clicked.connect(on_stop)
+    btn_ff.clicked.connect(on_ff)
+    btn_rw.clicked.connect(on_rw)
+
+    def _curve_data(curve):
+        """Safe getter for PlotDataItem data; returns (xs, ys) as lists."""
+        if curve is None:
+            return [], []
+        try:
+            xdata, ydata = curve.getData()
+        except Exception:
+            return [], []
+        if xdata is None or ydata is None:
+            return [], []
+        return list(xdata), list(ydata)
+
+    def _auto_range_plots():
+        """Keep plot ranges tied to data, not to overlaid labels/regions."""
+        for curve, plot in ((t_curve, p_temp), (h_curve, p_hum), (p_curve, p_pres)):
+            if curve is None or plot is None:
+                continue
+            xs, ys = _curve_data(curve)
+            if not xs or not ys:
+                continue
+            x_min = min(xs)
+            x_max = max(xs)
+            if x_max == x_min:
+                x_min -= 1.0
+                x_max += 1.0
+            y_min = min(ys)
+            y_max = max(ys)
+            if y_max == y_min:
+                pad = abs(y_max) * 0.05 + 1.0
+                y_min -= pad
+                y_max += pad
+            plot.setXRange(x_min, x_max, padding=0.02)
+            plot.setYRange(y_min, y_max, padding=0.1)
 
     def rebuild_plots(horizontal: bool):
         nonlocal t_curve, h_curve, p_curve
         nonlocal t_marker, h_marker, p_marker
         nonlocal t_kf, h_kf, p_kf
-        # Preserve current data before rebuild
-        Ts_cur = t_curve.yData if t_curve is not None else []
-        Hs_cur = h_curve.yData if h_curve is not None else []
-        Ps_cur = p_curve.yData if p_curve is not None else []
+        nonlocal p_temp, p_hum, p_pres
+
+        # Preserve current data before rebuild (robust to empty curves)
+        t_x_cur, t_y_cur = _curve_data(t_curve)
+        h_x_cur, h_y_cur = _curve_data(h_curve)
+        p_x_cur, p_y_cur = _curve_data(p_curve)
+
         # Preserve marker positions
         t_marker_pos = t_marker.value() if t_marker is not None else None
         h_marker_pos = h_marker.value() if h_marker is not None else None
@@ -691,57 +1397,82 @@ def main():
         h_kf_x, h_kf_y = h_kf.getData() if h_kf is not None else ([], [])
         p_kf_x, p_kf_y = p_kf.getData() if p_kf is not None else ([], [])
         plots.clear()
-        if not horizontal:
-            p1 = plots.addPlot(title="Temperature (°C)")
-            t_curve = p1.plot([], pen='r')
-            plots.nextRow()
-            p2 = plots.addPlot(title="Humidity (%)")
-            h_curve = p2.plot([], pen='g')
-            plots.nextRow()
-            p3 = plots.addPlot(title="Pressure (hPa)")
-            p_curve = p3.plot([], pen='b')
+        # Reset refs (important when switching into single-plot mode)
+        p_temp = p_hum = p_pres = None
+        t_curve = h_curve = p_curve = None
+
+        if horizontal:
+            p_temp = plots.addPlot(title="Temperature (°C)")
+            p_hum = plots.addPlot(title="Humidity (%)")
+            p_pres = plots.addPlot(title="Pressure (hPa)")
+            t_curve = p_temp.plot([], pen="r")
+            h_curve = p_hum.plot([], pen="g")
+            p_curve = p_pres.plot([], pen="b")
         else:
-            p1 = plots.addPlot(title="Temperature (°C)")
-            p2 = plots.addPlot(title="Humidity (%)")
-            p3 = plots.addPlot(title="Pressure (hPa)")
-            t_curve = p1.plot([], pen='r')
-            h_curve = p2.plot([], pen='g')
-            p_curve = p3.plot([], pen='b')
+            if single_mode:
+                if single_channel == "T":
+                    p_temp = plots.addPlot(title="Temperature (°C)")
+                    t_curve = p_temp.plot([], pen="r")
+                elif single_channel == "H":
+                    p_hum = plots.addPlot(title="Humidity (%)")
+                    h_curve = p_hum.plot([], pen="g")
+                else:
+                    p_pres = plots.addPlot(title="Pressure (hPa)")
+                    p_curve = p_pres.plot([], pen="b")
+            else:
+                p_temp = plots.addPlot(title="Temperature (°C)")
+                t_curve = p_temp.plot([], pen="r")
+                plots.nextRow()
+                p_hum = plots.addPlot(title="Humidity (%)")
+                h_curve = p_hum.plot([], pen="g")
+                plots.nextRow()
+                p_pres = plots.addPlot(title="Pressure (hPa)")
+                p_curve = p_pres.plot([], pen="b")
 
-        t_marker = pg.InfiniteLine(angle=90, movable=False, pen=marker_pen)
-        h_marker = pg.InfiniteLine(angle=90, movable=False, pen=marker_pen)
-        p_marker = pg.InfiniteLine(angle=90, movable=False, pen=marker_pen)
-        p1.addItem(t_marker)
-        p2.addItem(h_marker)
-        p3.addItem(p_marker)
+        # Markers (only for existing plots)
+        t_marker = h_marker = p_marker = None
+        if p_temp is not None:
+            t_marker = pg.InfiniteLine(angle=90, movable=False, pen=marker_pen)
+            p_temp.addItem(t_marker)
+        if p_hum is not None:
+            h_marker = pg.InfiniteLine(angle=90, movable=False, pen=marker_pen)
+            p_hum.addItem(h_marker)
+        if p_pres is not None:
+            p_marker = pg.InfiniteLine(angle=90, movable=False, pen=marker_pen)
+            p_pres.addItem(p_marker)
 
-        t_kf = pg.ScatterPlotItem(size=8, pen=kf_scatter_pen, brush=kf_scatter_brush)
-        h_kf = pg.ScatterPlotItem(size=8, pen=kf_scatter_pen, brush=kf_scatter_brush)
-        p_kf = pg.ScatterPlotItem(size=8, pen=kf_scatter_pen, brush=kf_scatter_brush)
-        p1.addItem(t_kf)
-        p2.addItem(h_kf)
-        p3.addItem(p_kf)
+        # Keyframe scatters (only for existing plots)
+        t_kf = h_kf = p_kf = None
+        if p_temp is not None:
+            t_kf = pg.ScatterPlotItem(size=6, pen=None, brush=pg.mkBrush(255, 200, 0, 180))
+            p_temp.addItem(t_kf)
+        if p_hum is not None:
+            h_kf = pg.ScatterPlotItem(size=6, pen=None, brush=pg.mkBrush(255, 200, 0, 180))
+            p_hum.addItem(h_kf)
+        if p_pres is not None:
+            p_kf = pg.ScatterPlotItem(size=6, pen=None, brush=pg.mkBrush(255, 200, 0, 180))
+            p_pres.addItem(p_kf)
         # Restore data after rebuild
-        if Ts_cur is not None and len(Ts_cur) > 0:
-            t_curve.setData(Ts_cur)
-        if Hs_cur is not None and len(Hs_cur) > 0:
-            h_curve.setData(Hs_cur)
-        if Ps_cur is not None and len(Ps_cur) > 0:
-            p_curve.setData(Ps_cur)
+        if t_curve is not None and t_y_cur:
+            t_curve.setData(t_x_cur, t_y_cur)
+        if h_curve is not None and h_y_cur:
+            h_curve.setData(h_x_cur, h_y_cur)
+        if p_curve is not None and p_y_cur:
+            p_curve.setData(p_x_cur, p_y_cur)
         # Restore keyframe scatter data
-        if t_kf_x is not None and len(t_kf_x) > 0:
+        if t_kf is not None and t_kf_x is not None and len(t_kf_x) > 0:
             t_kf.setData(t_kf_x, t_kf_y)
-        if h_kf_x is not None and len(h_kf_x) > 0:
+        if h_kf is not None and h_kf_x is not None and len(h_kf_x) > 0:
             h_kf.setData(h_kf_x, h_kf_y)
-        if p_kf_x is not None and len(p_kf_x) > 0:
+        if p_kf is not None and p_kf_x is not None and len(p_kf_x) > 0:
             p_kf.setData(p_kf_x, p_kf_y)
 
         # Restore marker positions
-        if t_marker_pos is not None:
+        if t_marker is not None and t_marker_pos is not None:
             t_marker.setPos(t_marker_pos)
-        if h_marker_pos is not None:
+        if h_marker is not None and h_marker_pos is not None:
             h_marker.setPos(h_marker_pos)
-        if p_marker_pos is not None:
+        if p_marker is not None and p_marker_pos is not None:
             p_marker.setPos(p_marker_pos)
 
     def plot_clicked(evt):
@@ -769,16 +1500,413 @@ def main():
 
     plots.scene().sigMouseClicked.connect(plot_clicked)
 
+    def _clear_event_markers():
+        nonlocal event_lines, event_labels, event_scatters
+        # remove old markers from plots (per-plot items)
+        for triple in event_lines:
+            try:
+                ln_t, ln_h, ln_p = triple
+            except Exception:
+                ln_t = ln_h = ln_p = None
+            for plot, item in ((p_temp, ln_t), (p_hum, ln_h), (p_pres, ln_p)):
+                try:
+                    if plot is not None and item is not None:
+                        plot.removeItem(item)
+                except Exception:
+                    pass
+
+        for tx in event_labels:
+            try:
+                if p_temp is not None and tx is not None:
+                    p_temp.removeItem(tx)
+            except Exception:
+                pass
+
+        event_lines = []
+        event_labels = []
+        # remove scatter markers
+        for triple in event_scatters:
+            try:
+                sc_t, sc_h, sc_p = triple
+            except Exception:
+                sc_t = sc_h = sc_p = None
+            for plot, item in ((p_temp, sc_t), (p_hum, sc_h), (p_pres, sc_p)):
+                try:
+                    if plot is not None and item is not None:
+                        plot.removeItem(item)
+                except Exception:
+                    pass
+        event_scatters = []
+
+    def _clear_state_bands():
+        nonlocal state_regions
+        for triple in state_regions:
+            try:
+                r_t, r_h, r_p = triple
+            except Exception:
+                r_t = r_h = r_p = None
+            for plot, item in ((p_temp, r_t), (p_hum, r_h), (p_pres, r_p)):
+                try:
+                    if plot is not None and item is not None:
+                        plot.removeItem(item)
+                except Exception:
+                    pass
+        state_regions = []
+
+    def _render_event_markers():
+        nonlocal event_lines, event_labels, state_regions
+
+        # Mission label colors (match Mission Timeline)
+        label_style = {
+            "GROUND":  (QtGui.QColor(220, 220, 220), QtGui.QColor(20, 20, 20)),
+            "ASCENT":  (QtGui.QColor(60, 120, 200),  QtGui.QColor(255, 255, 255)),
+            "APOGEE":  (QtGui.QColor(255, 200, 60),  QtGui.QColor(20, 20, 20)),
+            "DESCENT": (QtGui.QColor(60, 200, 200),  QtGui.QColor(20, 20, 20)),
+            "LANDED":  (QtGui.QColor(80, 200, 120),  QtGui.QColor(20, 20, 20)),
+        }
+
+        # Remove old stuff
+        _clear_event_markers()
+        _clear_state_bands()
+
+        if p_temp is None or p_hum is None or p_pres is None:
+            return
+
+        # -----------------------
+        # 1) Event markers (scatter only, all plots)
+        # -----------------------
+        if mission_events_ref:
+            # Current data for y lookup
+            _, t_ys = _curve_data(t_curve)
+            _, h_ys = _curve_data(h_curve)
+            _, p_ys = _curve_data(p_curve)
+
+            for name, idx in mission_events_ref:
+                try:
+                    color = label_style.get(name, (QtGui.QColor(255, 255, 0), QtGui.QColor(0, 0, 0)))[0]
+                    brush = pg.mkBrush(color)
+                    pen = pg.mkPen(color, width=2)
+
+                    def _make_scatter(plot, ys):
+                        if plot is None or not ys or idx >= len(ys):
+                            return None
+                        sc = pg.ScatterPlotItem([float(idx)], [float(ys[idx])], size=10, brush=brush, pen=pen)
+                        plot.addItem(sc)
+                        return sc
+
+                    sc_t = _make_scatter(p_temp, t_ys)
+                    sc_h = _make_scatter(p_hum, h_ys)
+                    sc_p = _make_scatter(p_pres, p_ys)
+                    event_scatters.append((sc_t, sc_h, sc_p))
+                except Exception:
+                    pass
+
+        # ------------------------------------------
+        # 2) State bands (background colored ranges)
+        # ------------------------------------------
+        # Build segments from mission_events_ref. Expect: GROUND, ASCENT, APOGEE, DESCENT, LANDED
+        if not mission_events_ref:
+            return
+
+        # Ensure sorted by sample index
+        ev = sorted([(n, int(i)) for (n, i) in mission_events_ref], key=lambda x: x[1])
+
+        # If first event is not GROUND, assume GROUND from 0
+        if ev[0][0] != "GROUND":
+            ev = [("GROUND", 0)] + ev
+
+        # End index is last sample
+        try:
+            end_idx = max(0, table.rowCount() - 1)
+        except Exception:
+            end_idx = ev[-1][1]
+
+        color_map = {
+            "GROUND":  (220, 220, 220, 60),
+            "ASCENT":  (60, 120, 200, 60),
+            "APOGEE":  (255, 200, 60, 70),
+            "DESCENT": (60, 200, 200, 60),
+            "LANDED":  (80, 200, 120, 70),
+        }
+
+        for k in range(len(ev)):
+            name, start = ev[k]
+            stop = ev[k + 1][1] if k + 1 < len(ev) else end_idx
+            if stop <= start:
+                continue
+            rgba = color_map.get(name, (180, 180, 180, 50))
+            try:
+                r_t = pg.LinearRegionItem(values=(float(start), float(stop)), movable=False,
+                                          brush=pg.mkBrush(*rgba), pen=None)
+                r_h = pg.LinearRegionItem(values=(float(start), float(stop)), movable=False,
+                                          brush=pg.mkBrush(*rgba), pen=None)
+                r_p = pg.LinearRegionItem(values=(float(start), float(stop)), movable=False,
+                                          brush=pg.mkBrush(*rgba), pen=None)
+                # Put behind curves
+                for rr in (r_t, r_h, r_p):
+                    try:
+                        rr.setZValue(-50)
+                    except Exception:
+                        pass
+                p_temp.addItem(r_t)
+                p_hum.addItem(r_h)
+                p_pres.addItem(r_p)
+                state_regions.append((r_t, r_h, r_p))
+            except Exception:
+                pass
+    def _generate_simulated_flight():
+        nonlocal raw_buffer, raw_rx_buffer, have_new_bytes
+
+        import random
+
+        # ------------------------------------------------------------------
+        # Simulated flight profile (realistic atmospheric model)
+        # ------------------------------------------------------------------
+        samples = []
+
+        def add_sample(T, H, P):
+            import random
+            samples.append((
+                T + random.uniform(-0.4, 0.4),
+                H + random.uniform(-2.5, 2.5),
+                P + random.uniform(-0.6, 0.6)
+            ))
+
+        # GROUND (stable)
+        for _ in range(90):
+            add_sample(25.0, 40.0, 1013.0)
+
+        # EJECTION / KICK (oscillation + fast initial drop)
+        for i in range(16):
+            add_sample(
+                25.0 + ((-1) ** i) * 5.0,
+                40.0 + ((-1) ** i) * 12.0,
+                1013.0 - i * 18.0
+            )
+
+        # ASCENT (pressure ↓, temp ↓, humidity ↑)
+        for i in range(240):
+            f = i / 240.0
+            add_sample(
+                25.0 - 50.0 * f,
+                40.0 + 35.0 * f,
+                1013.0 - 680.0 * f
+            )
+
+        # APOGEE (short plateau)
+        for _ in range(55):
+            add_sample(-25.0, 75.0, 330.0)
+
+        # DESCENT (return)
+        for i in range(240):
+            f = i / 240.0
+            add_sample(
+                -25.0 + 50.0 * f,
+                75.0 - 35.0 * f,
+                330.0 + 680.0 * f
+            )
+
+        # LANDED (stable again)
+        for _ in range(110):
+            add_sample(25.0, 40.0, 1013.0)
+
+        # ------------------------------------------------------------------
+        # Encode into MIXED FULL + DELTA frames (realistic telemetry stream)
+        # FULL every 5 frames, DELTA in between
+        # ------------------------------------------------------------------
+
+        raw_buffer.clear()
+        raw_rx_buffer.clear()
+
+        seq = 0
+        last_v30 = None
+        last_key_seq = None
+
+        for i in range(0, len(samples), 8):
+            make_full = (seq % 5 == 0) or (last_v30 is None)
+
+            if make_full:
+                frame = bytearray(FULL_FRAME_LEN)
+                frame[0] = SYNC_FULL
+
+                met = i // 8
+                frame[1] = met & 0xFF
+                frame[2] = (met >> 8) & 0xFF
+                frame[4] = seq & 0xFF
+                frame[5] = 0  # validity/meta
+
+                bitpos = 6 * 8
+                for j in range(8):
+                    if i + j < len(samples):
+                        T, H, P = samples[i + j]
+
+                        T_code = max(0, min(2047, int((T + 40.0) * 10)))
+                        H_code = max(0, min(127, int(H)))
+                        P_code = int((P - 822.0) * 10)
+                        P_code = max(0, min(2550, P_code))
+
+                        v30 = (
+                            (T_code & 0x7FF)
+                            | ((H_code & 0x7F) << 11)
+                            | (((P_code // 10) & 0xFF) << 18)
+                            | ((P_code % 10) << 26)
+                        )
+                    else:
+                        v30 = 0
+
+                    last_v30 = v30
+                    last_key_seq = seq & 0xFF
+
+                    for b in range(30):
+                        if v30 & (1 << b):
+                            bi = (bitpos + b) >> 3
+                            bj = (bitpos + b) & 7
+                            frame[bi] |= (1 << bj)
+                    bitpos += 30
+
+                crc = crc16_ccitt(frame[:36])
+                frame[36] = crc & 0xFF
+                frame[37] = (crc >> 8) & 0xFF
+
+                raw_buffer.extend(frame)
+                raw_rx_buffer.extend(frame)
+                seq += 1
+                continue
+
+            # ---------------- DELTA FRAME ----------------
+            frame = bytearray(DELTA_FRAME_LEN)
+            frame[0] = SYNC_DELTA
+
+            met = i // 8
+            frame[1] = met & 0xFF
+            frame[2] = (met >> 8) & 0xFF
+            frame[4] = seq & 0xFF
+            frame[5] = last_key_seq
+
+            bitpos = 6 * 8
+            prev = last_v30
+
+            for j in range(8):
+                if i + j < len(samples):
+                    T, H, P = samples[i + j]
+
+                    T_code = max(0, min(2047, int((T + 40.0) * 10)))
+                    H_code = max(0, min(127, int(H)))
+                    P_code = int((P - 822.0) * 10)
+                    P_code = max(0, min(2550, P_code))
+
+                    v30 = (
+                        (T_code & 0x7FF)
+                        | ((H_code & 0x7F) << 11)
+                        | (((P_code // 10) & 0xFF) << 18)
+                        | ((P_code % 10) << 26)
+                    )
+                else:
+                    v30 = prev
+
+                # compute deltas
+                dT = ((v30 & 0x7FF) - (prev & 0x7FF))
+                dRH = (((v30 >> 11) & 0x7F) - ((prev >> 11) & 0x7F))
+                P_prev = ((prev >> 18) & 0xFF) * 10 + ((prev >> 26) & 0x0F)
+                P_now = ((v30 >> 18) & 0xFF) * 10 + ((v30 >> 26) & 0x0F)
+                dP = P_now - P_prev
+
+                # clamp deltas to bit widths
+                dT = max(-16, min(15, dT))
+                dRH = max(-8, min(7, dRH))
+                dP = max(-32, min(31, dP))
+
+                def _pack(val, bits):
+                    if val < 0:
+                        val = (1 << bits) + val
+                    return val & ((1 << bits) - 1)
+
+                dT_p = _pack(dT, 5)
+                dRH_p = _pack(dRH, 4)
+                dP_p = _pack(dP, 6)
+
+                # write bits
+                for b in range(5):
+                    if dT_p & (1 << b):
+                        bi = (bitpos + b) >> 3
+                        bj = (bitpos + b) & 7
+                        frame[bi] |= (1 << bj)
+                bitpos += 5
+
+                for b in range(4):
+                    if dRH_p & (1 << b):
+                        bi = (bitpos + b) >> 3
+                        bj = (bitpos + b) & 7
+                        frame[bi] |= (1 << bj)
+                bitpos += 4
+
+                for b in range(6):
+                    if dP_p & (1 << b):
+                        bi = (bitpos + b) >> 3
+                        bj = (bitpos + b) & 7
+                        frame[bi] |= (1 << bj)
+                bitpos += 6
+
+                prev = v30
+                last_v30 = v30
+
+            crc = crc16_ccitt(frame[:21])
+            frame[21] = crc & 0xFF
+            frame[22] = (crc >> 8) & 0xFF
+
+            raw_buffer.extend(frame)
+            raw_rx_buffer.extend(frame)
+            seq += 1
+
+        have_new_bytes = True
+
     # Connect toggle and initialize layout
     def _on_plot_toggle(checked):
+        nonlocal single_mode
         # checked == True  -> Horizontal
         # checked == False -> Vertical
         plot_toggle.setText("H" if checked else "V")
+        # Single-plot mode is only meaningful in Vertical layout.
+        if checked and btn_single.isChecked():
+            btn_single.setChecked(False)
+            single_mode = False
         rebuild_plots(checked)
+        update_from_raw()
+        _update_view_buttons()
+
+    def _update_view_buttons():
+        vertical = not plot_toggle.isChecked()
+        enable = vertical and btn_single.isChecked()
+        for b in (btn_view_t, btn_view_h, btn_view_p):
+            b.setEnabled(enable)
+
+    def _on_single_toggle(checked):
+        nonlocal single_mode
+        single_mode = bool(checked)
+        if checked and plot_toggle.isChecked():
+            # Force vertical layout
+            plot_toggle.setChecked(False)
+            return
+        rebuild_plots(plot_toggle.isChecked())
+        update_from_raw()
+        _update_view_buttons()
+
+    def _on_view_select(which: str):
+        nonlocal single_channel
+        single_channel = which
+        if (not plot_toggle.isChecked()) and btn_single.isChecked():
+            rebuild_plots(False)
+            update_from_raw()
+        _update_view_buttons()
 
     plot_toggle.toggled.connect(_on_plot_toggle)
+    btn_single.toggled.connect(_on_single_toggle)
+    btn_view_t.clicked.connect(lambda: _on_view_select("T"))
+    btn_view_h.clicked.connect(lambda: _on_view_select("H"))
+    btn_view_p.clicked.connect(lambda: _on_view_select("P"))
 
     rebuild_plots(True)  # Startup: Horizontal layout
+    _update_view_buttons()
 
     # -------------------------------------------------------------------------
     # ONLINE/OFFLINE state
@@ -820,11 +1948,18 @@ def main():
         m = mode_cb.currentText()
         offline = (m == "OFFLINE")
         file_list.setEnabled(offline)
+        btn_sim.setEnabled(offline)
+        _update_file_actions()
         port_cb.setEnabled(not offline)
         btn_refresh_ports.setEnabled(not offline)
-        btn_connect.setEnabled(not offline and ser is None)
-        btn_disconnect.setEnabled(not offline and ser is not None)
+        btn_connect.setEnabled(not offline)
+        btn_disconnect.setEnabled(not offline)
         btn_log.setEnabled(not offline and ser is not None)
+        # Visual state: show connection status on the buttons themselves.
+        if ser is None:
+            btn_disconnect.setChecked(True)
+        else:
+            btn_connect.setChecked(True)
         tabs.setCurrentIndex(0)
 
     def append_raw_debug(text: str):
@@ -1069,7 +2204,45 @@ def main():
         nonlocal have_new_bytes
         if not raw_buffer:
             return
-        Ts, Hs, Ps, keyframes, frames_diag = decode_frames_verbose(bytes(raw_buffer))
+        Ts, Hs, Ps, keyframes, frames_diag = decode_cache.decode(bytes(raw_buffer))
+        # --- playback window ---
+        nonlocal play_idx
+        end = play_idx if play_idx is not None else len(Ts)
+        # Store latest keyframes for Timeline/Table sync
+        keyframes_ref.clear()
+        keyframes_ref.extend(keyframes)
+        # -----------------------------------------------------------------
+        # Mission Timeline – derived events + keyframes (TimelineEngine)
+        # -----------------------------------------------------------------
+        timeline_events_ref.clear()
+
+        tl = timeline_engine.derive(Ts, Hs, Ps, keyframes)
+
+        # Update mission events for plot markers
+        mission_events_ref.clear()
+        mission_events_ref.extend(tl.get("mission_events", []) or [])
+
+        # Fill timeline list widget
+        for text, sample_idx, style in tl.get("timeline_items", []) or []:
+            it = QtWidgets.QListWidgetItem(text)
+            if sample_idx is None:
+                it.setFlags(Qt.NoItemFlags)
+            else:
+                it.setData(Qt.UserRole, int(sample_idx))
+
+            if style is not None and sample_idx is not None:
+                bg, fg = style
+                it.setBackground(bg)
+                it.setForeground(fg)
+
+            # Special tint for adaptive keyframes
+            if text.startswith("ADAPTIVE KF") and sample_idx is not None:
+                it.setForeground(QtGui.QColor(255, 180, 0))
+
+            timeline_events_ref.addItem(it)
+
+        # Update plot markers for mission events
+        _render_event_markers()
 
         # Fill table
         table.setRowCount(len(Ts))
@@ -1085,18 +2258,29 @@ def main():
 
         # Update plots
         if t_curve is not None:
-            t_curve.setData(Ts)
+            xs = list(range(end))
+            t_curve.setData(xs, Ts[:end])
         if h_curve is not None:
-            h_curve.setData(Hs)
+            xs = list(range(end))
+            h_curve.setData(xs, Hs[:end])
         if p_curve is not None:
-            p_curve.setData(Ps)
+            xs = list(range(end))
+            p_curve.setData(xs, Ps[:end])
 
+        # Re-apply autorange so overlays (labels/regions) don't drift the view
+        _auto_range_plots()
+
+        # Only show keyframes within playback window
+        kf_in = [i for i in keyframes if i < end]
         if t_kf is not None:
-            t_kf.setData(keyframes, [Ts[i] for i in keyframes])
+            t_kf.setData(kf_in, [Ts[i] for i in kf_in])
         if h_kf is not None:
-            h_kf.setData(keyframes, [Hs[i] for i in keyframes])
+            h_kf.setData(kf_in, [Hs[i] for i in kf_in])
         if p_kf is not None:
-            p_kf.setData(keyframes, [Ps[i] for i in keyframes])
+            p_kf.setData(kf_in, [Ps[i] for i in kf_in])
+
+        # Keep mission markers in sync after any plot rebuild
+        _render_event_markers()
 
         lbl_status.setText(
             f"Status: decoded_samples={len(Ts)}  keyframes={len(keyframes)}  bin_bytes={len(raw_buffer)}"
@@ -1109,7 +2293,7 @@ def main():
         # Populate frame inspector table
         frame_table.setRowCount(len(frames_diag))
         for idx, diag in enumerate(frames_diag):
-            # Columns: ["#", "Type", "SEQ", "REF", "CRC", "Status"]
+            # Columns: ["#", "Type", "SEQ", "REF", "CRC", "Status", "Reason"]
             frame_table.setItem(idx, 0, QTableWidgetItem(str(idx)))
             frame_table.setItem(idx, 1, QTableWidgetItem(str(diag.get("type", ""))))
             frame_table.setItem(idx, 2, QTableWidgetItem(str(diag.get("seq", ""))))
@@ -1118,9 +2302,10 @@ def main():
             crc_val = "OK" if diag.get("crc_ok", False) else "FAIL"
             frame_table.setItem(idx, 4, QTableWidgetItem(crc_val))
             frame_table.setItem(idx, 5, QTableWidgetItem(str(diag.get("status", ""))))
+            frame_table.setItem(idx, 6, QTableWidgetItem(str(diag.get("reason", ""))))
             # Tint dropped rows red
             if diag.get("status") != "ACCEPTED":
-                for c in range(6):
+                for c in range(7):
                     item = frame_table.item(idx, c)
                     if item is not None:
                         item.setBackground(QtGui.QColor(255, 128, 128, 120))
@@ -1189,17 +2374,38 @@ def main():
         _set_led(led_rx, True, "#00ccff")
         QtCore.QTimer.singleShot(80, lambda: _set_led(led_rx, False, "#00ccff"))
 
+    # Raw view render throttle
+    last_raw_render_sig = None
+
     def decode_tick():
+        nonlocal last_raw_render_sig
+
         if have_new_bytes:
             update_from_raw()
-        # Show human-readable frame view in ONLINE mode, Raw stream tab
-        if tabs.currentIndex() == 1:  # Raw stream tab
-            raw_human_view.clear()
-            raw_human_view.append("[FRAME VIEW – ONLINE STREAM]")
-            raw_human_view.append(render_human_frames(bytes(raw_buffer)))
 
-            raw_hex_view.clear()
-            raw_hex_view.append(render_hex_frames_colored(bytes(raw_buffer)))
+        # RAW tab index = 1 (HEX / HUMAN)
+        if tabs.currentIndex() == 1:
+            sig = (
+                len(raw_buffer),
+                bytes(raw_buffer[-64:]) if len(raw_buffer) > 64 else bytes(raw_buffer)
+            )
+
+            if sig != last_raw_render_sig:
+                last_raw_render_sig = sig
+
+                TAIL = 8192  # bytes
+                tail_buf = bytes(raw_buffer[-TAIL:]) if len(raw_buffer) > TAIL else bytes(raw_buffer)
+
+                # Human-readable view
+                raw_human_view.clear()
+                raw_human_view.append(
+                    f"[RAW FRAME VIEW — tail {len(tail_buf)} bytes / total {len(raw_buffer)} bytes]"
+                )
+                raw_human_view.append(render_human_frames(tail_buf))
+
+                # Hex view
+                raw_hex_view.clear()
+                raw_hex_view.append(render_hex_frames_colored(tail_buf))
 
     serial_timer.timeout.connect(serial_poll)
     decode_timer.timeout.connect(decode_tick)
@@ -1276,7 +2482,11 @@ def main():
                 "Contains only differences from the last absolute sample."
             )
 
+        reason_item = frame_table.item(row, 6)
+        reason = reason_item.text() if reason_item is not None else ""
         txt += f"\n\nStatus: {status}"
+        if reason:
+            txt += f"\nReason: {reason}"
         frame_explain.setText(txt)
 
     def connect_serial():
@@ -1312,8 +2522,8 @@ def main():
         append_raw_debug(f"[INFO] ONLINE connected: {dev}")
 
         _set_led(led_conn, True, "#00cc00")
-        btn_connect.setEnabled(False)
-        btn_disconnect.setEnabled(True)
+        btn_connect.setChecked(True)
+        btn_disconnect.setChecked(False)
         btn_log.setEnabled(True)
 
         serial_timer.start()
@@ -1339,8 +2549,8 @@ def main():
         ser = None
 
         _set_led(led_conn, False, "#00cc00")
-        btn_connect.setEnabled(True)
-        btn_disconnect.setEnabled(False)
+        btn_disconnect.setChecked(True)
+        btn_connect.setChecked(False)
         btn_log.setEnabled(False)
 
         if log_fp is not None:
@@ -1474,6 +2684,25 @@ def main():
 
     file_list.itemClicked.connect(lambda _: _on_file_select())
     table.itemSelectionChanged.connect(on_table_select)
+    table.itemSelectionChanged.connect(lambda: table.viewport().update())
+    frame_table.itemSelectionChanged.connect(lambda: frame_table.viewport().update())
+    file_list.currentItemChanged.connect(lambda *_: file_list.viewport().update())
+    timeline_events_ref.itemSelectionChanged.connect(lambda: timeline_events_ref.viewport().update())
+    def on_timeline_select():
+        item = timeline_events_ref.currentItem()
+        if item is None:
+            return
+        sample_idx = item.data(Qt.UserRole)
+        if sample_idx is None:
+            return
+        try:
+            sample_idx = int(sample_idx)
+        except Exception:
+            return
+        if 0 <= sample_idx < table.rowCount():
+            table.selectRow(sample_idx)
+
+    timeline_events_ref.itemSelectionChanged.connect(on_timeline_select)
     frame_table.itemClicked.connect(lambda item: on_frame_select(item.row()))
     frame_table.cellClicked.connect(lambda r, c: on_frame_select(r))
     frame_table.itemSelectionChanged.connect(lambda: on_frame_select(frame_table.currentRow()))
@@ -1483,7 +2712,9 @@ def main():
     btn_disconnect.clicked.connect(disconnect_serial)
     btn_log.toggled.connect(toggle_log)
     mode_cb.currentIndexChanged.connect(on_mode_changed)
+    theme_cb.currentIndexChanged.connect(lambda _=None: apply_theme(theme_cb.currentText() == "Dark"))
 
+    apply_theme(True)
     refresh_ports()
     refresh_file_list()
     set_mode_ui()
