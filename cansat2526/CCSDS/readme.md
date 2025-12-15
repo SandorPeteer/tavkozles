@@ -1,2 +1,2 @@
 # Űrtechnológia szintű telemetria CanSat projekthez by S.P.
-<img alt="image" src="https://github.com/user-attachments/assets/7f262f59-3ab3-43c0-b509-9f830ca5acf6" />
+<img alt="AstroLink - telemetry decoder" src="https://github.com/user-attachments/assets/980b01ee-efdd-46da-a08a-765df32c3bff" />
