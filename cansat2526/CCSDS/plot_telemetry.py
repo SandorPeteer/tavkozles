@@ -963,7 +963,8 @@ def main():
                 out.append(f"MET       : {met} ticks (0.5 s / tick)")
                 out.append(f"MET (sec) : {met * 0.5:.1f} s")
                 out.append(f"FLAGS     : 0x{frame[3]:02X}")
-                out.append(f"VALID     : {frame[5]} samples")
+                out.append(f"SAMPLES   : 8 (fixed per FULL frame)")
+                out.append(f"VALID META: {frame[5]} (firmware internal counter)")
                 out.append("DATA:")
 
                 bitpos = 6 * 8
