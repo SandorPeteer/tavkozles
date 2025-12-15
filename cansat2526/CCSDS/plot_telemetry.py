@@ -27,7 +27,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import (
     QTableWidget, QTableWidgetItem, QSplitter,
-    QPlainTextEdit, QHBoxLayout, QVBoxLayout, QComboBox, QLabel, QPushButton, QTabWidget, QButtonGroup, QGroupBox
+    QPlainTextEdit, QHBoxLayout, QVBoxLayout, QComboBox, QLabel, QPushButton, QTabWidget, QButtonGroup, QGroupBox, QSlider
 )
 
 # Serial (pyserial)
@@ -319,8 +319,16 @@ def main():
                 QPushButton:hover { border-color: #2c6fb8; background: rgba(44,111,184,0.18); }
                 QPushButton:pressed { border-color: #2c6fb8; background: rgba(44,111,184,0.28); }
                 QPushButton:checked { background: #2c6fb8; border-color: #2c6fb8; }
+                QPushButton:disabled { color: #7a7a80; border-color: #3a3a3f; background: #2a2a2e; }
                 QComboBox { padding: 4px 8px; }
+                QComboBox:disabled { color: #7a7a80; border: 1px solid #3a3a3f; background: #2a2a2e; }
+                QLabel:disabled { color: #7a7a80; }
                 QToolTip { background-color: #121214; color: #ebebf0; border: 1px solid #4a4a4a; padding: 4px 6px; }
+                QSlider::groove:horizontal { height: 8px; border-radius: 4px; background: #3a3a3f; }
+                QSlider::sub-page:horizontal { background: #2c6fb8; border-radius: 4px; }
+                QSlider::add-page:horizontal { background: #2a2a2e; border-radius: 4px; }
+                QSlider::handle:horizontal { width: 14px; height: 14px; margin: -4px 0; border-radius: 7px; background: #d7d7dd; border: 1px solid #6a6a6f; }
+                QSlider::handle:horizontal:hover { background: #ffffff; border-color: #2c6fb8; }
                 """
             )
         else:
@@ -340,6 +348,11 @@ def main():
                 QPushButton:checked { background: #2c6fb8; border-color: #2c6fb8; color: white; }
                 QComboBox { padding: 4px 8px; }
                 QToolTip { background-color: #fffffb; color: #111118; border: 1px solid #cfcfd6; padding: 4px 6px; }
+                QSlider::groove:horizontal { height: 8px; border-radius: 4px; background: #d9d9df; }
+                QSlider::sub-page:horizontal { background: #2c6fb8; border-radius: 4px; }
+                QSlider::add-page:horizontal { background: #f0f0f4; border-radius: 4px; }
+                QSlider::handle:horizontal { width: 14px; height: 14px; margin: -4px 0; border-radius: 7px; background: #33333a; border: 1px solid #8e8ea0; }
+                QSlider::handle:horizontal:hover { background: #111118; border-color: #2c6fb8; }
                 """
             )
 
@@ -458,8 +471,9 @@ def main():
     file_list = QListWidget()
     file_list.setMaximumHeight(160)
     file_list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+    file_list.setTextElideMode(Qt.ElideRight)
     file_list.setMinimumWidth(280)
-    file_list.setMaximumWidth(520)
+    file_list.setMaximumWidth(700)
     file_sel_delegate = OutlineSelectionDelegate(selection_outline, file_list)
     file_list.setItemDelegate(file_sel_delegate)
     # Reserve some space on the right so per-row buttons don't sit under the scrollbar.
@@ -476,7 +490,7 @@ def main():
     rp.setSpacing(10)
 
     gb_files = QGroupBox("FILES")
-    gb_files.setFixedWidth(170)
+    gb_files.setFixedWidth(200)
     gb_files_l = QVBoxLayout(gb_files)
     gb_files_l.setContentsMargins(10, 12, 10, 10)
     gb_files_l.setSpacing(8)
@@ -486,6 +500,17 @@ def main():
     btn_delete.setMinimumHeight(30)
     btn_delete.setEnabled(False)
     gb_files_l.addWidget(btn_delete, 0)
+
+    btn_refresh_files = QPushButton("Reload list")
+    btn_refresh_files.setToolTip("Refresh BIN file list (OFFLINE)")
+    btn_refresh_files.setMinimumHeight(30)
+    gb_files_l.addWidget(btn_refresh_files, 0)
+
+    lbl_file_info = QLabel("No file selected")
+    lbl_file_info.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Sunken)
+    lbl_file_info.setMinimumHeight(44)
+    lbl_file_info.setWordWrap(True)
+    gb_files_l.addWidget(lbl_file_info, 0)
     gb_files_l.addStretch(1)
     rp.addWidget(gb_files, 0)
 
@@ -503,9 +528,13 @@ def main():
     rp.addWidget(gb_sim, 0)
 
     gb_play = QGroupBox("PLAYBACK")
-    gb_play_l = QHBoxLayout(gb_play)
+    gb_play_l = QVBoxLayout(gb_play)
     gb_play_l.setContentsMargins(10, 12, 10, 10)
     gb_play_l.setSpacing(8)
+
+    gb_play_btn_row = QHBoxLayout()
+    gb_play_btn_row.setContentsMargins(0, 0, 0, 0)
+    gb_play_btn_row.setSpacing(8)
 
     btn_rw = QPushButton("⏪")
     btn_rw.setToolTip("Visszatekerés (RW): -20 minta")
@@ -528,7 +557,48 @@ def main():
 
     for b in (btn_rw, btn_play, btn_pause, btn_stop, btn_ff):
         b.setMinimumSize(36, 28)
-        gb_play_l.addWidget(b, 0)
+        gb_play_btn_row.addWidget(b, 0)
+
+    gb_play_btn_row.addSpacing(10)
+
+    # Speed buttons (inline, no label)
+    speed_group = QButtonGroup(win)
+    speed_group.setExclusive(True)
+    btn_sp1 = QPushButton("1×")
+    btn_sp2 = QPushButton("2×")
+    btn_sp4 = QPushButton("4×")
+    btn_sp8 = QPushButton("8×")
+    for b in (btn_sp1, btn_sp2, btn_sp4, btn_sp8):
+        b.setCheckable(True)
+        b.setMinimumSize(40, 28)
+        speed_group.addButton(b)
+        gb_play_btn_row.addWidget(b, 0)
+    btn_sp1.setChecked(True)
+
+    gb_play_btn_row.addStretch(1)
+    gb_play_l.addLayout(gb_play_btn_row)
+
+    # Playback time displays (2 Hz)
+    lbl_met = QLabel("MET: 00:00:00.0  |  sample 0")
+    lbl_met.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Sunken)
+    lbl_met.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+    lbl_met.setMinimumHeight(24)
+    gb_play_l.addWidget(lbl_met, 0)
+
+    seek_slider = QSlider(Qt.Horizontal)
+    seek_slider.setRange(0, 0)
+    seek_slider.setSingleStep(1)
+    seek_slider.setPageStep(10)
+    seek_slider.setTracking(True)
+    seek_slider.setMinimumHeight(18)
+    seek_slider.setToolTip("Seek (click/drag): jump to sample index")
+    gb_play_l.addWidget(seek_slider, 0)
+
+    lbl_clock = QLabel("Local: --:--:--")
+    lbl_clock.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Sunken)
+    lbl_clock.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+    lbl_clock.setMinimumHeight(24)
+    gb_play_l.addWidget(lbl_clock, 0)
     rp.addWidget(gb_play, 0)
 
     gb_view = QGroupBox("VIEW")
@@ -602,8 +672,10 @@ def main():
 
         # Tight file list width: enough to show names, without wasting plot space.
         if max_w > 0:
-            target = max(280, min(520, max_w + 40))
+            target = max(280, min(700, max_w + 40))
             file_list.setFixedWidth(int(target))
+        _update_file_actions()
+        _update_file_info()
 
     def _selected_filename():
         it = file_list.currentItem()
@@ -611,9 +683,46 @@ def main():
             return None
         return it.data(Qt.UserRole) or it.text()
 
+    def _format_size(n: int) -> str:
+        try:
+            n = int(n)
+        except Exception:
+            return "?"
+        if n < 1024:
+            return f"{n} B"
+        size = float(n)
+        for unit in ("KB", "MB", "GB", "TB"):
+            size /= 1024.0
+            if size < 1024.0 or unit == "TB":
+                return f"{size:.1f} {unit}"
+        return f"{size:.1f} TB"
+
+    def _update_file_info():
+        fn = _selected_filename()
+        if not fn:
+            lbl_file_info.setText("No file selected")
+            lbl_file_info.setToolTip("")
+            return
+        path = os.path.join(os.getcwd(), fn)
+        try:
+            size = os.path.getsize(path)
+            size_s = _format_size(size)
+        except Exception:
+            size_s = "?"
+        # Elide filename to fit the small info panel, but keep full name in tooltip.
+        try:
+            avail = max(80, lbl_file_info.width() - 16)
+            fm = QtGui.QFontMetrics(lbl_file_info.font())
+            fn_disp = fm.elidedText(fn, Qt.ElideMiddle, avail)
+        except Exception:
+            fn_disp = fn
+        lbl_file_info.setToolTip(f"{fn}\n{path}")
+        lbl_file_info.setText(f"{fn_disp}\nSize: {size_s}  ({size} B)")
+
     def _update_file_actions():
         offline = (mode_cb.currentText() == "OFFLINE")
         btn_delete.setEnabled(offline and _selected_filename() is not None)
+        btn_refresh_files.setEnabled(offline)
 
     def _delete_selected():
         fn = _selected_filename()
@@ -635,10 +744,12 @@ def main():
             return
         refresh_file_list()
         _update_file_actions()
+        _update_file_info()
         lbl_status.setText(f"Status: deleted {fn}")
 
     btn_delete.clicked.connect(_delete_selected)
-    file_list.currentItemChanged.connect(lambda *_: _update_file_actions())
+    btn_refresh_files.clicked.connect(refresh_file_list)
+    file_list.currentItemChanged.connect(lambda *_: (_update_file_actions(), _update_file_info()))
 
     tabs = QTabWidget()
     splitter.addWidget(tabs)
@@ -1274,9 +1385,122 @@ def main():
 
     play_state = PLAY_STOPPED
     play_idx = None
+    play_base_idx = 0
+    play_wall0 = None
+    play_speed = 1.0
+    live_mode = False
+    online_started = False
+    last_stop_wall = None
 
     playback_timer = QtCore.QTimer()
-    playback_timer.setInterval(120)
+    playback_timer.setInterval(50)
+
+    def _format_met(seconds: float) -> str:
+        if seconds < 0:
+            seconds = 0.0
+        sec_int = int(seconds)
+        frac = seconds - sec_int
+        h = sec_int // 3600
+        m = (sec_int % 3600) // 60
+        s = sec_int % 60
+        # 0.5 s resolution -> show 1 decimal
+        return f"{h:02d}:{m:02d}:{s:02d}.{int(round(frac * 10))%10}"
+
+    def _cursor_sample_idx() -> int:
+        # If user selected a row, follow that. Otherwise follow "latest" sample.
+        if table.currentRow() >= 0:
+            idx = int(table.currentRow())
+        else:
+            idx = max(0, table.rowCount() - 1)
+        if table.rowCount() > 0:
+            return max(0, min(idx, table.rowCount() - 1))
+        return 0
+
+    def _playhead_sample_idx() -> int:
+        # Prefer playback head when playing/paused; otherwise follow cursor/latest.
+        if play_idx is not None:
+            idx = int(play_idx) - 1
+            if table.rowCount() > 0:
+                return max(0, min(idx, table.rowCount() - 1))
+            return max(0, idx)
+        return _cursor_sample_idx()
+
+    def _set_live_mode(on: bool):
+        nonlocal live_mode, play_state, play_idx, play_base_idx, play_wall0, play_speed
+        live_mode = bool(on)
+        if not live_mode:
+            return
+        # Snap to the newest available sample and run at 1x.
+        play_speed = 1.0
+        if table.rowCount() > 0:
+            newest = table.rowCount() - 1
+            play_base_idx = newest
+            play_wall0 = time.monotonic()
+            play_idx = newest + 1
+            table.selectRow(newest)
+        play_state = PLAY_RUNNING
+        btn_play.setChecked(True)
+        update_time_displays()
+        update_from_raw()
+
+    def _set_play_speed(speed: float):
+        nonlocal play_speed, play_wall0, play_base_idx
+        try:
+            speed = float(speed)
+        except Exception:
+            speed = 1.0
+        if speed <= 0:
+            speed = 1.0
+        # Preserve continuity: re-base clock from current playhead.
+        cur = _playhead_sample_idx()
+        play_speed = speed
+        play_base_idx = cur
+        play_wall0 = time.monotonic()
+
+    def _update_playhead_from_clock():
+        nonlocal play_idx, play_state, play_wall0, play_base_idx
+        if play_state != PLAY_RUNNING:
+            return
+        if play_wall0 is None:
+            play_wall0 = time.monotonic()
+        # target sample index based on wall clock (0.5s/sample)
+        elapsed = max(0.0, time.monotonic() - play_wall0)
+        target = play_base_idx + int(elapsed * float(play_speed) / 0.5)
+        max_idx = max(0, table.rowCount() - 1)
+        target = max(0, min(target, max_idx))
+        # play_idx is "end" (exclusive)
+        play_idx = target + 1
+
+    time_timer = QtCore.QTimer()
+    time_timer.setInterval(500)  # 2 Hz
+
+    def update_time_displays():
+        try:
+            # While scrubbing, preview the slider position.
+            if seek_slider.isSliderDown():
+                idx = int(seek_slider.value())
+            else:
+                idx = _playhead_sample_idx()
+            met_s = idx * 0.5
+            lbl_met.setText(f"MET: {_format_met(met_s)}  |  sample {idx}")
+        except Exception:
+            pass
+        try:
+            lbl_clock.setText(f"Local: {datetime.now().strftime('%H:%M:%S')}")
+        except Exception:
+            pass
+
+        # Keep seek slider synced to data (but don't fight the user's drag).
+        try:
+            max_idx = max(0, table.rowCount() - 1)
+            if seek_slider.maximum() != max_idx:
+                seek_slider.setRange(0, max_idx)
+            if not seek_slider.isSliderDown():
+                seek_slider.setValue(int(_playhead_sample_idx()))
+        except Exception:
+            pass
+
+    time_timer.timeout.connect(update_time_displays)
 
     def on_playback_tick():
         nonlocal play_idx, play_state
@@ -1285,55 +1509,80 @@ def main():
             playback_timer.stop()
             return
 
-        Ts, _, _, _, _ = decode_cache._result or ([], [], [], [], [])
+        _update_playhead_from_clock()
 
-        if play_idx is None:
-            play_idx = 0
-        else:
-            play_idx += 1
-
-        if play_idx >= len(Ts):
-            play_idx = len(Ts)
-            play_state = PLAY_STOPPED
-            playback_timer.stop()
-            btn_stop.setChecked(True)
-
+        update_time_displays()
         update_from_raw()
     def on_play():
-        nonlocal play_idx, play_state
+        nonlocal play_idx, play_state, play_wall0, play_base_idx, live_mode
         if decode_cache._result is None:
             update_from_raw()
+        live_mode = False
         play_state = PLAY_RUNNING
         btn_play.setChecked(True)
-        if play_idx is None:
-            play_idx = 0
+        start_idx = _playhead_sample_idx() if play_idx is not None else _cursor_sample_idx()
+        play_base_idx = int(start_idx)
+        play_wall0 = time.monotonic()
+        play_idx = int(start_idx) + 1
+        update_time_displays()
         playback_timer.start()
 
     def on_pause():
-        nonlocal play_state
+        nonlocal play_state, live_mode
+        live_mode = False
         play_state = PLAY_PAUSED
         btn_pause.setChecked(True)
+        update_time_displays()
         playback_timer.stop()
 
     def on_stop():
-        nonlocal play_idx, play_state
-        play_state = PLAY_STOPPED
+        nonlocal play_idx, play_state, live_mode, play_wall0, play_base_idx, last_stop_wall
+        live_mode = False
+        now = time.monotonic()
+        double = (play_state == PLAY_STOPPED) and (last_stop_wall is not None) and ((now - last_stop_wall) < 0.9)
+        last_stop_wall = now
+
         btn_stop.setChecked(True)
-        play_idx = None
+        play_state = PLAY_STOPPED
+        play_wall0 = None
+
+        if double:
+            play_base_idx = 0
+            play_idx = None
+            if table.rowCount() > 0:
+                table.selectRow(0)
+        else:
+            # Stop keeps the current position (show full data, keep cursor).
+            idx = _playhead_sample_idx()
+            play_base_idx = idx
+            play_idx = None
+            if table.rowCount() > 0:
+                table.selectRow(idx)
+        update_time_displays()
         playback_timer.stop()
         update_from_raw()
 
     def on_ff():
-        nonlocal play_idx
+        nonlocal play_idx, live_mode, play_state, play_wall0, play_base_idx
         Ts, _, _, _, _ = decode_cache._result or ([], [], [], [], [])
         if play_idx is not None:
+            live_mode = False
             play_idx = min(play_idx + 20, len(Ts))
+            # Snap to live if we're at the end
+            if play_idx >= len(Ts):
+                _set_live_mode(True)
+                return
+            play_base_idx = max(0, int(play_idx) - 1)
+            play_wall0 = time.monotonic()
             update_from_raw()
 
     def on_rw():
-        nonlocal play_idx
+        nonlocal play_idx, live_mode, play_state, play_wall0, play_base_idx
         if play_idx is not None:
+            live_mode = False
             play_idx = max(0, play_idx - 20)
+            play_base_idx = max(0, int(play_idx) - 1)
+            play_wall0 = time.monotonic()
             update_from_raw()
 
     playback_timer.timeout.connect(on_playback_tick)
@@ -1342,6 +1591,46 @@ def main():
     btn_stop.clicked.connect(on_stop)
     btn_ff.clicked.connect(on_ff)
     btn_rw.clicked.connect(on_rw)
+
+    def _seek_to(idx: int):
+        nonlocal play_idx, live_mode, play_state, play_base_idx, play_wall0
+        idx = int(idx)
+        if table.rowCount() > 0:
+            idx = max(0, min(idx, table.rowCount() - 1))
+        # Seeking puts us into time-shift mode but does NOT pause automatically.
+        live_mode = False
+        if play_state == PLAY_RUNNING or play_state == PLAY_PAUSED:
+            play_base_idx = idx
+            play_wall0 = time.monotonic()
+            play_idx = idx + 1
+        else:
+            play_base_idx = idx
+            play_wall0 = None
+            play_idx = None
+        if 0 <= idx < table.rowCount():
+            table.selectRow(idx)
+        update_time_displays()
+        update_from_raw()
+
+    seek_slider.sliderReleased.connect(lambda: _seek_to(seek_slider.value()))
+    seek_slider.sliderMoved.connect(lambda v: update_time_displays())
+
+    def _on_speed_button():
+        # Keep speed change seamless.
+        if btn_sp1.isChecked():
+            _set_play_speed(1.0)
+        elif btn_sp2.isChecked():
+            _set_play_speed(2.0)
+        elif btn_sp4.isChecked():
+            _set_play_speed(4.0)
+        elif btn_sp8.isChecked():
+            _set_play_speed(8.0)
+        update_time_displays()
+
+    btn_sp1.clicked.connect(_on_speed_button)
+    btn_sp2.clicked.connect(_on_speed_button)
+    btn_sp4.clicked.connect(_on_speed_button)
+    btn_sp8.clicked.connect(_on_speed_button)
 
     def _curve_data(curve):
         """Safe getter for PlotDataItem data; returns (xs, ys) as lists."""
@@ -1894,6 +2183,10 @@ def main():
     def _on_view_select(which: str):
         nonlocal single_channel
         single_channel = which
+        # If user presses T/H/P in vertical mode, go to single view automatically.
+        if not plot_toggle.isChecked() and (not btn_single.isChecked()):
+            btn_single.setChecked(True)
+            return
         if (not plot_toggle.isChecked()) and btn_single.isChecked():
             rebuild_plots(False)
             update_from_raw()
@@ -1950,6 +2243,9 @@ def main():
         file_list.setEnabled(offline)
         btn_sim.setEnabled(offline)
         _update_file_actions()
+        _update_file_info()
+        gb_files.setEnabled(offline)
+        gb_sim.setEnabled(offline)
         port_cb.setEnabled(not offline)
         btn_refresh_ports.setEnabled(not offline)
         btn_connect.setEnabled(not offline)
@@ -1967,9 +2263,9 @@ def main():
         raw_human_view.append(text)
         doc = raw_human_view.document()
         if doc.blockCount() > 2000:
-            cursor = QtWidgets.QTextCursor(doc)
-            cursor.movePosition(QtWidgets.QTextCursor.Start)
-            cursor.select(QtWidgets.QTextCursor.BlockUnderCursor)
+            cursor = QtGui.QTextCursor(doc)
+            cursor.movePosition(QtGui.QTextCursor.Start)
+            cursor.select(QtGui.QTextCursor.BlockUnderCursor)
             cursor.removeSelectedText()
             cursor.deleteChar()
 
@@ -2201,7 +2497,7 @@ def main():
 
     def update_from_raw():
         # Decode whatever we have; this is used by BOTH offline load and online stream
-        nonlocal have_new_bytes
+        nonlocal have_new_bytes, online_started, play_state, play_idx, play_wall0, play_base_idx, play_speed, live_mode
         if not raw_buffer:
             return
         Ts, Hs, Ps, keyframes, frames_diag = decode_cache.decode(bytes(raw_buffer))
@@ -2255,6 +2551,16 @@ def main():
             if i in keyset:
                 for c in range(4):
                     table.item(i, c).setBackground(QtGui.QColor(50, 50, 0, 140))
+
+        # ONLINE: auto-follow latest sample
+        if mode_cb.currentText() == "ONLINE" and ser is not None and table.rowCount() > 0:
+            try:
+                last = table.rowCount() - 1
+                # don't steal focus if user is time-shifting (scrubbing or not in live mode)
+                if (not seek_slider.isSliderDown()) and (live_mode or online_started):
+                    table.scrollToItem(table.item(last, 0), QtWidgets.QAbstractItemView.PositionAtBottom)
+            except Exception:
+                pass
 
         # Update plots
         if t_curve is not None:
@@ -2311,6 +2617,19 @@ def main():
                         item.setBackground(QtGui.QColor(255, 128, 128, 120))
 
         have_new_bytes = False
+        update_time_displays()
+
+        # ONLINE auto-play: start as soon as first samples arrive, at 1x (0.5s/sample) paced by wall clock.
+        if mode_cb.currentText() == "ONLINE" and ser is not None and (not online_started) and len(Ts) > 0:
+            online_started = True
+            live_mode = True
+            play_speed = 1.0
+            play_state = PLAY_RUNNING
+            btn_play.setChecked(True)
+            play_base_idx = 0
+            play_wall0 = time.monotonic()
+            play_idx = 1  # start from first sample
+            playback_timer.start()
 
     # Timers: serial poll + decode throttle
     serial_timer = QtCore.QTimer()
@@ -2445,6 +2764,14 @@ def main():
         lbl_status.setText("Status: offline file loaded")
         update_from_raw()
 
+        # On new file load: jump to the first sample (but keep full data visible).
+        try:
+            if table.rowCount() > 0:
+                table.selectRow(0)
+        except Exception:
+            pass
+        update_time_displays()
+
     def on_table_select():
         row = table.currentRow()
         if row < 0:
@@ -2492,6 +2819,7 @@ def main():
     def connect_serial():
         nonlocal ser, raw_rx_buffer, raw_buffer, total_bytes, have_new_bytes
         nonlocal ascii_hex_buf
+        nonlocal online_started, live_mode, play_state, play_idx, play_wall0, play_base_idx, play_speed
         if serial is None:
             _warn(win, "Serial", "pyserial is not installed. Install: pip install pyserial")
             return
@@ -2516,6 +2844,13 @@ def main():
         lbl_bytes.setText("Bytes: 0")
         lbl_status.setText("Status: connected")
         have_new_bytes = False
+        online_started = False
+        live_mode = False
+        play_state = PLAY_STOPPED
+        play_idx = None
+        play_wall0 = None
+        play_base_idx = 0
+        play_speed = 1.0
 
         raw_human_view.clear()
         raw_hex_view.clear()
@@ -2536,6 +2871,7 @@ def main():
 
     def disconnect_serial():
         nonlocal ser, log_fp, log_path
+        nonlocal online_started, live_mode, play_state, play_idx, play_wall0, play_base_idx
         if ser is None:
             return
 
@@ -2547,6 +2883,12 @@ def main():
         except Exception:
             pass
         ser = None
+        online_started = False
+        live_mode = False
+        play_state = PLAY_STOPPED
+        play_idx = None
+        play_wall0 = None
+        play_base_idx = 0
 
         _set_led(led_conn, False, "#00cc00")
         btn_disconnect.setChecked(True)
@@ -2719,6 +3061,9 @@ def main():
     refresh_file_list()
     set_mode_ui()
     lbl_status.setText("Status: ready")
+
+    time_timer.start()
+    update_time_displays()
 
     serial_timer.stop()
     decode_timer.stop()
