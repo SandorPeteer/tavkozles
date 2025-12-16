@@ -961,10 +961,10 @@ def main():
     top.addWidget(btn_connect)
     top.addWidget(btn_disconnect)
 
-    btn_sidebar = QPushButton("Sidebar")
+    btn_sidebar = QPushButton("Controls")
     btn_sidebar.setCheckable(True)
     btn_sidebar.setChecked(True)
-    btn_sidebar.setToolTip("Show/hide sidebar (graphs focus)")
+    btn_sidebar.setToolTip("Show/hide bottom controls (graphs focus)")
     top.addWidget(btn_sidebar)
 
     top.addWidget(QLabel("RX:"))
@@ -1028,24 +1028,26 @@ def main():
         pass
 
     # -------------------------------------------------------------------------
-    # Main content area (sidebar + plots)
+    # Main content area (tabs + plots + bottom controls)
     # -------------------------------------------------------------------------
-    main_hsplit = QSplitter(Qt.Horizontal)
-    main_hsplit.setChildrenCollapsible(False)
-    layout.addWidget(main_hsplit, 1)
+    main_vsplit = QSplitter(Qt.Vertical)
+    main_vsplit.setChildrenCollapsible(False)
+    layout.addWidget(main_vsplit, 1)
+
+    tabs = QTabWidget()
+    main_vsplit.addWidget(tabs)
 
     # Offline file list chooser (OFFLINE mode)
     file_box = QtWidgets.QWidget()
-    file_box_layout = QVBoxLayout(file_box)
+    file_box_layout = QHBoxLayout(file_box)
     file_box_layout.setContentsMargins(0, 0, 0, 0)
     file_box_layout.setSpacing(10)
 
     file_list = QListWidget()
-    file_list.setMinimumHeight(180)
+    file_list.setMinimumWidth(260)
+    file_list.setMaximumWidth(420)
     file_list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
     file_list.setTextElideMode(Qt.ElideRight)
-    file_list.setMinimumWidth(340)
-    file_list.setMaximumWidth(900)
     file_sel_delegate = OutlineSelectionDelegate(selection_outline, file_list)
     file_list.setItemDelegate(file_sel_delegate)
     # Reserve some space on the right so per-row buttons don't sit under the scrollbar.
@@ -1053,11 +1055,11 @@ def main():
         file_list.setViewportMargins(0, 0, 30, 0)
     except Exception:
         pass
-    file_box_layout.addWidget(file_list, 1)
+    file_box_layout.addWidget(file_list, 0)
 
-    # Sidebar controls (stacked): FILES + SIM + PLAYBACK + VIEW
+    # Bottom controls (row): FILES + SIM + PLAYBACK + VIEW
     right_panel = QtWidgets.QWidget()
-    rp = QVBoxLayout(right_panel)
+    rp = QHBoxLayout(right_panel)
     rp.setContentsMargins(0, 0, 0, 0)
     rp.setSpacing(10)
 
@@ -1222,30 +1224,21 @@ def main():
     gb_view_l.addLayout(layout_row)
 
     rp.addWidget(gb_view, 0)
-    file_box_layout.addWidget(right_panel, 0)
+    file_box_layout.addWidget(right_panel, 1)
 
-    # Right side: plots (top) + tabs (bottom)
-    right_vsplit = QSplitter(Qt.Vertical)
-    right_vsplit.setChildrenCollapsible(False)
-    right_vsplit.setStretchFactor(0, 5)
-    right_vsplit.setStretchFactor(1, 2)
+    # Plots sit between tabs and bottom controls.
+    main_vsplit.addWidget(file_box)
+    main_vsplit.setStretchFactor(0, 3)  # tabs
+    main_vsplit.setStretchFactor(1, 5)  # plots (inserted later)
+    main_vsplit.setStretchFactor(2, 2)  # bottom controls
 
-    main_hsplit.addWidget(file_box)
-    main_hsplit.addWidget(right_vsplit)
-    main_hsplit.setStretchFactor(0, 0)
-    main_hsplit.setStretchFactor(1, 1)
-    try:
-        main_hsplit.setSizes([420, 1500])
-    except Exception:
-        pass
-
-    def _set_sidebar_visible(visible: bool):
+    def _set_controls_visible(visible: bool):
         file_box.setVisible(bool(visible))
         try:
             if visible:
-                main_hsplit.setSizes([420, 1500])
+                main_vsplit.setSizes([320, 520, 240])
             else:
-                main_hsplit.setSizes([0, 1])
+                main_vsplit.setSizes([420, 620, 0])
         except Exception:
             pass
 
@@ -1413,9 +1406,6 @@ def main():
     btn_delete.clicked.connect(_delete_selected)
     btn_refresh_files.clicked.connect(refresh_file_list)
     file_list.currentItemChanged.connect(lambda *_: (_update_file_actions(), _update_file_info()))
-
-    tabs = QTabWidget()
-    right_vsplit.addWidget(tabs)
 
     # Table view for decoded samples (Decoded tab)
     table = QTableWidget()
@@ -2350,7 +2340,7 @@ def main():
     plot_container = QtWidgets.QWidget()
     plot_layout = QtWidgets.QVBoxLayout(plot_container)
     plot_layout.setContentsMargins(0, 0, 0, 0)
-    right_vsplit.insertWidget(0, plot_container)
+    main_vsplit.insertWidget(1, plot_container)
 
     plots = pg.GraphicsLayoutWidget()
     plot_layout.addWidget(plots, 1)
@@ -3313,7 +3303,7 @@ def main():
     def set_mode_ui():
         m = mode_cb.currentText()
         offline = (m == "OFFLINE")
-        # Keep plots the focus in ONLINE mode: hide OFFLINE-only sidebar elements.
+        # Keep plots the focus in ONLINE mode: hide OFFLINE-only elements.
         file_list.setVisible(offline)
         gb_files.setVisible(offline)
         gb_sim.setVisible(offline)
@@ -3329,7 +3319,7 @@ def main():
         btn_disconnect.setEnabled(not offline)
         btn_log.setEnabled(not offline and ser is not None)
         btn_sidebar.setChecked(offline)
-        _set_sidebar_visible(btn_sidebar.isChecked())
+        _set_controls_visible(btn_sidebar.isChecked())
         # Visual state: show connection status on the buttons themselves.
         if ser is None:
             btn_disconnect.setChecked(True)
@@ -4807,18 +4797,14 @@ def main():
             w = max(1200, win.width())
             h = max(800, win.height())
 
-            # Sidebar vs main
-            main_hsplit.setStretchFactor(0, 0)
-            main_hsplit.setStretchFactor(1, 1)
+            # Tabs / plots / controls
+            main_vsplit.setStretchFactor(0, 3)
+            main_vsplit.setStretchFactor(1, 5)
+            main_vsplit.setStretchFactor(2, 2)
             if file_box.isVisible():
-                main_hsplit.setSizes([min(460, int(w * 0.30)), w])
+                main_vsplit.setSizes([int(h * 0.34), int(h * 0.46), int(h * 0.20)])
             else:
-                main_hsplit.setSizes([0, 1])
-
-            # Plots vs tabs
-            right_vsplit.setStretchFactor(0, 5)
-            right_vsplit.setStretchFactor(1, 2)
-            right_vsplit.setSizes([int(h * 0.62), int(h * 0.38)])
+                main_vsplit.setSizes([int(h * 0.40), int(h * 0.60), 0])
 
             try:
                 raw_splitter.setSizes([w // 2, w - (w // 2)])
@@ -4860,7 +4846,7 @@ def main():
         pass
 
     try:
-        btn_sidebar.toggled.connect(_set_sidebar_visible)
+        btn_sidebar.toggled.connect(_set_controls_visible)
     except Exception:
         pass
 
