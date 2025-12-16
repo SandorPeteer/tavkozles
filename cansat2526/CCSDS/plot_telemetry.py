@@ -18,6 +18,7 @@ import binascii
 import os
 import re
 from datetime import datetime
+import math
 
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtWidgets, QtCore
@@ -27,7 +28,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import (
     QTableWidget, QTableWidgetItem, QSplitter,
-    QPlainTextEdit, QHBoxLayout, QVBoxLayout, QComboBox, QLabel, QPushButton, QTabWidget, QButtonGroup, QGroupBox, QSlider
+    QPlainTextEdit, QHBoxLayout, QVBoxLayout, QGridLayout, QComboBox, QLabel, QPushButton, QTabWidget, QButtonGroup, QGroupBox, QSlider, QFormLayout
 )
 
 # Serial (pyserial)
@@ -40,10 +41,140 @@ except Exception:
 # Frame sync bytes (must match firmware)
 SYNC_FULL  = 0xA5   # keyframe / FULL
 SYNC_DELTA = 0xA4   # DELTA frame
+SYNC_META1 = 0xD3   # RF meta frame (post-payload)
+SYNC_META2 = 0xD4
 
 # Frame lengths (must match firmware)
 FULL_FRAME_LEN  = 38
 DELTA_FRAME_LEN = 23
+META_FRAME_LEN  = 28
+
+def crc8_xor(data: bytes) -> int:
+    c = 0
+    for b in data:
+        c ^= b
+    return c & 0xFF
+
+def _i8(b: int) -> int:
+    return b - 256 if b & 0x80 else b
+
+def _i16le(lo: int, hi: int) -> int:
+    v = lo | (hi << 8)
+    return v - 65536 if v & 0x8000 else v
+
+def parse_rf_meta_frame(frame: bytes):
+    """
+    Firmware RF META v1 (28 bytes), SYNC 0xD3 0xD4.
+    Returns dict or None if invalid.
+    """
+    if len(frame) != META_FRAME_LEN:
+        return None
+    if frame[0] != SYNC_META1 or frame[1] != SYNC_META2:
+        return None
+    ver = frame[2]
+    if ver != 1:
+        return None
+    total_len = frame[3]
+    if total_len != META_FRAME_LEN:
+        return None
+    crc_ok = (frame[27] == crc8_xor(frame[2:27]))
+    if not crc_ok:
+        return None
+
+    flags = frame[5]
+    phy_ok = bool(flags & (1 << 0))
+    app_ok = bool(flags & (1 << 1))
+    is_full = bool(flags & (1 << 2))
+    is_delta = bool(flags & (1 << 3))
+
+    fei_hz = _i16le(frame[9], frame[10])
+    offset_hz = _i16le(frame[11], frame[12])
+
+    return {
+        "ver": ver,
+        "payload_len": frame[4],
+        "phy_ok": phy_ok,
+        "app_ok": app_ok,
+        "is_full": is_full,
+        "is_delta": is_delta,
+        "rssi_pkt_dbm": _i8(frame[6]),
+        "rssi_inst_dbm": _i8(frame[7]),
+        "snr_db": _i8(frame[8]) / 4.0,
+        "snr_qdb": _i8(frame[8]),
+        "fei_hz": fei_hz,
+        "offset_hz": offset_hz,
+        "bw_bits": frame[13],
+        "sf": frame[14],
+        "cr": frame[15],
+        "rx_nb_bytes": frame[16],
+        "modem_stat": frame[17],
+        "irq_flags": frame[18],
+        "rx_header_cnt": frame[19] | (frame[20] << 8),
+        "rx_packet_cnt": frame[21] | (frame[22] << 8),
+        "link_score": frame[23],
+        "seq": frame[24],
+        "met": frame[25] | (frame[26] << 8),
+    }
+
+def link_score_pc(meta: dict) -> int:
+    """
+    PC-side Link Quality Score (0..100) from META fields.
+    Uses RSSI/SNR/FEI plus basic validity penalties.
+    """
+    rssi = int(meta.get("rssi_pkt_dbm", -150))
+    snr = float(meta.get("snr_db", -32.0))
+    fei_abs = abs(int(meta.get("fei_hz", 0)))
+
+    # RSSI: -120..-60 => 0..100
+    rssi_score = int(round((rssi + 120) * 100 / 60))
+    rssi_score = max(0, min(100, rssi_score))
+
+    # SNR: -20..+10 => 0..100
+    snr_score = int(round((snr + 20.0) * (100.0 / 30.0)))
+    snr_score = max(0, min(100, snr_score))
+
+    # FEI stability: 0..5000Hz => 100..0
+    fei_score = 100 - int((fei_abs * 100) / 5000) if fei_abs <= 5000 else 0
+    fei_score = max(0, min(100, fei_score))
+
+    # Penalties: if the receiver itself marks bad, degrade hard
+    penalty = 0
+    if not meta.get("phy_ok", True):
+        penalty += 40
+    if not meta.get("app_ok", True):
+        penalty += 20
+
+    score = int(round(0.45 * snr_score + 0.35 * rssi_score + 0.20 * fei_score))
+    score -= penalty
+    return max(0, min(100, score))
+
+def lora_bw_khz_from_bits(bw_bits: int) -> float:
+    m = {
+        0: 7.8, 1: 10.4, 2: 15.6, 3: 20.8, 4: 31.25, 5: 41.7,
+        6: 62.5, 7: 125.0, 8: 250.0, 9: 500.0
+    }
+    return float(m.get(int(bw_bits), 125.0))
+
+def lora_required_snr_db(sf: int) -> float:
+    # Typical LoRa demodulation limits (datasheet-ish), used for UI thresholds.
+    req = {7: -7.5, 8: -10.0, 9: -12.5, 10: -15.0, 11: -17.5, 12: -20.0}
+    return float(req.get(int(sf), -10.0))
+
+def lora_sensitivity_dbm(sf: int, bw_khz: float) -> float:
+    # Rough sensitivity model: BW=125k reference + 10*log10(BW/125k)
+    base_125 = {7: -123.0, 8: -126.0, 9: -129.0, 10: -132.0, 11: -134.5, 12: -137.0}
+    s = float(base_125.get(int(sf), -126.0))
+    bw = float(bw_khz) if bw_khz > 0 else 125.0
+    s += 10.0 * math.log10(bw / 125.0)
+    return s
+
+def lora_noise_floor_dbm(bw_khz: float, noise_figure_db: float = 6.0) -> float:
+    """
+    Rough channel noise floor estimate for coloring "instant RSSI" as channel energy.
+    N ≈ -174 dBm/Hz + 10*log10(BW_Hz) + NF
+    """
+    bw_hz = max(1.0, float(bw_khz) * 1000.0)
+    return -174.0 + 10.0 * math.log10(bw_hz) + float(noise_figure_db)
 
 def crc16_ccitt(data: bytes) -> int:
     crc = 0xFFFF
@@ -230,6 +361,13 @@ def decode_frames(raw: bytes):
     return Ts, Hs, Ps, keyframe_idx
 
 def _set_led(lbl: QLabel, on: bool, color_on: str):
+    # Keep LED indicators compact and non-stretchy.
+    try:
+        lbl.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        lbl.setFixedSize(64, 40)
+        lbl.setAlignment(Qt.AlignCenter)
+    except Exception:
+        pass
     if on:
         lbl.setStyleSheet(
             "QLabel { background-color: %s; color: black; border: 1px solid #666;"
@@ -287,6 +425,186 @@ def main():
 
     table_sel_delegate = None
     list_sel_delegate = None
+
+    class LinearBar(QtWidgets.QWidget):
+        def __init__(self, vmin: float, vmax: float, title: str = "", unit: str = "", good_high: bool = True):
+            super().__init__()
+            self.vmin = float(vmin)
+            self.vmax = float(vmax)
+            self.title = str(title)
+            self.unit = str(unit)
+            self.good_high = bool(good_high)
+            self.value = float(vmin)
+            self.peak = float(vmin)
+            self._have_peak = False
+            # Thresholds for coloring (ESA-style): green/yellow/red
+            self._thr_green = None  # type: float|None
+            self._thr_yellow = None  # type: float|None
+            self.setMinimumHeight(18)
+
+        def setThresholds(self, green: float, yellow: float):
+            self._thr_green = float(green)
+            self._thr_yellow = float(yellow)
+            self.update()
+
+        def setValue(self, v: float):
+            self.value = float(v)
+            if not self._have_peak:
+                self.peak = self.value
+                self._have_peak = True
+            else:
+                if self.value > self.peak:
+                    self.peak = self.value
+            self.update()
+
+        def setPeak(self, v: float):
+            self.peak = float(v)
+            self._have_peak = True
+            self.update()
+
+        def resetPeak(self):
+            self._have_peak = False
+            self.update()
+
+        def paintEvent(self, ev):
+            p = QtGui.QPainter(self)
+            p.setRenderHint(QtGui.QPainter.Antialiasing, False)
+            r = self.rect().adjusted(0, 0, -1, -1)
+            p.setPen(QtGui.QColor(120, 120, 120))
+            p.drawRect(r)
+
+            inner = r.adjusted(1, 1, -1, -1)
+            if inner.width() <= 0 or inner.height() <= 0:
+                return
+
+            v = max(self.vmin, min(self.vmax, self.value))
+            frac = 0.0 if self.vmax == self.vmin else (v - self.vmin) / (self.vmax - self.vmin)
+            fill_w = int(inner.width() * frac)
+
+            # Solid, semi-transparent fill with green/yellow/red zones (human-friendly)
+            if self._thr_green is not None and self._thr_yellow is not None:
+                if self.good_high:
+                    good = v >= self._thr_green
+                    warn = v >= self._thr_yellow
+                else:
+                    good = v <= self._thr_green
+                    warn = v <= self._thr_yellow
+                if good:
+                    col = QtGui.QColor(0, 200, 100, 140)
+                elif warn:
+                    col = QtGui.QColor(255, 200, 0, 140)
+                else:
+                    col = QtGui.QColor(255, 80, 80, 140)
+            else:
+                # fallback
+                goodness = frac if self.good_high else (1.0 - frac)
+                if goodness >= 0.66:
+                    col = QtGui.QColor(0, 200, 100, 140)
+                elif goodness >= 0.33:
+                    col = QtGui.QColor(255, 200, 0, 140)
+                else:
+                    col = QtGui.QColor(255, 80, 80, 140)
+            if fill_w > 0:
+                p.fillRect(QtCore.QRect(inner.left(), inner.top(), fill_w, inner.height() + 1), col)
+
+            # peak marker line
+            if self._have_peak:
+                pk = max(self.vmin, min(self.vmax, self.peak))
+                pk_frac = 0.0 if self.vmax == self.vmin else (pk - self.vmin) / (self.vmax - self.vmin)
+                px = inner.left() + int(inner.width() * pk_frac)
+                p.setPen(QtGui.QColor(255, 255, 255))
+                p.drawLine(px, inner.top(), px, inner.bottom())
+
+            # label
+            p.setPen(QtGui.QColor(220, 220, 220))
+            txt = f"{self.title}: {self.value:.1f}{self.unit}" if self.unit else f"{self.title}: {self.value:.1f}"
+            p.drawText(r.adjusted(4, 0, -4, 0), Qt.AlignVCenter | Qt.AlignLeft, txt)
+
+    class CenteredBar(QtWidgets.QWidget):
+        def __init__(self, abs_range: float, title: str = "", unit: str = ""):
+            super().__init__()
+            self.abs_range = float(abs_range)
+            self.title = str(title)
+            self.unit = str(unit)
+            self.value = 0.0
+            self.peak = 0.0
+            self._have_peak = False
+            self._thr_green = None  # abs(value) <= green
+            self._thr_yellow = None  # abs(value) <= yellow
+            self.setMinimumHeight(18)
+
+        def setAbsThresholds(self, green: float, yellow: float):
+            self._thr_green = float(green)
+            self._thr_yellow = float(yellow)
+            self.update()
+
+        def setValue(self, v: float):
+            self.value = float(v)
+            if not self._have_peak:
+                self.peak = self.value
+                self._have_peak = True
+            else:
+                if abs(self.value) > abs(self.peak):
+                    self.peak = self.value
+            self.update()
+
+        def setPeak(self, v: float):
+            self.peak = float(v)
+            self._have_peak = True
+            self.update()
+
+        def resetPeak(self):
+            self._have_peak = False
+            self.update()
+
+        def paintEvent(self, ev):
+            p = QtGui.QPainter(self)
+            p.setRenderHint(QtGui.QPainter.Antialiasing, False)
+            r = self.rect().adjusted(0, 0, -1, -1)
+            p.setPen(QtGui.QColor(120, 120, 120))
+            p.drawRect(r)
+            inner = r.adjusted(1, 1, -1, -1)
+            if inner.width() <= 0 or inner.height() <= 0:
+                return
+            cx = inner.left() + inner.width() // 2
+            p.setPen(QtGui.QColor(160, 160, 160))
+            p.drawLine(cx, inner.top(), cx, inner.bottom())
+
+            rng = max(1.0, self.abs_range)
+            v = max(-rng, min(rng, self.value))
+            mag = int((abs(v) / rng) * (inner.width() // 2))
+            # Color by "how close to center" (0 = bad/red, 1 = good/green)
+            av = abs(v)
+            if self._thr_green is not None and self._thr_yellow is not None:
+                if av <= self._thr_green:
+                    col = QtGui.QColor(0, 200, 100, 140)
+                elif av <= self._thr_yellow:
+                    col = QtGui.QColor(255, 200, 0, 140)
+                else:
+                    col = QtGui.QColor(255, 80, 80, 140)
+            else:
+                goodness = 1.0 - (av / rng)
+                if goodness >= 0.66:
+                    col = QtGui.QColor(0, 200, 100, 140)
+                elif goodness >= 0.33:
+                    col = QtGui.QColor(255, 200, 0, 140)
+                else:
+                    col = QtGui.QColor(255, 80, 80, 140)
+
+            if mag > 0:
+                x0 = cx if v >= 0 else (cx - mag)
+                p.fillRect(QtCore.QRect(x0, inner.top(), mag, inner.height() + 1), col)
+
+            if self._have_peak:
+                pk = max(-rng, min(rng, self.peak))
+                pmag = int((abs(pk) / rng) * (inner.width() // 2))
+                px = (cx + pmag) if pk >= 0 else (cx - pmag)
+                p.setPen(QtGui.QColor(255, 255, 255))
+                p.drawLine(px, inner.top(), px, inner.bottom())
+
+            p.setPen(QtGui.QColor(220, 220, 220))
+            txt = f"{self.title}: {self.value:.0f}{self.unit}" if self.unit else f"{self.title}: {self.value:.0f}"
+            p.drawText(r.adjusted(4, 0, -4, 0), Qt.AlignVCenter | Qt.AlignLeft, txt)
 
     def apply_theme(dark: bool):
         # Minimal, readable "mission control" theme. Keep it deterministic across platforms.
@@ -524,6 +842,12 @@ def main():
     btn_sim.setToolTip("Generate simulated flight (OFFLINE)")
     btn_sim.setMinimumHeight(32)
     gb_sim_l.addWidget(btn_sim, 0)
+
+    btn_export = QPushButton("Export plots…")
+    btn_export.setToolTip("Export visible plots as PNG images")
+    btn_export.setMinimumHeight(32)
+    gb_sim_l.addWidget(btn_export, 0)
+
     gb_sim_l.addStretch(1)
     rp.addWidget(gb_sim, 0)
 
@@ -653,6 +977,67 @@ def main():
         update_from_raw()
 
     btn_sim.clicked.connect(on_sim_flight)
+
+    def export_plots():
+        """
+        Export current plots to PNG files.
+        Uses pyqtgraph ImageExporter for each PlotItem.
+        """
+        # Pick output directory
+        out_dir = QtWidgets.QFileDialog.getExistingDirectory(win, "Export plots to folder", "")
+        if not out_dir:
+            return
+
+        try:
+            from pyqtgraph.exporters import ImageExporter
+        except Exception as e:
+            _warn(win, "Export", f"pyqtgraph ImageExporter not available: {e}")
+            return
+
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        # Prefer current offline file name if available, otherwise generic.
+        try:
+            base = _selected_filename() or f"AstoLink_{ts}"
+        except Exception:
+            base = f"AstroLink_{ts}"
+        base = os.path.splitext(os.path.basename(base))[0]
+
+        exported = []
+
+        def _export_plot(plot_item, suffix: str):
+            if plot_item is None:
+                return
+            try:
+                exp = ImageExporter(plot_item)
+                # Make it readable in reports/logbooks
+                try:
+                    exp.parameters()["width"] = 1400
+                except Exception:
+                    pass
+                path = os.path.join(out_dir, f"{base}_{suffix}_{ts}.png")
+                exp.export(path)
+                exported.append(path)
+            except Exception as e:
+                append_raw_debug(f"[ERR] export {suffix} failed: {e}")
+
+        # Telemetry plots
+        _export_plot(p_temp, "tele_T")
+        _export_plot(p_hum, "tele_RH")
+        _export_plot(p_pres, "tele_P")
+
+        # RF Trends plots
+        _export_plot(rftr_p_rssi, "rf_rssi")
+        _export_plot(rftr_p_snr, "rf_snr")
+        _export_plot(rftr_p_fei, "rf_fei")
+        _export_plot(rftr_p_score, "rf_score")
+
+        if exported:
+            append_raw_debug(f"[INFO] Exported {len(exported)} plot(s) to: {out_dir}")
+        else:
+            _warn(win, "Export", "No plots available to export.")
+
+    btn_export.clicked.connect(export_plots)
     layout.addWidget(file_box)
 
     def refresh_file_list():
@@ -791,23 +1176,135 @@ def main():
     frame_table = QTableWidget()
     frame_table.setColumnCount(7)
     frame_table.setHorizontalHeaderLabels(["#", "Type", "SEQ", "REF", "CRC", "Status", "Reason"])
-    frame_table.horizontalHeader().setStretchLastSection(True)
     frame_table.setSelectionBehavior(QTableWidget.SelectRows)
     frame_table.setSelectionMode(QTableWidget.SingleSelection)
     frame_table.setFocusPolicy(Qt.StrongFocus)
     frame_table.setItemDelegate(table_sel_delegate)
+    frame_table.setAlternatingRowColors(True)
+    try:
+        frame_table.verticalHeader().setVisible(False)  # avoid double numbering (# + row header)
+    except Exception:
+        pass
+    try:
+        from PyQt5.QtWidgets import QHeaderView
+        hh = frame_table.horizontalHeader()
+        hh.setMinimumSectionSize(24)
+        # Fixed/compact columns + stretch last column.
+        for c in range(7):
+            hh.setSectionResizeMode(c, QHeaderView.Interactive)
+        frame_table.setColumnWidth(0, 34)   # #
+        frame_table.setColumnWidth(1, 62)   # Type
+        frame_table.setColumnWidth(2, 58)   # SEQ
+        frame_table.setColumnWidth(3, 58)   # REF
+        frame_table.setColumnWidth(4, 54)   # CRC
+        frame_table.setColumnWidth(5, 140)  # Status
+        hh.setSectionResizeMode(6, QHeaderView.Stretch)  # Reason
+        hh.setStretchLastSection(True)
+    except Exception:
+        pass
 
-    # Add explanation panel under frame_table
-    frame_explain = QLabel("Select a frame to see explanation.")
-    frame_explain.setWordWrap(True)
-    frame_explain.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Sunken)
-    frame_explain.setMinimumHeight(80)
+    # Separate META table (RF diagnostics frames)
+    meta_table = QTableWidget()
+    meta_table.setColumnCount(10)
+    meta_table.setHorizontalHeaderLabels([
+        "#", "SEQ", "Sample", "LEN", "PHY", "APP", "PktStr", "Noise", "SNR", "FEI"
+    ])
+    meta_table.setSelectionBehavior(QTableWidget.SelectRows)
+    meta_table.setSelectionMode(QTableWidget.SingleSelection)
+    meta_table.setFocusPolicy(Qt.StrongFocus)
+    meta_table.setItemDelegate(table_sel_delegate)
+    meta_table.setAlternatingRowColors(True)
+    try:
+        from PyQt5.QtWidgets import QHeaderView
+        meta_table.verticalHeader().setVisible(False)
+        hh = meta_table.horizontalHeader()
+        hh.setMinimumSectionSize(24)
+        for c in range(meta_table.columnCount()):
+            hh.setSectionResizeMode(c, QHeaderView.Interactive)
+        meta_table.setColumnWidth(0, 34)   # #
+        meta_table.setColumnWidth(1, 58)   # SEQ
+        meta_table.setColumnWidth(2, 68)   # Sample
+        meta_table.setColumnWidth(3, 50)   # LEN
+        meta_table.setColumnWidth(4, 48)   # PHY
+        meta_table.setColumnWidth(5, 48)   # APP
+        meta_table.setColumnWidth(6, 70)   # PktStr
+        meta_table.setColumnWidth(7, 78)   # Noise
+        meta_table.setColumnWidth(8, 64)   # SNR
+        hh.setSectionResizeMode(9, QHeaderView.Stretch)  # FEI
+        hh.setStretchLastSection(True)
+    except Exception:
+        pass
 
     frame_container = QtWidgets.QWidget()
     frame_layout = QVBoxLayout(frame_container)
     frame_layout.setContentsMargins(4, 4, 4, 4)
-    frame_layout.addWidget(frame_table)
-    frame_layout.addWidget(frame_explain)
+    # Two-column inspector:
+    # Left: Frames table + its own explanation (vertical split)
+    # Right: META table + its own explanation (vertical split)
+    frame_split = QSplitter(Qt.Horizontal)
+
+    # Left explain
+    frame_explain_left = QLabel("Select a FULL/DELTA row to see explanation.")
+    frame_explain_left.setWordWrap(True)
+    frame_explain_left.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Sunken)
+    frame_explain_left.setMinimumHeight(44)
+    try:
+        frame_explain_left.setTextInteractionFlags(Qt.TextSelectableByMouse)
+    except Exception:
+        pass
+
+    frames_box = QtWidgets.QWidget()
+    frames_box_l = QVBoxLayout(frames_box)
+    frames_box_l.setContentsMargins(0, 0, 0, 0)
+    frames_box_l.setSpacing(4)
+    frames_lbl = QLabel("Frames (FULL/DELTA)")
+    frames_lbl.setStyleSheet("QLabel { color: #cfcfd6; padding-left: 2px; }")
+    frames_box_l.addWidget(frames_lbl, 0)
+    frames_box_l.addWidget(frame_table, 1)
+
+    frames_col = QSplitter(Qt.Vertical)
+    frames_col.addWidget(frames_box)
+    frames_col.addWidget(frame_explain_left)
+    try:
+        frames_col.setSizes([420, 90])
+    except Exception:
+        pass
+
+    # Right explain
+    meta_explain_right = QLabel("Select a META row to see RF explanation.")
+    meta_explain_right.setWordWrap(True)
+    meta_explain_right.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Sunken)
+    meta_explain_right.setMinimumHeight(44)
+    try:
+        meta_explain_right.setTextInteractionFlags(Qt.TextSelectableByMouse)
+    except Exception:
+        pass
+
+    meta_box = QtWidgets.QWidget()
+    meta_box_l = QVBoxLayout(meta_box)
+    meta_box_l.setContentsMargins(0, 0, 0, 0)
+    meta_box_l.setSpacing(4)
+    meta_lbl = QLabel("RF META")
+    meta_lbl.setStyleSheet("QLabel { color: #cfcfd6; padding-left: 2px; }")
+    meta_box_l.addWidget(meta_lbl, 0)
+    meta_box_l.addWidget(meta_table, 1)
+
+    meta_col = QSplitter(Qt.Vertical)
+    meta_col.addWidget(meta_box)
+    meta_col.addWidget(meta_explain_right)
+    try:
+        meta_col.setSizes([420, 90])
+    except Exception:
+        pass
+
+    frame_split.addWidget(frames_col)
+    frame_split.addWidget(meta_col)
+    try:
+        frame_split.setSizes([760, 520])
+    except Exception:
+        pass
+
+    frame_layout.addWidget(frame_split)
 
     tabs.addTab(frame_container, "Frame Inspector")
     # ---------------------------------------------------------------------
@@ -830,6 +1327,139 @@ def main():
     timeline_events_ref = timeline_events
     # Reference holder for latest decoded keyframes (Timeline sync)
     keyframes_ref = []
+
+    # ---------------------------------------------------------------------
+    # RF Metrics tab (META frames from receiver)
+    # ---------------------------------------------------------------------
+    rf_widget = QtWidgets.QWidget()
+    rf_layout = QVBoxLayout(rf_widget)
+    rf_layout.setContentsMargins(6, 6, 6, 6)
+
+    rf_top = QHBoxLayout()
+    rf_layout.addLayout(rf_top)
+
+    rf_led_phy = QLabel("PHY")
+    rf_led_app = QLabel("APP")
+    rf_led_full = QLabel("FULL")
+    rf_led_delta = QLabel("DELTA")
+    for led, col in ((rf_led_phy, "#00cc66"), (rf_led_app, "#00ccff"), (rf_led_full, "#2ecc71"), (rf_led_delta, "#3498db")):
+        _set_led(led, False, col)
+        rf_top.addWidget(led)
+
+    rf_lbl = QLabel("RF META: —")
+    rf_lbl.setStyleSheet("QLabel { color: #ccc; padding-left: 8px; }")
+    rf_top.addWidget(rf_lbl, 1)
+
+    rf_grid = QGridLayout()
+    rf_layout.addLayout(rf_grid)
+
+    rf_score_fw = LinearBar(0, 100, "LINK FW", "")
+    rf_score_pc = LinearBar(0, 100, "LINK PC", "")
+    rf_rssi_pkt = LinearBar(-150, 0, "PktStr", " dBm", good_high=True)
+    # Instant RSSI is better interpreted as channel energy/noise floor: lower (more negative) is better.
+    rf_rssi_inst = LinearBar(-150, 0, "Noise (inst)", " dBm", good_high=False)
+    rf_snr = LinearBar(-32, 31.75, "SNR", " dB")
+    rf_fei = CenteredBar(60000, "FEI", " Hz")
+    rf_ofs = CenteredBar(60000, "OFFSET", " Hz")
+
+    rf_grid.addWidget(rf_score_fw, 0, 0, 1, 2)
+    rf_grid.addWidget(rf_score_pc, 1, 0, 1, 2)
+    rf_grid.addWidget(rf_rssi_pkt, 2, 0, 1, 2)
+    rf_grid.addWidget(rf_rssi_inst, 3, 0, 1, 2)
+    rf_grid.addWidget(rf_snr, 4, 0, 1, 2)
+    rf_grid.addWidget(rf_fei, 5, 0, 1, 2)
+    rf_grid.addWidget(rf_ofs, 6, 0, 1, 2)
+
+    rf_info_box = QGroupBox("Registers / Counters")
+    rf_info_layout = QFormLayout(rf_info_box)
+    rf_layout.addWidget(rf_info_box)
+
+    rf_lbl_len = QLabel("—")
+    rf_lbl_modem = QLabel("—")
+    rf_lbl_irq = QLabel("—")
+    rf_lbl_bw = QLabel("—")
+    rf_lbl_cnt = QLabel("—")
+    rf_lbl_seqmet = QLabel("—")
+
+    for lab in (rf_lbl_len, rf_lbl_modem, rf_lbl_irq, rf_lbl_bw, rf_lbl_cnt, rf_lbl_seqmet):
+        lab.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        lab.setStyleSheet("QLabel { color: #ddd; }")
+
+    rf_info_layout.addRow("Payload len:", rf_lbl_len)
+    rf_info_layout.addRow("ModemStat:", rf_lbl_modem)
+    rf_info_layout.addRow("IrqFlags:", rf_lbl_irq)
+    rf_info_layout.addRow("BW/SF/CR:", rf_lbl_bw)
+    rf_info_layout.addRow("Hdr/Pkt cnt:", rf_lbl_cnt)
+    rf_info_layout.addRow("SEQ / MET:", rf_lbl_seqmet)
+
+    tabs.addTab(rf_widget, "RF Metrics")
+
+    # ---------------------------------------------------------------------
+    # RF Trends tab (time-series from META frames)
+    # ---------------------------------------------------------------------
+    rftr_widget = QtWidgets.QWidget()
+    rftr_layout = QVBoxLayout(rftr_widget)
+    rftr_layout.setContentsMargins(6, 6, 6, 6)
+
+    rftr_plots = pg.GraphicsLayoutWidget()
+    rftr_layout.addWidget(rftr_plots, 1)
+
+    # 2x2 layout:
+    # (0,0) RSSI pkt + noise
+    # (0,1) SNR
+    # (1,0) FEI + OFFSET
+    # (1,1) Link score (FW + PC)
+    rftr_p_rssi = rftr_plots.addPlot(title="RSSI / Noise (dBm)")
+    rftr_plots.nextColumn()
+    rftr_p_snr = rftr_plots.addPlot(title="SNR (dB)")
+    rftr_plots.nextRow()
+    rftr_p_fei = rftr_plots.addPlot(title="FEI / OFFSET (Hz)")
+    rftr_plots.nextColumn()
+    rftr_p_score = rftr_plots.addPlot(title="Link Score (0–100)")
+
+    for p in (rftr_p_rssi, rftr_p_snr, rftr_p_fei, rftr_p_score):
+        try:
+            p.showGrid(x=True, y=True, alpha=0.25)
+            p.setLabel("bottom", "Sample")
+        except Exception:
+            pass
+
+    # Curves
+    rftr_rssi_pkt_curve = rftr_p_rssi.plot([], pen=pg.mkPen("#00ccff", width=2), name="PktStr")
+    rftr_rssi_inst_curve = rftr_p_rssi.plot([], pen=pg.mkPen("#aaaaaa", width=1), name="Noise(inst)")
+    try:
+        rftr_p_rssi.addLegend(offset=(10, 10))
+    except Exception:
+        pass
+
+    rftr_snr_curve = rftr_p_snr.plot([], pen=pg.mkPen("#ffcc66", width=2), name="SNR")
+
+    rftr_fei_curve = rftr_p_fei.plot([], pen=pg.mkPen("#66ff99", width=2), name="FEI")
+    rftr_ofs_curve = rftr_p_fei.plot([], pen=pg.mkPen("#ff9966", width=2), name="OFFSET")
+    try:
+        rftr_p_fei.addLegend(offset=(10, 10))
+    except Exception:
+        pass
+
+    rftr_score_fw_curve = rftr_p_score.plot([], pen=pg.mkPen("#2ecc71", width=2), name="FW")
+    rftr_score_pc_curve = rftr_p_score.plot([], pen=pg.mkPen("#dddddd", width=2), name="PC")
+    try:
+        rftr_p_score.addLegend(offset=(10, 10))
+    except Exception:
+        pass
+
+    # Cursor marker (sync to selected sample)
+    rftr_marker_pen = pg.mkPen(color=(255, 255, 0, 160), width=2, style=QtCore.Qt.DashLine)
+    rftr_rssi_marker = pg.InfiniteLine(angle=90, movable=False, pen=rftr_marker_pen)
+    rftr_snr_marker = pg.InfiniteLine(angle=90, movable=False, pen=rftr_marker_pen)
+    rftr_fei_marker = pg.InfiniteLine(angle=90, movable=False, pen=rftr_marker_pen)
+    rftr_score_marker = pg.InfiniteLine(angle=90, movable=False, pen=rftr_marker_pen)
+    rftr_p_rssi.addItem(rftr_rssi_marker)
+    rftr_p_snr.addItem(rftr_snr_marker)
+    rftr_p_fei.addItem(rftr_fei_marker)
+    rftr_p_score.addItem(rftr_score_marker)
+
+    tabs.addTab(rftr_widget, "RF Trends")
     # Frame diagnostic record:
     # {
     #   type: "FULL" | "DELTA",
@@ -839,7 +1469,7 @@ def main():
     #   status: "ACCEPTED" | "DROPPED_NO_REF" | "DROPPED_CRC" | "DROPPED_REF_MISMATCH"
     # }
 
-    def decode_frames_verbose(raw: bytes):
+    def decode_frames_verbose(raw: bytes, allow_crc_fail: bool = False):
         """
         Like decode_frames, but returns frame-level diagnostics.
         Returns: Ts, Hs, Ps, keyframe_idx, frames_diag
@@ -859,9 +1489,61 @@ def main():
 
         i = 0
         n = len(raw)
+
+        def _consume_meta_at(pos: int) -> int:
+            """
+            Consume an RF META frame only at a known frame boundary.
+            This prevents accidentally matching SYNC_META1/SYNC_META2 inside
+            FULL/DELTA payload bytes (which are essentially random).
+            Returns number of bytes consumed (0 if no META found).
+            """
+            if pos < 0:
+                return 0
+            if (pos + META_FRAME_LEN) > n:
+                return 0
+            if raw[pos] != SYNC_META1 or raw[pos + 1] != SYNC_META2:
+                return 0
+            frame = raw[pos:pos + META_FRAME_LEN]
+            meta = parse_rf_meta_frame(frame)
+            if not meta:
+                frames_diag.append({
+                    "type": "META",
+                    "seq": None,
+                    "ref_seq": None,
+                    "crc_ok": False,
+                    "status": "DROPPED_CRC",
+                    "reason": "META CRC8/len/version mismatch."
+                })
+                return 1  # resync: step one byte
+            # Attach this META to the last decoded sample index (packet-level meta follows
+            # a FULL/DELTA that carries 8 samples). For mid-stream META (no samples yet),
+            # this stays None.
+            meta["_sample_idx"] = (sample_index - 1) if sample_index > 0 else None
+            frames_diag.append({
+                "type": "META",
+                "seq": meta.get("seq"),
+                "ref_seq": None,
+                "crc_ok": True,
+                "status": "ACCEPTED",
+                "reason": f"RF SCORE={meta['link_score']} RSSI={meta['rssi_pkt_dbm']} SNR={meta['snr_db']:.1f} FEI={meta['fei_hz']}Hz",
+                "meta": meta,
+                "sample_idx": meta.get("_sample_idx"),
+            })
+            return META_FRAME_LEN
+
         frame_num = 0
         while i < n:
             sync = raw[i]
+
+            # META can appear when logging starts mid-stream; handle it, but avoid
+            # scanning META inside full/delta payload bytes by consuming it only at
+            # a top-level sync boundary.
+            if sync == SYNC_META1:
+                consumed = _consume_meta_at(i)
+                i += max(1, consumed)
+                frame_num += 1
+                continue
+
             if sync == SYNC_FULL:
                 flen = FULL_FRAME_LEN
                 ftype = "FULL"
@@ -896,20 +1578,59 @@ def main():
                 crc_ok = (calc == got)
 
             if not crc_ok:
-                diag = {
-                    "type": ftype,
-                    "seq": frame[4] if flen > 4 else None,
-                    "ref_seq": frame[5] if (ftype == "DELTA" and flen > 5) else None,
-                    "crc_ok": False,
-                    "status": "DROPPED_CRC",
-                    "reason": "CRC16 mismatch."
-                }
-                frames_diag.append(diag)
-                i += 1
-                frame_num += 1
-                continue
+                if not allow_crc_fail:
+                    frames_diag.append({
+                        "type": ftype,
+                        "seq": frame[4] if flen > 4 else None,
+                        "ref_seq": frame[5] if (ftype == "DELTA" and flen > 5) else None,
+                        "crc_ok": False,
+                        "status": "DROPPED_CRC",
+                        "reason": "CRC16 mismatch."
+                    })
+                    i += 1
+                    frame_num += 1
+                    continue
+
+                # OFFLINE recovery mode: accept frames with CRC mismatch only if the
+                # header is self-consistent (prevents most false positives).
+                if sync == SYNC_FULL:
+                    flags = frame[3]
+                    validity = frame[5]
+                    full_state_ok = (flags & 0x01) != 0
+                    delta_state_ok = (flags & 0x02) == 0
+                    validity_ok = (validity & 0xF8) == 0  # only bits0..2 are used
+                    if not (full_state_ok and delta_state_ok and validity_ok):
+                        frames_diag.append({
+                            "type": "FULL",
+                            "seq": frame[4],
+                            "ref_seq": None,
+                            "crc_ok": False,
+                            "status": "DROPPED_CRC",
+                            "reason": "CRC16 mismatch (lenient mode: header check failed)."
+                        })
+                        i += 1
+                        frame_num += 1
+                        continue
+                else:
+                    # DELTA: require delta-state bit set and full-state bit clear
+                    flags = frame[3]
+                    full_state_ok = (flags & 0x01) == 0
+                    delta_state_ok = (flags & 0x02) != 0
+                    if not (full_state_ok and delta_state_ok):
+                        frames_diag.append({
+                            "type": "DELTA",
+                            "seq": frame[4],
+                            "ref_seq": frame[5],
+                            "crc_ok": False,
+                            "status": "DROPPED_CRC",
+                            "reason": "CRC16 mismatch (lenient mode: header check failed)."
+                        })
+                        i += 1
+                        frame_num += 1
+                        continue
 
             if sync == SYNC_FULL:
+                frame_sample_start = sample_index
                 last_key_seq = frame[4]
                 bitpos = 6 * 8
                 for _ in range(8):
@@ -923,51 +1644,61 @@ def main():
                     Ps.append(P)
                     keyframe_idx.append(sample_index)
                     sample_index += 1
-                diag = {
+
+                frames_diag.append({
                     "type": "FULL",
                     "seq": frame[4],
                     "ref_seq": None,
-                    "crc_ok": True,
-                    "status": "ACCEPTED",
-                    "reason": "FULL keyframe accepted."
-                }
-                frames_diag.append(diag)
+                    "crc_ok": bool(crc_ok),
+                    "status": "ACCEPTED" if crc_ok else "ACCEPTED_NO_CRC",
+                    "reason": "FULL keyframe accepted." if crc_ok else "FULL accepted (CRC mismatch; OFFLINE lenient mode).",
+                    "sample_start": frame_sample_start,
+                    "sample_end": sample_index - 1
+                })
                 i += flen
+                i += _consume_meta_at(i)
                 frame_num += 1
                 continue
 
             # DELTA frame
             seq = frame[4]
             ref_key_seq = frame[5]
+
             # If receiver starts mid-stream, we must wait for a keyframe.
             # Also drop deltas that reference a different keyframe than our last one.
             if not have_ref:
-                diag = {
+                frames_diag.append({
                     "type": "DELTA",
                     "seq": seq,
                     "ref_seq": ref_key_seq,
-                    "crc_ok": True,
+                    "crc_ok": bool(crc_ok),
                     "status": "DROPPED_NO_REF",
-                    "reason": "DELTA received before any keyframe."
-                }
-                frames_diag.append(diag)
+                    "reason": "DELTA received before any keyframe.",
+                    "sample_start": None,
+                    "sample_end": None
+                })
                 i += flen
-                frame_num += 1
-                continue
-            if last_key_seq is not None and ref_key_seq != last_key_seq:
-                diag = {
-                    "type": "DELTA",
-                    "seq": seq,
-                    "ref_seq": ref_key_seq,
-                    "crc_ok": True,
-                    "status": "DROPPED_REF_MISMATCH",
-                    "reason": "DELTA references a different keyframe than the last accepted FULL."
-                }
-                frames_diag.append(diag)
-                i += flen
+                i += _consume_meta_at(i)
                 frame_num += 1
                 continue
 
+            if last_key_seq is not None and ref_key_seq != last_key_seq:
+                frames_diag.append({
+                    "type": "DELTA",
+                    "seq": seq,
+                    "ref_seq": ref_key_seq,
+                    "crc_ok": bool(crc_ok),
+                    "status": "DROPPED_REF_MISMATCH",
+                    "reason": "DELTA references a different keyframe than the last accepted FULL.",
+                    "sample_start": None,
+                    "sample_end": None
+                })
+                i += flen
+                i += _consume_meta_at(i)
+                frame_num += 1
+                continue
+
+            frame_sample_start = sample_index
             bitpos = 6 * 8
             prev = last_abs30
             for _ in range(8):
@@ -977,6 +1708,7 @@ def main():
                 bitpos += 4
                 dP = _twos_comp(extract_bits_le(frame, bitpos, 6), 6)
                 bitpos += 6
+
                 T_code = (prev & 0x7FF) + dT
                 RH_code = ((prev >> 11) & 0x7F) + dRH
                 P_int = (prev >> 18) & 0xFF
@@ -984,6 +1716,7 @@ def main():
                 if P_frac > 9:
                     P_frac = 9
                 P_code12 = (P_int * 10 + P_frac) + dP
+
                 # Clamp ranges
                 if T_code < 0:
                     T_code = 0
@@ -997,28 +1730,34 @@ def main():
                     P_code12 = 0
                 elif P_code12 > 2550:
                     P_code12 = 2550
+
                 P_int = P_code12 // 10
                 P_frac = P_code12 % 10
                 v30 = (T_code & 0x7FF) | ((RH_code & 0x7F) << 11) | ((P_int & 0xFF) << 18) | ((P_frac & 0x0F) << 26)
                 prev = v30
                 last_abs30 = v30
                 have_ref = True
+
                 T, H, P = decode_sample(v30)
                 Ts.append(T)
                 Hs.append(H)
                 Ps.append(P)
                 sample_index += 1
-            diag = {
+
+            frames_diag.append({
                 "type": "DELTA",
                 "seq": seq,
                 "ref_seq": ref_key_seq,
-                "crc_ok": True,
-                "status": "ACCEPTED",
-                "reason": "DELTA frame accepted and applied."
-            }
-            frames_diag.append(diag)
+                "crc_ok": bool(crc_ok),
+                "status": "ACCEPTED" if crc_ok else "ACCEPTED_NO_CRC",
+                "reason": "DELTA frame accepted and applied." if crc_ok else "DELTA accepted (CRC mismatch; OFFLINE lenient mode).",
+                "sample_start": frame_sample_start,
+                "sample_end": sample_index - 1
+            })
             i += flen
+            i += _consume_meta_at(i)
             frame_num += 1
+
         return Ts, Hs, Ps, keyframe_idx, frames_diag
 
     # ---------------------------------------------------------------------
@@ -1030,15 +1769,15 @@ def main():
             self._result = None
 
         @staticmethod
-        def _signature(b: bytes):
+        def _signature(b: bytes, allow_crc_fail: bool):
             tail = b[-64:] if len(b) > 64 else b
-            return (len(b), tail)
+            return (bool(allow_crc_fail), len(b), tail)
 
-        def decode(self, b: bytes):
-            sig = self._signature(b)
+        def decode(self, b: bytes, allow_crc_fail: bool = False):
+            sig = self._signature(b, allow_crc_fail)
             if self._sig == sig and self._result is not None:
                 return self._result
-            self._result = decode_frames_verbose(b)
+            self._result = decode_frames_verbose(b, allow_crc_fail=bool(allow_crc_fail))
             self._sig = sig
             return self._result
 
@@ -1354,6 +2093,10 @@ def main():
     t_kf = None
     h_kf = None
     p_kf = None
+    # Playback "future" shading regions (from playhead -> end)
+    t_future = None
+    h_future = None
+    p_future = None
 
     # PlotItem refs (needed for Mission Timeline markers)
     p_temp = None
@@ -1441,7 +2184,7 @@ def main():
         play_state = PLAY_RUNNING
         btn_play.setChecked(True)
         update_time_displays()
-        update_from_raw()
+        update_view_only()
 
     def _set_play_speed(speed: float):
         nonlocal play_speed, play_wall0, play_base_idx
@@ -1512,7 +2255,7 @@ def main():
         _update_playhead_from_clock()
 
         update_time_displays()
-        update_from_raw()
+        update_view_only()
     def on_play():
         nonlocal play_idx, play_state, play_wall0, play_base_idx, live_mode
         if decode_cache._result is None:
@@ -1560,7 +2303,7 @@ def main():
                 table.selectRow(idx)
         update_time_displays()
         playback_timer.stop()
-        update_from_raw()
+        update_view_only()
 
     def on_ff():
         nonlocal play_idx, live_mode, play_state, play_wall0, play_base_idx
@@ -1574,7 +2317,7 @@ def main():
                 return
             play_base_idx = max(0, int(play_idx) - 1)
             play_wall0 = time.monotonic()
-            update_from_raw()
+            update_view_only()
 
     def on_rw():
         nonlocal play_idx, live_mode, play_state, play_wall0, play_base_idx
@@ -1583,7 +2326,7 @@ def main():
             play_idx = max(0, play_idx - 20)
             play_base_idx = max(0, int(play_idx) - 1)
             play_wall0 = time.monotonic()
-            update_from_raw()
+            update_view_only()
 
     playback_timer.timeout.connect(on_playback_tick)
     btn_play.clicked.connect(on_play)
@@ -1592,8 +2335,11 @@ def main():
     btn_ff.clicked.connect(on_ff)
     btn_rw.clicked.connect(on_rw)
 
+    # Guard against recursive UI updates (table selection <-> seek <-> update_from_raw)
+    ui_sync_busy = False
+
     def _seek_to(idx: int):
-        nonlocal play_idx, live_mode, play_state, play_base_idx, play_wall0
+        nonlocal play_idx, live_mode, play_state, play_base_idx, play_wall0, ui_sync_busy
         idx = int(idx)
         if table.rowCount() > 0:
             idx = max(0, min(idx, table.rowCount() - 1))
@@ -1607,10 +2353,37 @@ def main():
             play_base_idx = idx
             play_wall0 = None
             play_idx = None
-        if 0 <= idx < table.rowCount():
-            table.selectRow(idx)
+        # Update UI elements without triggering recursive callbacks.
+        if ui_sync_busy:
+            return
+        ui_sync_busy = True
+        try:
+            try:
+                seek_slider.blockSignals(True)
+                seek_slider.setValue(int(idx))
+            except Exception:
+                pass
+            finally:
+                try:
+                    seek_slider.blockSignals(False)
+                except Exception:
+                    pass
+
+            if 0 <= idx < table.rowCount():
+                try:
+                    table.blockSignals(True)
+                    table.selectRow(idx)
+                except Exception:
+                    pass
+                finally:
+                    try:
+                        table.blockSignals(False)
+                    except Exception:
+                        pass
+        finally:
+            ui_sync_busy = False
         update_time_displays()
-        update_from_raw()
+        update_view_only()
 
     seek_slider.sliderReleased.connect(lambda: _seek_to(seek_slider.value()))
     seek_slider.sliderMoved.connect(lambda v: update_time_displays())
@@ -1671,6 +2444,7 @@ def main():
         nonlocal t_marker, h_marker, p_marker
         nonlocal t_kf, h_kf, p_kf
         nonlocal p_temp, p_hum, p_pres
+        nonlocal t_future, h_future, p_future
 
         # Preserve current data before rebuild (robust to empty curves)
         t_x_cur, t_y_cur = _curve_data(t_curve)
@@ -1730,6 +2504,23 @@ def main():
             p_marker = pg.InfiniteLine(angle=90, movable=False, pen=marker_pen)
             p_pres.addItem(p_marker)
 
+        # "Future" shading (from playhead to end) to emulate progressive playback without re-plotting data
+        fut_brush = pg.mkBrush(180, 180, 180, 55)
+        fut_pen = pg.mkPen(None)
+        t_future = h_future = p_future = None
+        if p_temp is not None:
+            t_future = pg.LinearRegionItem(values=(0, 0), movable=False, brush=fut_brush, pen=fut_pen)
+            t_future.setZValue(-10)
+            p_temp.addItem(t_future)
+        if p_hum is not None:
+            h_future = pg.LinearRegionItem(values=(0, 0), movable=False, brush=fut_brush, pen=fut_pen)
+            h_future.setZValue(-10)
+            p_hum.addItem(h_future)
+        if p_pres is not None:
+            p_future = pg.LinearRegionItem(values=(0, 0), movable=False, brush=fut_brush, pen=fut_pen)
+            p_future.setZValue(-10)
+            p_pres.addItem(p_future)
+
         # Keyframe scatters (only for existing plots)
         t_kf = h_kf = p_kf = None
         if p_temp is not None:
@@ -1763,6 +2554,12 @@ def main():
             h_marker.setPos(h_marker_pos)
         if p_marker is not None and p_marker_pos is not None:
             p_marker.setPos(p_marker_pos)
+
+        # If plots got rebuilt, existing mission markers need to be re-rendered.
+        try:
+            _render_event_markers()
+        except Exception:
+            pass
 
     def plot_clicked(evt):
         # `evt.currentItem` can be a PlotItem, ViewBox, or other graphics item depending on where you click.
@@ -2260,6 +3057,21 @@ def main():
 
     def append_raw_debug(text: str):
         # keep raw view lightweight: append and trim to last ~2000 lines
+        # Dedup spammy lines (e.g. periodic status lines), keep last message stable.
+        if not hasattr(append_raw_debug, "_last"):
+            append_raw_debug._last = None
+            append_raw_debug._last_t = 0.0
+            append_raw_debug._last_n = 0
+
+        now = time.monotonic()
+        if text == append_raw_debug._last and (now - append_raw_debug._last_t) < 2.0:
+            append_raw_debug._last_n += 1
+            return
+
+        append_raw_debug._last = text
+        append_raw_debug._last_t = now
+        append_raw_debug._last_n = 0
+
         raw_human_view.append(text)
         doc = raw_human_view.document()
         if doc.blockCount() > 2000:
@@ -2314,6 +3126,15 @@ def main():
                 lines.append(f"[FULL ] @0x{i:04X}  SEQ={seq}")
                 lines.append(render_hex_dump(frame))
                 i += FULL_FRAME_LEN
+                if i + META_FRAME_LEN <= n and buf[i] == SYNC_META1 and buf[i + 1] == SYNC_META2:
+                    m = buf[i:i + META_FRAME_LEN]
+                    meta = parse_rf_meta_frame(m)
+                    if meta:
+                        lines.append(f"[META ] @0x{i:04X}  SCORE={meta['link_score']}  RSSI={meta['rssi_pkt_dbm']}  SNR={meta['snr_db']:.1f}")
+                    else:
+                        lines.append(f"[META ] @0x{i:04X}  (invalid)")
+                    lines.append(render_hex_dump(m))
+                    i += META_FRAME_LEN
                 continue
             if b == SYNC_DELTA and i + DELTA_FRAME_LEN <= n:
                 frame = buf[i:i + DELTA_FRAME_LEN]
@@ -2322,6 +3143,25 @@ def main():
                 lines.append(f"[DELTA] @0x{i:04X}  SEQ={seq}  REF={ref}")
                 lines.append(render_hex_dump(frame))
                 i += DELTA_FRAME_LEN
+                if i + META_FRAME_LEN <= n and buf[i] == SYNC_META1 and buf[i + 1] == SYNC_META2:
+                    m = buf[i:i + META_FRAME_LEN]
+                    meta = parse_rf_meta_frame(m)
+                    if meta:
+                        lines.append(f"[META ] @0x{i:04X}  SCORE={meta['link_score']}  RSSI={meta['rssi_pkt_dbm']}  SNR={meta['snr_db']:.1f}")
+                    else:
+                        lines.append(f"[META ] @0x{i:04X}  (invalid)")
+                    lines.append(render_hex_dump(m))
+                    i += META_FRAME_LEN
+                continue
+            if b == SYNC_META1 and i + META_FRAME_LEN <= n and buf[i + 1] == SYNC_META2:
+                m = buf[i:i + META_FRAME_LEN]
+                meta = parse_rf_meta_frame(m)
+                if meta:
+                    lines.append(f"[META ] @0x{i:04X}  SCORE={meta['link_score']}  RSSI={meta['rssi_pkt_dbm']}  SNR={meta['snr_db']:.1f}")
+                else:
+                    lines.append(f"[META ] @0x{i:04X}  (invalid)")
+                lines.append(render_hex_dump(m))
+                i += META_FRAME_LEN
                 continue
             # Unknown / noise byte
             lines.append(f"[NOISE] @0x{i:04X}: {b:02X}")
@@ -2346,6 +3186,17 @@ def main():
                     COLOR_FULL
                 ))
                 i += FULL_FRAME_LEN
+                if i + META_FRAME_LEN <= n and buf[i] == SYNC_META1 and buf[i + 1] == SYNC_META2:
+                    m = buf[i:i + META_FRAME_LEN]
+                    meta = parse_rf_meta_frame(m)
+                    tag = "[META ]"
+                    if meta:
+                        tag = f"[META ] SCORE={meta['link_score']:3d} RSSI={meta['rssi_pkt_dbm']:4d} SNR={meta['snr_db']:4.1f}"
+                    lines.append(html_line(
+                        f"{tag} @0x{i:04X} | {render_hex_one_line(m)}",
+                        COLOR_META
+                    ))
+                    i += META_FRAME_LEN
                 continue
             if b == SYNC_DELTA and i + DELTA_FRAME_LEN <= n:
                 frame = buf[i:i + DELTA_FRAME_LEN]
@@ -2356,12 +3207,36 @@ def main():
                     COLOR_DELTA
                 ))
                 i += DELTA_FRAME_LEN
+                if i + META_FRAME_LEN <= n and buf[i] == SYNC_META1 and buf[i + 1] == SYNC_META2:
+                    m = buf[i:i + META_FRAME_LEN]
+                    meta = parse_rf_meta_frame(m)
+                    tag = "[META ]"
+                    if meta:
+                        tag = f"[META ] SCORE={meta['link_score']:3d} RSSI={meta['rssi_pkt_dbm']:4d} SNR={meta['snr_db']:4.1f}"
+                    lines.append(html_line(
+                        f"{tag} @0x{i:04X} | {render_hex_one_line(m)}",
+                        COLOR_META
+                    ))
+                    i += META_FRAME_LEN
                 continue
+            if b == SYNC_META1 and i + META_FRAME_LEN <= n and buf[i + 1] == SYNC_META2:
+                m = buf[i:i + META_FRAME_LEN]
+                meta = parse_rf_meta_frame(m)
+                tag = "[META ]"
+                if meta:
+                    tag = f"[META ] SCORE={meta['link_score']:3d} RSSI={meta['rssi_pkt_dbm']:4d} SNR={meta['snr_db']:4.1f}"
+                lines.append(html_line(
+                    f"{tag} @0x{i:04X} | {render_hex_one_line(m)}",
+                    COLOR_META
+                ))
+                i += META_FRAME_LEN
+                continue
+
             # Collect consecutive NOISE bytes into one row (up to 32 bytes)
             start = i
             chunk = [b]
             i += 1
-            while i < n and buf[i] not in (SYNC_FULL, SYNC_DELTA) and len(chunk) < 32:
+            while i < n and buf[i] not in (SYNC_FULL, SYNC_DELTA, SYNC_META1) and len(chunk) < 32:
                 chunk.append(buf[i])
                 i += 1
 
@@ -2395,7 +3270,7 @@ def main():
                 out.append(f"MET (sec) : {met * 0.5:.1f} s")
                 out.append(f"FLAGS     : 0x{frame[3]:02X}")
                 out.append(f"SAMPLES   : 8 (fixed per FULL frame)")
-                out.append(f"VALID META: {frame[5]} (firmware internal counter)")
+                out.append(f"VALIDITY  : 0x{frame[5]:02X}")
                 out.append("DATA:")
 
                 bitpos = 6 * 8
@@ -2431,7 +3306,31 @@ def main():
             start = i
             chunk = [b]
             i += 1
-            while i < n and buf[i] not in (SYNC_FULL, SYNC_DELTA) and len(chunk) < 32:
+            # ---------------- META FRAME ----------------
+            if b == SYNC_META1 and i < n and buf[i] == SYNC_META2 and (start + META_FRAME_LEN) <= n:
+                frame = buf[start:start + META_FRAME_LEN]
+                meta = parse_rf_meta_frame(frame)
+                out.append("────────────────────────────────────────")
+                out.append("META FRAME  (RF)")
+                out.append("────────────────────────────────────────")
+                if meta:
+                    out.append(f"LEN       : {meta['payload_len']} B")
+                    out.append(f"FLAGS     : PHY={'OK' if meta['phy_ok'] else 'BAD'} APP={'OK' if meta['app_ok'] else 'BAD'} FULL={int(meta['is_full'])} DELTA={int(meta['is_delta'])}")
+                    out.append(f"RSSI pkt  : {meta['rssi_pkt_dbm']} dBm  inst: {meta['rssi_inst_dbm']} dBm")
+                    out.append(f"SNR       : {meta['snr_db']:.2f} dB   FEI: {meta['fei_hz']} Hz")
+                    out.append(f"OFFSET    : {meta['offset_hz']} Hz   SCORE: {meta['link_score']}/100")
+                    out.append(f"BWbits={meta['bw_bits']} SF={meta['sf']} CR={meta['cr']}  RxNb={meta['rx_nb_bytes']}")
+                    out.append(f"ModemStat : 0x{meta['modem_stat']:02X}  IRQ: 0x{meta['irq_flags']:02X}")
+                    out.append(f"RxHdrCnt  : {meta['rx_header_cnt']}  RxPktCnt: {meta['rx_packet_cnt']}")
+                    out.append(f"SEQ/MET   : {meta['seq']} / {meta['met']}")
+                else:
+                    out.append("INVALID META (CRC/len/version)")
+                out.append("HEX:")
+                out.append(render_hex_one_line(frame))
+                i = start + META_FRAME_LEN
+                continue
+
+            while i < n and buf[i] not in (SYNC_FULL, SYNC_DELTA, SYNC_META1) and len(chunk) < 32:
                 chunk.append(buf[i])
                 i += 1
 
@@ -2448,13 +3347,43 @@ def main():
     _hex_re = re.compile(r"[0-9A-Fa-f]{2}")
 
     ascii_hex_buf = ""
+    # Stream mode for ONLINE serial ingest.
+    # IMPORTANT: once we have seen any SYNC byte, we MUST treat all subsequent bytes as binary
+    # (frames can span serial.read() chunk boundaries). Never drop bytes in this mode.
+    stream_mode = "unknown"  # "unknown" | "binary" | "asciihex"
 
-    def _likely_ascii_hex(data: bytes) -> bool:
+    def _contains_sync(data: bytes) -> bool:
         if not data:
             return False
-        # If most bytes are printable/whitespace, assume it may be text
+        return (SYNC_FULL in data) or (SYNC_DELTA in data) or (SYNC_META1 in data)
+
+    def _likely_ascii_hex(data: bytes) -> bool:
+        """
+        Detect a *real* ASCII HEX dump (e.g. 'A5 01 02 ...'), not arbitrary boot text.
+        We keep this strict to avoid corrupting binary logs by accidentally converting
+        normal ASCII strings (e.g. 'ets Jun 8 2016...') into random bytes.
+        """
+        if not data:
+            return False
+        if _contains_sync(data):
+            return False
+
+        # If most bytes are printable/whitespace, it may be text
         printable = sum((32 <= b <= 126) or b in (9, 10, 13) for b in data)
-        return (printable / max(1, len(data))) > 0.85
+        if (printable / max(1, len(data))) <= 0.90:
+            return False
+
+        try:
+            txt = data.decode("ascii", errors="ignore")
+        except Exception:
+            return False
+
+        # Count tokens that look exactly like hex bytes
+        toks = txt.replace(",", " ").replace(":", " ").split()
+        hex_toks = [t for t in toks if len(t) == 2 and all(c in "0123456789abcdefABCDEF" for c in t)]
+
+        # Require a decent chunk to avoid triggering on incidental numbers in boot logs.
+        return len(hex_toks) >= 16
 
     def _extract_hex_bytes_from_text(txt: str):
         """
@@ -2462,19 +3391,20 @@ def main():
         Extract contiguous hex pairs from txt, convert them to bytes.
         Keeps any trailing incomplete hex pair text as leftover.
         """
-        pairs = _hex_re.findall(txt)
-        if not pairs:
-            # keep buffer bounded
+        # Only accept whitespace-separated tokens that are EXACTLY 2 hex chars.
+        # This prevents converting normal boot text into random bytes.
+        toks = txt.replace(",", " ").replace(":", " ").split()
+        hex_toks = [t for t in toks if len(t) == 2 and all(c in "0123456789abcdefABCDEF" for c in t)]
+        if len(hex_toks) < 16:
+            # Not a real hex dump: treat as noise/text and keep buffer bounded.
             return b"", txt[-4096:]
 
-        # Convert all pairs we found
-        hex_str = "".join(pairs)
         try:
-            out = bytes.fromhex(hex_str)
+            out = bytes(int(t, 16) for t in hex_toks)
         except Exception:
             out = b""
 
-        # Best-effort leftover: keep last 256 chars (for incomplete next chunk)
+        # Keep a small tail for incomplete next chunk
         return out, txt[-256:]
 
     def normalize_to_binary_stream(raw: bytes) -> bytes:
@@ -2482,10 +3412,10 @@ def main():
         If raw looks like ASCII hex dump, convert it to the real binary stream.
         Otherwise return raw unchanged.
         """
-        # Fast-path: already looks like a pure binary frame stream
-        if raw and raw[0] in (SYNC_FULL, SYNC_DELTA):
-            if (len(raw) % FULL_FRAME_LEN == 0) or (len(raw) % DELTA_FRAME_LEN == 0):
-                return raw
+        # If any sync byte exists anywhere, treat it as a binary stream that may contain ASCII noise.
+        # We never want to globally "hex-decode" a mixed stream (it would destroy framing/CRC).
+        if _contains_sync(raw):
+            return raw
         if _likely_ascii_hex(raw):
             try:
                 txt = raw.decode("ascii", errors="ignore")
@@ -2495,12 +3425,159 @@ def main():
             return out if out else raw
         return raw
 
+    def _update_markers_and_future(idx: int, n_samples: int):
+        """Fast UI path for playhead movement (no decode, no table rebuild)."""
+        if n_samples <= 0:
+            return
+        idx = max(0, min(int(idx), int(n_samples) - 1))
+        try:
+            if t_marker is not None:
+                t_marker.setPos(idx)
+            if h_marker is not None:
+                h_marker.setPos(idx)
+            if p_marker is not None:
+                p_marker.setPos(idx)
+        except Exception:
+            pass
+
+        # Future shading: (idx .. last sample)
+        try:
+            lo = float(idx)
+            hi = float(max(0, n_samples - 1))
+            if t_future is not None:
+                t_future.setRegion((lo, hi))
+            if h_future is not None:
+                h_future.setRegion((lo, hi))
+            if p_future is not None:
+                p_future.setRegion((lo, hi))
+        except Exception:
+            pass
+
+        # RF trend cursor
+        try:
+            rftr_rssi_marker.setPos(idx)
+            rftr_snr_marker.setPos(idx)
+            rftr_fei_marker.setPos(idx)
+            rftr_score_marker.setPos(idx)
+        except Exception:
+            pass
+
+    def _latest_meta_for_end(frames_diag, end_exclusive: int):
+        if end_exclusive is None:
+            end_exclusive = 0
+        end_exclusive = int(end_exclusive)
+        if end_exclusive < 0:
+            end_exclusive = 0
+
+        # ONLINE startup assist: show the first META as soon as it exists.
+        if mode_cb.currentText() == "ONLINE" and ser is not None:
+            try:
+                first_meta_sidx = min(
+                    int(d["meta"].get("_sample_idx"))
+                    for d in frames_diag
+                    if d.get("type") == "META" and d.get("status") == "ACCEPTED" and d.get("meta")
+                    and d["meta"].get("_sample_idx") is not None
+                )
+                end_exclusive = max(end_exclusive, first_meta_sidx + 1)
+            except Exception:
+                pass
+
+        for d in reversed(frames_diag):
+            if d.get("type") != "META" or d.get("status") != "ACCEPTED" or not d.get("meta"):
+                continue
+            meta = d["meta"]
+            sidx = meta.get("_sample_idx")
+            if sidx is None:
+                continue
+            try:
+                sidx = int(sidx)
+            except Exception:
+                continue
+            if sidx < end_exclusive:
+                return meta
+        return None
+
+    def update_view_only():
+        """Update cursor markers + RF panel based on current playhead, without decoding."""
+        if decode_cache._result is None:
+            return
+        Ts, _, _, _, frames_diag = decode_cache._result
+        n = len(Ts)
+        if n <= 0:
+            return
+
+        try:
+            idx = int(seek_slider.value()) if seek_slider.isSliderDown() else int(_playhead_sample_idx())
+        except Exception:
+            idx = 0
+        idx = max(0, min(idx, n - 1))
+
+        # Avoid doing heavy widget updates at timer rate if playhead didn't move.
+        last = getattr(update_view_only, "_last_state", None)
+        cur = (idx, n, bool(seek_slider.isSliderDown()))
+        if last == cur:
+            return
+        update_view_only._last_state = cur
+
+        _update_markers_and_future(idx, n)
+
+        # RF metrics: pick META closest to playhead
+        latest_meta = _latest_meta_for_end(frames_diag, idx + 1)
+        if not latest_meta:
+            rf_lbl.setText("RF META: — (no meta frames yet)")
+            return
+
+        _set_led(rf_led_phy, bool(latest_meta.get("phy_ok")), "#00cc66")
+        _set_led(rf_led_app, bool(latest_meta.get("app_ok")), "#00ccff")
+        _set_led(rf_led_full, bool(latest_meta.get("is_full")), "#2ecc71")
+        _set_led(rf_led_delta, bool(latest_meta.get("is_delta")), "#3498db")
+
+        rf_lbl.setText(f"RF META v{latest_meta.get('ver')}  (FW vs PC)")
+
+        fw_score = int(latest_meta.get("link_score", 0))
+        rf_score_fw.setValue(float(fw_score))
+
+        pc_raw = link_score_pc(latest_meta)
+        if not hasattr(update_from_raw, "_pc_score_ema"):
+            update_from_raw._pc_score_ema = float(pc_raw)
+        ema = update_from_raw._pc_score_ema
+        alpha = 0.25
+        ema = (1.0 - alpha) * ema + alpha * float(pc_raw)
+        update_from_raw._pc_score_ema = ema
+        rf_score_pc.setValue(float(ema))
+
+        rf_rssi_pkt.setValue(float(latest_meta.get("rssi_pkt_dbm", -150)))
+        rf_rssi_inst.setValue(float(latest_meta.get("rssi_inst_dbm", -150)))
+        rf_snr.setValue(float(latest_meta.get("snr_db", 0.0)))
+        rf_fei.setValue(float(latest_meta.get("fei_hz", 0)))
+        rf_ofs.setValue(float(latest_meta.get("offset_hz", 0)))
+
+        sf = int(latest_meta.get("sf", 12))
+        bw_khz = lora_bw_khz_from_bits(int(latest_meta.get("bw_bits", 7)))
+        sens = lora_sensitivity_dbm(sf, bw_khz)
+        req_snr = lora_required_snr_db(sf)
+
+        rf_rssi_pkt.setThresholds(green=sens + 20.0, yellow=sens + 10.0)
+        nf = lora_noise_floor_dbm(bw_khz, noise_figure_db=6.0)
+        rf_rssi_inst.setThresholds(green=nf + 3.0, yellow=nf + 10.0)
+        rf_snr.setThresholds(green=req_snr + 6.0, yellow=req_snr + 2.0)
+        rf_fei.setAbsThresholds(green=500.0, yellow=2000.0)
+        rf_ofs.setAbsThresholds(green=5000.0, yellow=20000.0)
+
+        rf_lbl_len.setText(str(latest_meta.get("payload_len")))
+        rf_lbl_modem.setText(f"0x{latest_meta.get('modem_stat', 0):02X}")
+        rf_lbl_irq.setText(f"0x{latest_meta.get('irq_flags', 0):02X}")
+        rf_lbl_bw.setText(f"BWbits={latest_meta.get('bw_bits')}  SF={latest_meta.get('sf')}  CR={latest_meta.get('cr')}")
+        rf_lbl_cnt.setText(f"Hdr={latest_meta.get('rx_header_cnt')}  Pkt={latest_meta.get('rx_packet_cnt')}")
+        rf_lbl_seqmet.setText(f"SEQ={latest_meta.get('seq')}  MET={latest_meta.get('met')}")
+
     def update_from_raw():
         # Decode whatever we have; this is used by BOTH offline load and online stream
         nonlocal have_new_bytes, online_started, play_state, play_idx, play_wall0, play_base_idx, play_speed, live_mode
         if not raw_buffer:
             return
-        Ts, Hs, Ps, keyframes, frames_diag = decode_cache.decode(bytes(raw_buffer))
+        # Decode whatever we have (strict CRC by default).
+        Ts, Hs, Ps, keyframes, frames_diag = decode_cache.decode(bytes(raw_buffer), allow_crc_fail=False)
         # --- playback window ---
         nonlocal play_idx
         end = play_idx if play_idx is not None else len(Ts)
@@ -2540,17 +3617,32 @@ def main():
         # Update plot markers for mission events
         _render_event_markers()
 
-        # Fill table
-        table.setRowCount(len(Ts))
+        # Fill decoded-samples table (incremental append for performance).
+        try:
+            prev_n = int(getattr(update_from_raw, "_table_len", table.rowCount()))
+        except Exception:
+            prev_n = table.rowCount()
+
+        cur_n = len(Ts)
+        if cur_n < prev_n:
+            table.setRowCount(0)
+            prev_n = 0
+        if table.rowCount() != cur_n:
+            table.setRowCount(cur_n)
+
         keyset = set(keyframes)
-        for i in range(len(Ts)):
+        for i in range(prev_n, cur_n):
             table.setItem(i, 0, QTableWidgetItem(str(i)))
             table.setItem(i, 1, QTableWidgetItem(f"{Ts[i]:.2f}"))
             table.setItem(i, 2, QTableWidgetItem(f"{Hs[i]:.2f}"))
             table.setItem(i, 3, QTableWidgetItem(f"{Ps[i]:.2f}"))
             if i in keyset:
                 for c in range(4):
-                    table.item(i, c).setBackground(QtGui.QColor(50, 50, 0, 140))
+                    it = table.item(i, c)
+                    if it is not None:
+                        it.setBackground(QtGui.QColor(50, 50, 0, 140))
+
+        update_from_raw._table_len = cur_n
 
         # ONLINE: auto-follow latest sample
         if mode_cb.currentText() == "ONLINE" and ser is not None and table.rowCount() > 0:
@@ -2562,59 +3654,292 @@ def main():
             except Exception:
                 pass
 
-        # Update plots
-        if t_curve is not None:
-            xs = list(range(end))
-            t_curve.setData(xs, Ts[:end])
-        if h_curve is not None:
-            xs = list(range(end))
-            h_curve.setData(xs, Hs[:end])
-        if p_curve is not None:
-            xs = list(range(end))
-            p_curve.setData(xs, Ps[:end])
+        # Update plots (full-series). Playback "reveal" is done via marker + future shading.
+        xs_full = getattr(update_from_raw, "_xs_full", None)
+        if xs_full is None or len(xs_full) != len(Ts):
+            xs_full = list(range(len(Ts)))
+            update_from_raw._xs_full = xs_full
+        try:
+            if t_curve is not None:
+                t_curve.setData(xs_full, Ts)
+            if h_curve is not None:
+                h_curve.setData(xs_full, Hs)
+            if p_curve is not None:
+                p_curve.setData(xs_full, Ps)
+        except Exception:
+            pass
 
         # Re-apply autorange so overlays (labels/regions) don't drift the view
         _auto_range_plots()
 
-        # Only show keyframes within playback window
-        kf_in = [i for i in keyframes if i < end]
-        if t_kf is not None:
-            t_kf.setData(kf_in, [Ts[i] for i in kf_in])
-        if h_kf is not None:
-            h_kf.setData(kf_in, [Hs[i] for i in kf_in])
-        if p_kf is not None:
-            p_kf.setData(kf_in, [Ps[i] for i in kf_in])
-
-        # Keep mission markers in sync after any plot rebuild
-        _render_event_markers()
+        # Keyframes (full-series)
+        try:
+            if t_kf is not None:
+                t_kf.setData(keyframes, [Ts[i] for i in keyframes])
+            if h_kf is not None:
+                h_kf.setData(keyframes, [Hs[i] for i in keyframes])
+            if p_kf is not None:
+                p_kf.setData(keyframes, [Ps[i] for i in keyframes])
+        except Exception:
+            pass
 
         lbl_status.setText(
             f"Status: decoded_samples={len(Ts)}  keyframes={len(keyframes)}  bin_bytes={len(raw_buffer)}"
         )
 
-        # Raw stream info (only when Raw tab is visible or ONLINE mode)
-        if mode_cb.currentText() == "ONLINE" or tabs.currentIndex() == 1:
+        # Raw stream info: only when Raw tab is visible (avoid spamming the human view)
+        if tabs.currentIndex() == 1:
             append_raw_debug(f"[INFO] bin_bytes={len(raw_buffer)}  decoded_samples={len(Ts)}  keyframes={len(keyframes)}")
 
-        # Populate frame inspector table
-        frame_table.setRowCount(len(frames_diag))
-        for idx, diag in enumerate(frames_diag):
-            # Columns: ["#", "Type", "SEQ", "REF", "CRC", "Status", "Reason"]
-            frame_table.setItem(idx, 0, QTableWidgetItem(str(idx)))
-            frame_table.setItem(idx, 1, QTableWidgetItem(str(diag.get("type", ""))))
-            frame_table.setItem(idx, 2, QTableWidgetItem(str(diag.get("seq", ""))))
-            ref_val = str(diag.get("ref_seq", "")) if diag.get("type") == "DELTA" else ""
-            frame_table.setItem(idx, 3, QTableWidgetItem(ref_val))
-            crc_val = "OK" if diag.get("crc_ok", False) else "FAIL"
-            frame_table.setItem(idx, 4, QTableWidgetItem(crc_val))
-            frame_table.setItem(idx, 5, QTableWidgetItem(str(diag.get("status", ""))))
-            frame_table.setItem(idx, 6, QTableWidgetItem(str(diag.get("reason", ""))))
-            # Tint dropped rows red
-            if diag.get("status") != "ACCEPTED":
-                for c in range(7):
-                    item = frame_table.item(idx, c)
-                    if item is not None:
-                        item.setBackground(QtGui.QColor(255, 128, 128, 120))
+        # Populate frame inspector tables.
+        # IMPORTANT: update_from_raw() is called frequently (online decode tick + playhead seeks).
+        # Rebuilding large QTableWidgets on every call can freeze the UI.
+        #
+        # We rebuild the inspector tables only when frames_diag actually changed
+        # (i.e., new bytes arrived / decode output changed), not when only the playhead moved.
+        main_rows = [d for d in frames_diag if d.get("type") in ("FULL", "DELTA")]
+        meta_rows = [d for d in frames_diag if d.get("type") == "META"]
+
+        def _sig(rows):
+            tail = rows[-6:] if len(rows) > 6 else rows
+            return (len(rows), tuple((r.get("type"), r.get("seq"), r.get("status"), r.get("crc_ok")) for r in tail))
+
+        inspector_sig = (_sig(main_rows), _sig(meta_rows))
+        if not hasattr(update_from_raw, "_inspector_sig"):
+            update_from_raw._inspector_sig = None
+
+        if update_from_raw._inspector_sig != inspector_sig:
+            update_from_raw._inspector_sig = inspector_sig
+
+            # Avoid recursive selection-change handlers while rebuilding tables.
+            nonlocal ui_sync_busy
+            ui_sync_busy = True
+            try:
+                try:
+                    frame_table.blockSignals(True)
+                    meta_table.blockSignals(True)
+                except Exception:
+                    pass
+
+                frame_table.setRowCount(len(main_rows))
+                for idx, diag in enumerate(main_rows):
+                    # Columns: ["#", "Type", "SEQ", "REF", "CRC", "Status", "Reason"]
+                    it0 = QTableWidgetItem(str(idx + 1))
+                    it0.setData(Qt.UserRole, diag)
+                    frame_table.setItem(idx, 0, it0)
+                    frame_table.setItem(idx, 1, QTableWidgetItem(str(diag.get("type", ""))))
+                    frame_table.setItem(idx, 2, QTableWidgetItem(str(diag.get("seq", ""))))
+                    ref_val = str(diag.get("ref_seq", "")) if diag.get("type") == "DELTA" else ""
+                    frame_table.setItem(idx, 3, QTableWidgetItem(ref_val))
+                    crc_val = "OK" if diag.get("crc_ok", False) else "FAIL"
+                    frame_table.setItem(idx, 4, QTableWidgetItem(crc_val))
+                    frame_table.setItem(idx, 5, QTableWidgetItem(str(diag.get("status", ""))))
+                    frame_table.setItem(idx, 6, QTableWidgetItem(str(diag.get("reason", ""))))
+                    if diag.get("status") != "ACCEPTED":
+                        for c in range(7):
+                            item = frame_table.item(idx, c)
+                            if item is not None:
+                                item.setBackground(QtGui.QColor(255, 128, 128, 120))
+
+                meta_table.setRowCount(len(meta_rows))
+                for idx, diag in enumerate(meta_rows):
+                    meta = diag.get("meta") if isinstance(diag, dict) else None
+                    sidx = meta.get("_sample_idx") if isinstance(meta, dict) else None
+                    it0 = QTableWidgetItem(str(idx + 1))
+                    it0.setData(Qt.UserRole, diag)
+                    meta_table.setItem(idx, 0, it0)
+                    meta_table.setItem(idx, 1, QTableWidgetItem(str(diag.get("seq", ""))))
+                    meta_table.setItem(idx, 2, QTableWidgetItem("" if sidx is None else str(sidx)))
+                    meta_table.setItem(idx, 3, QTableWidgetItem(str(meta.get("payload_len", "")) if isinstance(meta, dict) else ""))
+                    meta_table.setItem(idx, 4, QTableWidgetItem("OK" if (isinstance(meta, dict) and meta.get("phy_ok")) else "BAD"))
+                    meta_table.setItem(idx, 5, QTableWidgetItem("OK" if (isinstance(meta, dict) and meta.get("app_ok")) else "BAD"))
+                    meta_table.setItem(idx, 6, QTableWidgetItem(str(meta.get("rssi_pkt_dbm", "")) if isinstance(meta, dict) else ""))
+                    meta_table.setItem(idx, 7, QTableWidgetItem(str(meta.get("rssi_inst_dbm", "")) if isinstance(meta, dict) else ""))
+                    if isinstance(meta, dict) and meta.get("snr_db") is not None:
+                        try:
+                            meta_table.setItem(idx, 8, QTableWidgetItem(f"{float(meta.get('snr_db')):.2f}"))
+                        except Exception:
+                            meta_table.setItem(idx, 8, QTableWidgetItem(str(meta.get("snr_db"))))
+                    else:
+                        meta_table.setItem(idx, 8, QTableWidgetItem(""))
+                    meta_table.setItem(idx, 9, QTableWidgetItem(str(meta.get("fei_hz", "")) if isinstance(meta, dict) else ""))
+
+                # Column sizing is fixed/compact; avoid expensive resizeColumnsToContents()
+            finally:
+                try:
+                    frame_table.blockSignals(False)
+                    meta_table.blockSignals(False)
+                except Exception:
+                    pass
+                ui_sync_busy = False
+
+        # RF Metrics tab update (latest META)
+        latest_meta = None
+        # Pick META that belongs to the current playback window (playhead-follow).
+        # Note: in ONLINE mode the playhead can lag behind the newest packet by a few samples,
+        # so we allow a small startup assist: once the first META exists, include it even if
+        # the playhead hasn't reached it yet. This prevents an empty RF panel while frames arrive.
+        target_end = int(end) if end is not None else len(Ts)
+        if target_end < 0:
+            target_end = 0
+
+        if mode_cb.currentText() == "ONLINE" and ser is not None:
+            try:
+                first_meta_sidx = min(
+                    int(d["meta"].get("_sample_idx"))
+                    for d in frames_diag
+                    if d.get("type") == "META" and d.get("status") == "ACCEPTED" and d.get("meta")
+                    and d["meta"].get("_sample_idx") is not None
+                )
+                target_end = max(target_end, first_meta_sidx + 1)
+            except Exception:
+                pass
+        for d in reversed(frames_diag):
+            if d.get("type") != "META" or d.get("status") != "ACCEPTED" or not d.get("meta"):
+                continue
+            meta = d["meta"]
+            sidx = meta.get("_sample_idx")
+            if sidx is None:
+                continue
+            try:
+                sidx = int(sidx)
+            except Exception:
+                continue
+            if sidx < target_end:
+                latest_meta = meta
+                break
+
+        if latest_meta:
+            _set_led(rf_led_phy, bool(latest_meta.get("phy_ok")), "#00cc66")
+            _set_led(rf_led_app, bool(latest_meta.get("app_ok")), "#00ccff")
+            _set_led(rf_led_full, bool(latest_meta.get("is_full")), "#2ecc71")
+            _set_led(rf_led_delta, bool(latest_meta.get("is_delta")), "#3498db")
+
+            rf_lbl.setText(
+                f"RF META v{latest_meta.get('ver')}  (FW vs PC)"
+            )
+
+            fw_score = int(latest_meta.get("link_score", 0))
+            rf_score_fw.setValue(float(fw_score))
+
+            # PC score: compute + smooth with EMA to be more human-readable
+            pc_raw = link_score_pc(latest_meta)
+            if not hasattr(update_from_raw, "_pc_score_ema"):
+                update_from_raw._pc_score_ema = float(pc_raw)
+            ema = update_from_raw._pc_score_ema
+            alpha = 0.25  # 0..1, higher = faster response
+            ema = (1.0 - alpha) * ema + alpha * float(pc_raw)
+            update_from_raw._pc_score_ema = ema
+            rf_score_pc.setValue(float(ema))
+
+            rf_rssi_pkt.setValue(float(latest_meta.get("rssi_pkt_dbm", -150)))
+            rf_rssi_inst.setValue(float(latest_meta.get("rssi_inst_dbm", -150)))
+            rf_snr.setValue(float(latest_meta.get("snr_db", 0.0)))
+            rf_fei.setValue(float(latest_meta.get("fei_hz", 0)))
+            rf_ofs.setValue(float(latest_meta.get("offset_hz", 0)))
+
+            # ESA-style coloring thresholds (LoRa-mode aware)
+            sf = int(latest_meta.get("sf", 12))
+            bw_khz = lora_bw_khz_from_bits(int(latest_meta.get("bw_bits", 7)))
+            sens = lora_sensitivity_dbm(sf, bw_khz)
+            req_snr = lora_required_snr_db(sf)
+
+            # RSSI pkt: green if strong margin above sensitivity, yellow moderate, red near sensitivity
+            rf_rssi_pkt.setThresholds(green=sens + 20.0, yellow=sens + 10.0)
+
+            # Noise floor (inst RSSI): lower is better (more negative)
+            # Treat as "channel energy / noise": green near noise floor, yellow moderately above, red if very high.
+            nf = lora_noise_floor_dbm(bw_khz, noise_figure_db=6.0)
+            rf_rssi_inst.setThresholds(green=nf + 3.0, yellow=nf + 10.0)
+
+            # SNR: compare to SF-required SNR (+ margin)
+            rf_snr.setThresholds(green=req_snr + 6.0, yellow=req_snr + 2.0)
+
+            # FEI: AFC threshold is 500 Hz; use it as green band, yellow up to 2 kHz
+            rf_fei.setAbsThresholds(green=500.0, yellow=2000.0)
+
+            # OFFSET: engineering “ok” bands
+            rf_ofs.setAbsThresholds(green=5000.0, yellow=20000.0)
+
+            rf_lbl_len.setText(str(latest_meta.get("payload_len")))
+            rf_lbl_modem.setText(f"0x{latest_meta.get('modem_stat', 0):02X}")
+            rf_lbl_irq.setText(f"0x{latest_meta.get('irq_flags', 0):02X}")
+            rf_lbl_bw.setText(f"BWbits={latest_meta.get('bw_bits')}  SF={latest_meta.get('sf')}  CR={latest_meta.get('cr')}")
+            rf_lbl_cnt.setText(f"Hdr={latest_meta.get('rx_header_cnt')}  Pkt={latest_meta.get('rx_packet_cnt')}")
+            rf_lbl_seqmet.setText(f"SEQ={latest_meta.get('seq')}  MET={latest_meta.get('met')}")
+        else:
+            rf_lbl.setText("RF META: — (no meta frames yet)")
+
+        # -----------------------------------------------------------------
+        # RF Trends (META time-series up to playback window)
+        # -----------------------------------------------------------------
+        rf_x = []
+        rf_rssi_pkt_y = []
+        rf_rssi_inst_y = []
+        rf_snr_y = []
+        rf_fei_y = []
+        rf_ofs_y = []
+        rf_score_fw_y = []
+        rf_score_pc_y = []
+
+        # Same window rule as above: follow the playhead (with the same ONLINE startup assist).
+        trend_end = end if end is not None else len(Ts)
+        if trend_end < 0:
+            trend_end = 0
+        if mode_cb.currentText() == "ONLINE" and ser is not None:
+            try:
+                first_meta_sidx = min(
+                    int(d["meta"].get("_sample_idx"))
+                    for d in frames_diag
+                    if d.get("type") == "META" and d.get("status") == "ACCEPTED" and d.get("meta")
+                    and d["meta"].get("_sample_idx") is not None
+                )
+                trend_end = max(int(trend_end), first_meta_sidx + 1)
+            except Exception:
+                pass
+
+        for d in frames_diag:
+            if d.get("type") != "META" or d.get("status") != "ACCEPTED" or not d.get("meta"):
+                continue
+            m = d["meta"]
+            sidx = m.get("_sample_idx")
+            if sidx is None:
+                continue
+            try:
+                sidx = int(sidx)
+            except Exception:
+                continue
+            if sidx < 0 or sidx >= trend_end:
+                continue
+
+            rf_x.append(float(sidx))
+            rf_rssi_pkt_y.append(float(m.get("rssi_pkt_dbm", -150)))
+            rf_rssi_inst_y.append(float(m.get("rssi_inst_dbm", -150)))
+            rf_snr_y.append(float(m.get("snr_db", 0.0)))
+            rf_fei_y.append(float(m.get("fei_hz", 0)))
+            rf_ofs_y.append(float(m.get("offset_hz", 0)))
+            rf_score_fw_y.append(float(m.get("link_score", 0)))
+            try:
+                rf_score_pc_y.append(float(link_score_pc(m)))
+            except Exception:
+                rf_score_pc_y.append(0.0)
+
+        try:
+            rftr_rssi_pkt_curve.setData(rf_x, rf_rssi_pkt_y)
+            rftr_rssi_inst_curve.setData(rf_x, rf_rssi_inst_y)
+            rftr_snr_curve.setData(rf_x, rf_snr_y)
+            rftr_fei_curve.setData(rf_x, rf_fei_y)
+            rftr_ofs_curve.setData(rf_x, rf_ofs_y)
+            rftr_score_fw_curve.setData(rf_x, rf_score_fw_y)
+            rftr_score_pc_curve.setData(rf_x, rf_score_pc_y)
+        except Exception:
+            pass
+
+        # Keep markers/future shading and RF panel synced even if playhead didn't move.
+        try:
+            update_view_only()
+        except Exception:
+            pass
 
         have_new_bytes = False
         update_time_displays()
@@ -2639,7 +3964,7 @@ def main():
     decode_timer.setInterval(200)  # 5 Hz update; stable
 
     def serial_poll():
-        nonlocal have_new_bytes, total_bytes, raw_rx_buffer, raw_buffer, ascii_hex_buf
+        nonlocal have_new_bytes, total_bytes, raw_rx_buffer, raw_buffer, ascii_hex_buf, stream_mode
         if ser is None:
             return
         try:
@@ -2661,26 +3986,30 @@ def main():
         # Keep original RX stream for inspection
         raw_rx_buffer.extend(chunk)
 
-        # Convert to binary stream for decoder if this looks like ASCII hex text
-        bin_chunk = b""
-        if _likely_ascii_hex(chunk):
+        # Decide stream mode:
+        # - If we see SYNC anywhere, lock to binary and never drop bytes.
+        # - Only if we have not seen SYNC yet, allow legacy ASCII-HEX decode.
+        if stream_mode != "binary" and _contains_sync(chunk):
+            stream_mode = "binary"
+        elif stream_mode == "unknown" and _likely_ascii_hex(chunk):
+            stream_mode = "asciihex"
+
+        if stream_mode == "asciihex":
             ascii_hex_buf += chunk.decode("ascii", errors="ignore")
             bin_chunk, ascii_hex_buf = _extract_hex_bytes_from_text(ascii_hex_buf)
         else:
+            # "binary" or "unknown": keep bytes as-is (unknown just means boot/noise before first SYNC).
             bin_chunk = chunk
 
         # Append to binary decode buffer
         if bin_chunk:
-            # Guard: ignore boot noise until first SYNC byte
-            if SYNC_FULL not in bin_chunk and SYNC_DELTA not in bin_chunk and not raw_buffer:
-                return
             raw_buffer.extend(bin_chunk)
             have_new_bytes = True
 
-            # Logging: save the binary stream (not the ASCII text)
+            # Logging: save the ORIGINAL serial stream bytes (exactly what arrived).
             if log_fp is not None:
                 try:
-                    log_fp.write(bin_chunk)
+                    log_fp.write(chunk)
                     log_fp.flush()
                 except Exception as e:
                     append_raw_debug(f"[ERR] log write failed: {e}")
@@ -2759,8 +4088,12 @@ def main():
         append_raw_debug(f"[INFO] Raw bytes loaded (original): {len(raw_rx_buffer)}")
         append_raw_debug(f"[INFO] Binary bytes for decode: {len(raw_buffer)}")
         append_raw_debug("[FRAME VIEW – OFFLINE FILE]")
-        raw_human_view.append(render_human_frames(raw_buffer))
-        raw_hex_view.append(render_hex_frames_colored(raw_buffer))
+        # Render only tail in the Raw tab for responsiveness (files can be large, META increases size).
+        TAIL = 16384
+        tail_buf = bytes(raw_buffer[-TAIL:]) if len(raw_buffer) > TAIL else bytes(raw_buffer)
+        raw_human_view.append(f"[RAW FRAME VIEW — tail {len(tail_buf)} bytes / total {len(raw_buffer)} bytes]")
+        raw_human_view.append(render_human_frames(tail_buf))
+        raw_hex_view.append(render_hex_frames_colored(tail_buf))
         lbl_status.setText("Status: offline file loaded")
         update_from_raw()
 
@@ -2773,8 +4106,12 @@ def main():
         update_time_displays()
 
     def on_table_select():
+        nonlocal ui_sync_busy
         row = table.currentRow()
         if row < 0:
+            return
+        if ui_sync_busy:
+            # Selection was triggered programmatically by _seek_to / inspector jump.
             return
         if t_marker is not None:
             t_marker.setPos(row)
@@ -2782,6 +4119,16 @@ def main():
             h_marker.setPos(row)
         if p_marker is not None:
             p_marker.setPos(row)
+        # RF Trends markers
+        try:
+            rftr_rssi_marker.setPos(row)
+            rftr_snr_marker.setPos(row)
+            rftr_fei_marker.setPos(row)
+            rftr_score_marker.setPos(row)
+        except Exception:
+            pass
+        # Click-to-seek behavior (single source of truth)
+        _seek_to(row)
 
     def on_frame_select(row_override=None):
         if row_override is not None:
@@ -2791,30 +4138,132 @@ def main():
         if row < 0:
             return
 
-        ftype = frame_table.item(row, 1).text()
-        seq = frame_table.item(row, 2).text()
-        ref = frame_table.item(row, 3).text()
-        status = frame_table.item(row, 5).text()
+        diag = None
+        try:
+            diag = frame_table.item(row, 0).data(Qt.UserRole)
+        except Exception:
+            diag = None
 
+        ftype = (frame_table.item(row, 1).text() if frame_table.item(row, 1) is not None else "")
+        seq = (frame_table.item(row, 2).text() if frame_table.item(row, 2) is not None else "")
+        ref = (frame_table.item(row, 3).text() if frame_table.item(row, 3) is not None else "")
+        status = (frame_table.item(row, 5).text() if frame_table.item(row, 5) is not None else "")
+
+        # Compact, width-optimized single/dual line explain text (avoid tall panels).
         if ftype == "FULL":
-            txt = (
-                f"FULL FRAME #{seq}\n"
-                "This is a keyframe containing full absolute sensor data.\n"
-                "All subsequent DELTA frames reference this frame."
-            )
+            txt = f"FULL | SEQ={seq} | MET={frame_table.item(row, 3).text() if frame_table.item(row, 3) else ''}".strip()
+        elif ftype == "DELTA":
+            txt = f"DELTA | SEQ={seq} | REF={ref}".strip()
+        elif ftype == "META":
+            meta = (diag or {}).get("meta") if isinstance(diag, dict) else None
+            if isinstance(meta, dict):
+                sidx = meta.get("_sample_idx")
+                txt = (
+                    f"META | SEQ={seq} | sample={sidx if sidx is not None else '—'} | len={meta.get('payload_len')}B"
+                    f" | PHY={'OK' if meta.get('phy_ok') else 'BAD'} APP={'OK' if meta.get('app_ok') else 'BAD'}"
+                    f" | FULL={int(bool(meta.get('is_full')))} DELTA={int(bool(meta.get('is_delta')))}"
+                    f"\nPktStr={meta.get('rssi_pkt_dbm')}dBm Noise={meta.get('rssi_inst_dbm')}dBm"
+                    f" SNR={float(meta.get('snr_db', 0.0)):.2f}dB FEI={meta.get('fei_hz')}Hz OFS={meta.get('offset_hz')}Hz"
+                    f" BWbits={meta.get('bw_bits')} SF={meta.get('sf')} CR={meta.get('cr')} RxNb={meta.get('rx_nb_bytes')}"
+                    f" Modem=0x{meta.get('modem_stat',0):02X} IRQ=0x{meta.get('irq_flags',0):02X}"
+                    f" Hdr={meta.get('rx_header_cnt')} Pkt={meta.get('rx_packet_cnt')} LQ(FW)={meta.get('link_score')}/100"
+                )
+            else:
+                txt = f"META | SEQ={seq}"
         else:
-            txt = (
-                f"DELTA FRAME #{seq}\n"
-                f"References keyframe SEQ={ref}.\n"
-                "Contains only differences from the last absolute sample."
-            )
+            txt = f"{ftype} | SEQ={seq}"
 
         reason_item = frame_table.item(row, 6)
         reason = reason_item.text() if reason_item is not None else ""
         txt += f"\n\nStatus: {status}"
         if reason:
             txt += f"\nReason: {reason}"
-        frame_explain.setText(txt)
+        frame_explain_left.setText(txt)
+
+    def on_frame_click(row_override=None):
+        """User-initiated click: update explain + jump to decoded sample range."""
+        nonlocal ui_sync_busy
+        if ui_sync_busy:
+            return
+        if row_override is not None:
+            row = row_override
+        else:
+            row = frame_table.currentRow()
+        if row < 0:
+            return
+        # Update the explain panel first
+        on_frame_select(row)
+        # Then jump
+        try:
+            diag = frame_table.item(row, 0).data(Qt.UserRole)
+            if isinstance(diag, dict) and diag.get("sample_start") is not None:
+                sidx = int(diag.get("sample_start"))
+                if 0 <= sidx < table.rowCount():
+                    _seek_to(sidx)
+        except Exception:
+            pass
+
+    def on_meta_select(row_override=None):
+        if row_override is not None:
+            row = row_override
+        else:
+            row = meta_table.currentRow()
+        if row < 0:
+            return
+        diag = None
+        try:
+            diag = meta_table.item(row, 0).data(Qt.UserRole)
+        except Exception:
+            diag = None
+        meta = (diag or {}).get("meta") if isinstance(diag, dict) else None
+        seq = meta_table.item(row, 1).text() if meta_table.item(row, 1) is not None else ""
+        status = (diag or {}).get("status", "") if isinstance(diag, dict) else ""
+        reason = (diag or {}).get("reason", "") if isinstance(diag, dict) else ""
+        sidx = None
+        if isinstance(meta, dict):
+            sidx = meta.get("_sample_idx")
+
+        if isinstance(meta, dict):
+            txt = (
+                f"META | SEQ={seq} | sample={sidx if sidx is not None else '—'} | len={meta.get('payload_len')}B"
+                f" | PHY={'OK' if meta.get('phy_ok') else 'BAD'} APP={'OK' if meta.get('app_ok') else 'BAD'}"
+                f" | FULL={int(bool(meta.get('is_full')))} DELTA={int(bool(meta.get('is_delta')))}"
+                f"\nPktStr={meta.get('rssi_pkt_dbm')}dBm Noise={meta.get('rssi_inst_dbm')}dBm"
+                f" SNR={float(meta.get('snr_db', 0.0)):.2f}dB FEI={meta.get('fei_hz')}Hz OFS={meta.get('offset_hz')}Hz"
+                f" BWbits={meta.get('bw_bits')} SF={meta.get('sf')} CR={meta.get('cr')} RxNb={meta.get('rx_nb_bytes')}"
+                f" Modem=0x{meta.get('modem_stat',0):02X} IRQ=0x{meta.get('irq_flags',0):02X}"
+                f" Hdr={meta.get('rx_header_cnt')} Pkt={meta.get('rx_packet_cnt')} LQ(FW)={meta.get('link_score')}/100"
+            )
+        else:
+            txt = f"META | SEQ={seq}"
+
+        txt += f"\nStatus: {status}"
+        if reason:
+            txt += f" | Reason: {reason}"
+        meta_explain_right.setText(txt)
+
+    def on_meta_click(row_override=None):
+        """User-initiated click: update explain + jump to attached sample index."""
+        nonlocal ui_sync_busy
+        if ui_sync_busy:
+            return
+        if row_override is not None:
+            row = row_override
+        else:
+            row = meta_table.currentRow()
+        if row < 0:
+            return
+        on_meta_select(row)
+        try:
+            diag = meta_table.item(row, 0).data(Qt.UserRole)
+            meta = (diag or {}).get("meta") if isinstance(diag, dict) else None
+            sidx = meta.get("_sample_idx") if isinstance(meta, dict) else None
+            if sidx is not None and table.rowCount() > 0:
+                sidx = int(sidx)
+                if 0 <= sidx < table.rowCount():
+                    _seek_to(sidx)
+        except Exception:
+            pass
 
     def connect_serial():
         nonlocal ser, raw_rx_buffer, raw_buffer, total_bytes, have_new_bytes
@@ -3045,9 +4494,12 @@ def main():
             table.selectRow(sample_idx)
 
     timeline_events_ref.itemSelectionChanged.connect(on_timeline_select)
-    frame_table.itemClicked.connect(lambda item: on_frame_select(item.row()))
-    frame_table.cellClicked.connect(lambda r, c: on_frame_select(r))
+    frame_table.itemClicked.connect(lambda item: on_frame_click(item.row()))
+    frame_table.cellClicked.connect(lambda r, c: on_frame_click(r))
     frame_table.itemSelectionChanged.connect(lambda: on_frame_select(frame_table.currentRow()))
+    meta_table.itemClicked.connect(lambda item: on_meta_click(item.row()))
+    meta_table.cellClicked.connect(lambda r, c: on_meta_click(r))
+    meta_table.itemSelectionChanged.connect(lambda: on_meta_select(meta_table.currentRow()))
 
     btn_refresh_ports.clicked.connect(refresh_ports)
     btn_connect.clicked.connect(connect_serial)
