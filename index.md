@@ -8,7 +8,7 @@ Az oldal elérhetősége: sandorpeteer.github.io/tavkozles
 
 ## PORTFÓLIÓ segédlet:  
 > [Portfólió 2025](https://drive.google.com/file/d/1KgEOoGC8da8Do3LfUpB7KLwipYN8X3ax/view?usp=sharing)
-
+> [Portfólió minták, prezentációk](https://drive.google.com/drive/folders/1Jy2jvkyLcyEal3tQFewaPrZ4cFbmZs1b?usp=drive_link)
 ---
 
 ## VIZSGAFELADATOK GYAKORLÁSRA:
