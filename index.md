@@ -15,7 +15,7 @@ Az oldal elérhetősége: sandorpeteer.github.io/tavkozles
 
 > Gyakorlati vizsgatevékenységek (60p + 60p):   
 > [Elektronika, digitális technika, modulációk + kábelszerelés (9 fő)](https://sandorpeteer.github.io/tavkozles/vizsga)
-> [alapmérések]((https://sandorpeteer.github.io/tavkozles/Távközlési%20technikus%20gyakvizsga%20I.%20feladat%20(2025.).pdf) 
+> [alapmérések](https://sandorpeteer.github.io/tavkozles/Távközlési%20technikus%20gyakvizsga%20I.%20feladat%20(2025.).pdf) 
 
 ---
 
