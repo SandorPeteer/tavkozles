@@ -1,33 +1,14 @@
 // Kérdések adatbázisa
 const questions = [
-    // I. Wireless alapok, elektromágneses hullámok
-    "Mi az elektromágneses sugárzás, és hogyan terjed?",
-    "Mi a kapcsolat a hullámhossz és frekvencia között?",
-    "Mit jelent a vezeték nélküli kommunikáció?",
-    "Hogyan fedezték fel az elektromágneses hullámokat?",
-    "Mely frekvenciák haladnak át a földi atmoszférán?",
-    "Mik a különbségek a különböző frekvenciájú hullámok viselkedésében?",
-    "Mitől függ, hogy egy hullám visszaverődik vagy áthalad egy tárgyon?",
-    "Hogyan terjednek a rádióhullámok a Föld atmoszféráján belül és kívül?",
-    "Az elektromágneses spektrum mely hullámhossz tartományába esik a látható fény?",
-    "Melyik fénytartományt nem látjuk a szemünkkel, nevezd meg mind a kettőt?",
-    "Milyen lehetőségek állnak rendelkezésre a vezeték nélküli kommunikációhoz? (mit használhatunk az elektromágneses hullám tartományaiból?)",
-    "Milyen technológiával tudunk távolba küldeni információt?",
-    "Milyen analóg modulációkat ismersz?",
-    "Milyen digitális modulációkat ismersz?",
-    "Mi az az antenna?",
-    "Mi az izotróp antenna?",
-    "Mi a sugárázási karakterisztika",
-    "Mi az antenna nyeresége",
-    "Mi az impedancia",
-    "Számold ki egy 300MHz-en működő antenna negyed hullámhosszúságú fizikai méretét.",
-    "Az 1 méter hosszú antenna milyen frekvencián üzemel?",
-    "Milyen frekvenciasávot használ az FM műsorszórás?",
-    "A monopól antenna milyen irányba sugároz?",
-    "Sorolj fel néhány népszerű irányított antennát!",
-    "Mikor megyünk haza?"
-    
-
+// II. Közeghozzáférés, CSMA/CA és Wi-Fi specifikumok
+    "Miért van szükség közeghozzáférési metódusokra (pl. CSMA/CA) a vezeték nélküli hálózatokban, és mi történik ezek hiányában?",
+    "Melyek a CSMA/CA (Carrier Sense Multiple Access / Collision Avoidance) eljárás működésének főbb lépései a 802.11 szabvány szerint?",
+    "Mi a magyarázata annak, hogy a 802.11 szabványoknál a valós, kimérhető átviteli sebesség jelentősen elmarad az elméleti Data Rate-től?",
+    "Mit jelent a \"rejtett node\" (hidden node) probléma a Wi-Fi hálózatokban?",
+    "Milyen mechanizmussal oldható meg a rejtett csomópont probléma a 802.11 hálózatokban, és hogyan működik ez az eljárás?",
+    "Milyen közeghozzáférési módot használnak a modern, nagy teljesítményű kültéri rádiós protokollok a CSMA/CA helyett, és mi ennek a működési elve?",
+    "Mi a különbség a 2,4 GHz-es és az 5 GHz-es frekvenciasáv között a jel csillapodása tekintetében?",
+    "Mi az interferencia fizikai jelensége, és milyen konkrét hatással van a digitálisan modulált vezeték nélküli adatátvitelre?"
    
 ];
 
