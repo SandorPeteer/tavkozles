@@ -4,12 +4,13 @@ const questions = [
     "Miért van szükség közeghozzáférési metódusokra (pl. CSMA/CA) a vezeték nélküli hálózatokban, és mi történik ezek hiányában?",
     "Melyek a CSMA/CA (Carrier Sense Multiple Access / Collision Avoidance) eljárás működésének főbb lépései a 802.11 szabvány szerint?",
     "Mi a magyarázata annak, hogy a 802.11 szabványoknál a valós, kimérhető átviteli sebesség jelentősen elmarad az elméleti Data Rate-től?",
+    "Miért mondjuk, hogy a hagyományos Wi-Fi hálózatok félduplex (half-duplex) módon működnek, és mi ennek a gyakorlati következménye a hálózati forgalomra nézve?",
     "Mit jelent a \"rejtett node\" (hidden node) probléma a Wi-Fi hálózatokban?",
     "Milyen mechanizmussal oldható meg a rejtett csomópont probléma a 802.11 hálózatokban, és hogyan működik ez az eljárás?",
     "Milyen közeghozzáférési módot használnak a modern, nagy teljesítményű kültéri rádiós protokollok a CSMA/CA helyett, és mi ennek a működési elve?",
     "Mi a különbség a 2,4 GHz-es és az 5 GHz-es frekvenciasáv között a jel csillapodása tekintetében?",
+    "Mit jelent az átlapolódó és nem átlapolódó csatornák (overlapping / non-overlapping channels) fogalma a 2,4 GHz-es sávban, és melyik 3 csatornát érdemes a leginkább használni?",
     "Mi az interferencia fizikai jelensége, és milyen konkrét hatással van a digitálisan modulált vezeték nélküli adatátvitelre?"
-   
 ];
 
 let currentQuestionIndex = 0;
