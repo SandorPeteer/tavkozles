@@ -2,7 +2,7 @@ Az oldal elérhetősége: sandorpeteer.github.io/tavkozles
 
 ---   
 
-[Tanuloi kerdoiv](https://docs.google.com/forms/d/e/1FAIpQLScXRxgjZVfdcUeKaOs9JIb-msPgttjTYn44uE7_ODtqy02Eaw/viewform)
+[INTERAKTÍV TESZT GYAKORLÓ](https://sandornefr.github.io/doga/tavkozles/)
 
 ---   
 
